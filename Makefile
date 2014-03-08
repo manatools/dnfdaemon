@@ -34,9 +34,9 @@ install:
 	install -m644 dbus/$(ORG_RO_NAME).service $(DESTDIR)$(DATADIR)/dbus-1/services/.				
 	install -m644 dbus/$(ORG_NAME).conf $(DESTDIR)$(SYSCONFDIR)/dbus-1/system.d/.				
 	install -m644 policykit1/$(ORG_NAME).policy $(DESTDIR)$(DATADIR)/polkit-1/actions/.				
-	install -m755 dnfdaemon/dnfdaemon-system.py $(DESTDIR)/$(PKGDIR_DNF)/dnfdaemon-system
-	install -m755 dnfdaemon/dnfdaemon-session.py $(DESTDIR)/$(PKGDIR_DNF)/dnfdaemon-session
-	install -m644 dnfdaemon/common.py $(DESTDIR)/$(PKGDIR_DNF)/.
+	install -m755 dnfdaemon/dnfdaemon-system.py $(DESTDIR)/$(PKGDIR)/dnfdaemon-system
+	install -m755 dnfdaemon/dnfdaemon-session.py $(DESTDIR)/$(PKGDIR)/dnfdaemon-session
+	install -m644 dnfdaemon/common.py $(DESTDIR)/$(PKGDIR)/.
 	for d in $(SUBDIRS); do make DESTDIR=$(DESTDIR) -C $$d install; [ $$? = 0 ] || exit 1; done
 
 uninstall:

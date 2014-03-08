@@ -1,9 +1,9 @@
 %global dnf_org org.baseurl.Dnf
 
-Name:           dnfaemon
+Name:           dnfdaemon
 Version:        0.1.0
 Release:        1%{?dist}
-Summary:        DBus daemon for yum package actions
+Summary:        DBus daemon for dnf package actions
 
 License:        GPLv2+
 URL:            https://github.com/timlau/dnf-daemon
@@ -72,7 +72,7 @@ semanage fcontext -d -t rpm_exec_t '%{_datadir}/%{name}/%{name}-system' 2>/dev/n
 fi
 
 %files
-%doc README.md examples/ ChangeLog COPYING
+%doc README.md ChangeLog COPYING
 %{_datadir}/dbus-1/system-services/%{dnf_org}*
 %{_datadir}/dbus-1/services/%{dnf_org}*
 %{_datadir}/%{name}/
