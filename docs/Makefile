@@ -153,5 +153,5 @@ doctest:
 	      "results in $(BUILDDIR)/doctest/output.txt."
 
 upload:
-	@scp -r _build/html/* timlau.fedorapeople.org:public_html/yumdaemon/.
+	@scp -r _build/html/* timlau.fedorapeople.org:public_html/dnfdaemon/.
 
