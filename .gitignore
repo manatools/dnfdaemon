@@ -34,3 +34,8 @@ nosetests.xml
 .mr.developer.cfg
 .project
 .pydevproject
+.nja
+/dnf-daemon.nja
+
+# tarballs
+/dnfdaemon-*.tar.gz
