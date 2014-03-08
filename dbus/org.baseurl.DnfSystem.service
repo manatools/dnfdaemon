@@ -1,0 +1,4 @@
+[D-BUS Service]
+Name=org.baseurl.DnfSystem
+Exec=/usr/share/dnfdaemon/dnfdaemon-system
+User=root
