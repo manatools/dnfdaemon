@@ -27,18 +27,18 @@ Session API
 Exceptions
 ============
 
-.. class:: DnfDaemonError(Exception)
+.. class:: DaemonError(Exception)
 
 Base Exception from the backend
 
-.. class:: AccessDeniedError(DnfDaemonError)
+.. class:: AccessDeniedError(DaemonError)
 
 PolicyKit access was denied.
 
 Ex.
 User press cancel button in policykit window
 
-.. class:: LockedError(DnfDaemonError)
+.. class:: LockedError(DaemonError)
 
 dnf is locked by another application
 
@@ -47,7 +47,7 @@ dnf is running in a another session
 You have not called the Lock method to grep the Lock
 
 
-.. class:: YumTransactionError(YumDaemonError)
+.. class:: TransactionError(DaemonError)
 
-Error in the yum transaction.
+Error in the dnf transaction.
 
