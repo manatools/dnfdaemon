@@ -78,7 +78,7 @@ instdeps:
 	sudo yum install python-nose python3-gobject pygobject3	
 
 get-builddeps:
-	yum install perl-TimeDate gettext intltool rpmdevtools python-devel python3-devel
+	yum install perl-TimeDate gettext intltool rpmdevtools python-devel python3-devel python-sphinx
 
 archive:
 	@rm -rf ${PKGNAME}-${VERSION}.tar.gz

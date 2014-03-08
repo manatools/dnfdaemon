@@ -44,8 +44,8 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = 'yum-daemon'
-copyright = '2013, Tim Lauridsen'
+project = 'dnf-daemon'
+copyright = '2014, Tim Lauridsen'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -168,7 +168,7 @@ html_static_path = ['_static']
 #html_file_suffix = None
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'yum-daemondoc'
+htmlhelp_basename = 'dnf-daemondoc'
 
 
 # -- Options for LaTeX output --------------------------------------------------
@@ -187,7 +187,7 @@ latex_elements = {
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-  ('index', 'yum-daemon.tex', 'yum-daemon Documentation',
+  ('index', 'dnf-daemon.tex', 'dnf-daemon Documentation',
    'Tim Lauridsen', 'manual'),
 ]
 
@@ -217,7 +217,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'dnfdaemon', 'dnfdaemon Documentation',
+    ('index', 'dnf-daemon', 'dnf-daemon Documentation',
      ['Tim Lauridsen'], 1)
 ]
 
@@ -231,8 +231,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-  ('index', 'ydnfdaemon', 'dnfdaemon Documentation',
-   'Tim Lauridsen', 'dnfdaemon', 'One line description of project.',
+  ('index', 'dnf-daemon', 'dnf-daemon Documentation',
+   'Tim Lauridsen', 'dnf-daemon', 'One line description of project.',
    'Miscellaneous'),
 ]
 
