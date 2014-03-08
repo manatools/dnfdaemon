@@ -352,18 +352,6 @@ class DnfDaemon(DnfDaemonBase):
 #===============================================================================
 # DBus signals
 #===============================================================================
-    @dbus.service.signal(DAEMON_INTERFACE)
-    def UpdateProgress(self,name,frac,fread,ftime):
-        '''
-        DBus signal with download progress information
-        will send dbus signals with download progress information
-        :param name: filename
-        :param frac: Progress fracment (0 -> 1)
-        :param fread: formated string containing BytesRead
-        :param ftime : formated string containing remaining or elapsed time
-        '''
-        pass
-
 # Parallel Download Progress signals
 
     @dbus.service.signal(DAEMON_INTERFACE)
