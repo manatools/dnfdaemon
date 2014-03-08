@@ -150,23 +150,27 @@ class TestBase(unittest.TestCase, DnfDaemonClient):
 
     def on_DownloadStart(self, num_files, num_bytes):
         ''' Starting a new parallel download batch '''
-        values =  (num_files, num_bytes)
-        print("on_DownloadStart : %s" % (repr(values)))
+        self._signals.append("DownloadStart")
+        #values =  (num_files, num_bytes)
+        #print("on_DownloadStart : %s" % (repr(values)))
 
     def on_DownloadProgress(self, name, frac, total_frac, total_files):
         ''' Progress for a single instance in the batch '''
-        values =  (name, frac, total_frac, total_files)
-        print("on_DownloadProgress : %s" % (repr(values)))
+        self._signals.append("DownloadProgress")
+        #values =  (name, frac, total_frac, total_files)
+        #print("on_DownloadProgress : %s" % (repr(values)))
 
     def on_DownloadEnd(self, name, status, msg):
         ''' Download of af single instace ended '''
+        self._signals.append("DownloadEnd")
         values =  (name, status, msg)
         print("on_DownloadEnd : %s" % (repr(values)))
 
     def on_RepoMetaDataProgress(self, name, frac):
         ''' Repository Metadata Download progress '''
-        values =  (name, frac)
-        print("on_RepoMetaDataProgress : %s" % (repr(values)))
+        self._signals.append("RepoMetaDataProgress")
+        #values =  (name, frac)
+        #print("on_RepoMetaDataProgress : %s" % (repr(values)))
 
 
 class TestBaseReadonly(unittest.TestCase, DnfDaemonReadOnlyClient):
@@ -231,30 +235,6 @@ class TestBaseReadonly(unittest.TestCase, DnfDaemonReadOnlyClient):
 ###############################################################################
 # Dbus Signal Handlers
 ###############################################################################
-
-    def on_UpdateProgress(self,name,frac,fread,ftime):
-        pass
-
-    def on_TransactionEvent(self,event, data):
-        pass
-
-    def on_RPMProgress(self, package, action, te_current, te_total, ts_current, ts_total):
-        pass
-
-    def on_DownloadStart(self, num_files, num_bytes):
-        ''' Starting a new parallel download batch '''
-        values =  (num_files, num_bytes)
-        print("on_DownloadStart : %s" % (repr(values)))
-
-    def on_DownloadProgress(self, name, frac, total_frac, total_files):
-        ''' Progress for a single instance in the batch '''
-        values =  (name, frac, total_frac, total_files)
-        print("on_DownloadProgress : %s" % (repr(values)))
-
-    def on_DownloadEnd(self, name, status, msg):
-        ''' Download of af single instace ended '''
-        values =  (name, status, msg)
-        print("on_DownloadEnd : %s" % (repr(values)))
 
     def on_RepoMetaDataProgress(self, name, frac):
         ''' Repository Metadata Download progress '''

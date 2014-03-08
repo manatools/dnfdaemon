@@ -28,17 +28,34 @@ import dbus.glib
 import gobject
 import json
 import logging
+import operator
 
 import argparse
 
+import dnf.transaction
+from dnf.exceptions import PackagesNotInstalledError
+
 from common import DnfDaemonBase, doTextLoggerSetup, Logger, NONE
 
-version = 000101 #  (00.01.01) must be integer
+version = 101 #  (00.01.01) must be integer
 DAEMON_ORG = 'org.baseurl.DnfSystem'
 DAEMON_INTERFACE = DAEMON_ORG
 
 def _(msg):
     return msg
+
+_ACTIVE_DCT = {
+    dnf.transaction.DOWNGRADE : operator.attrgetter('installed'),
+    dnf.transaction.ERASE : operator.attrgetter('erased'),
+    dnf.transaction.INSTALL : operator.attrgetter('installed'),
+    dnf.transaction.REINSTALL : operator.attrgetter('installed'),
+    dnf.transaction.UPGRADE : operator.attrgetter('installed'),
+    }
+def _active_pkg(tsi):
+    """Return the package from tsi that takes the active role in the transaction.
+    """
+    return _ACTIVE_DCT[tsi.op_type](tsi)
+
 
 #------------------------------------------------------------------------------ DBus Exception
 class AccessDeniedError(dbus.DBusException):
@@ -277,16 +294,16 @@ class DnfDaemon(DnfDaemonBase):
                                           in_signature='ss',
                                           out_signature='s',
                                           sender_keyword='sender')
-    def GetAttribute(self, id, attr,sender=None):
+    def GetAttribute(self, pkg_id, attr,sender=None):
         '''
-        Get an attribute from a yum package id
+        Get an attribute from a yum package pkg_id
         it will return a python repr string of the attribute
-        :param id: yum package id
+        :param pkg_id: yum package pkg_id
         :param attr: name of attribute (summary, size, description, changelog etc..)
         :param sender:
         '''
         self.working_start(sender)
-        value = self._get_attribute( id, attr)
+        value = self._get_attribute( pkg_id, attr)
         return self.working_ended(value)
 
     @Logger
@@ -294,15 +311,15 @@ class DnfDaemon(DnfDaemonBase):
                                           in_signature='s',
                                           out_signature='s',
                                           sender_keyword='sender')
-    def GetUpdateInfo(self, id,sender=None):
+    def GetUpdateInfo(self, pkg_id,sender=None):
         '''
-        Get an Update Infomation e from a yum package id
+        Get an Update Infomation e from a yum package pkg_id
         it will return a python repr string of the attribute
-        :param id: yum package id
+        :param pkg_id: yum package pkg_id
         :param sender:
         '''
         self.working_start(sender)
-        value = self._get_updateInfo(id)
+        value = self._get_updateInfo(pkg_id)
         return self.working_ended(value)
 
 
@@ -413,8 +430,11 @@ class DnfDaemon(DnfDaemonBase):
         '''
         self.working_start(sender)
         value = 0
-        for cmd in cmds.split(' '):
-            self.base.remove(cmd)
+        try:
+            for cmd in cmds.split(' '):
+                self.base.remove(cmd)
+        except PackagesNotInstalledError: # ignore if the package is not installed
+            pass
         value = self._build_transaction()
         return self.working_ended(value)
 
@@ -481,16 +501,16 @@ class DnfDaemon(DnfDaemonBase):
                                           out_signature='as',
                                           sender_keyword='sender')
 
-    def AddTransaction(self, id, action, sender=None):
+    def AddTransaction(self, pkg_id, action, sender=None):
         '''
         Add an package to the current transaction
 
-        :param id: package id for the package to add
+        :param pkg_id: package pkg_id for the package to add
         :param action: the action to perform ( install, update, remove, obsolete, reinstall, downgrade, localinstall )
         '''
         self.working_start(sender)
         value = 0
-        po = self._get_po(id)
+        po = self._get_po(pkg_id)
         # TODO : Add dnf code (AddTransaction)
         # FIXME: missing dnf API of adding to hawkey.Goal object
         # no easy way to add to the hawkey.Sack object in dnf
@@ -564,7 +584,7 @@ class DnfDaemon(DnfDaemonBase):
         Resolve dependencies of current transaction
         '''
         self.TransactionEvent('start-build',NONE)
-        rc = self.resolve()
+        rc = self.base.resolve()
         if rc: # OK
             output = self._get_transaction_list()
         else:
@@ -586,11 +606,21 @@ class DnfDaemon(DnfDaemonBase):
         self.check_lock(sender)
         self.TransactionEvent('start-run',NONE)
         self._can_quit = False
-        # TODO : Add dnf code (RunTransaction)
+        to_dnl = self._get_packages_to_download()
+        if to_dnl:
+            self.base.download_packages(to_dnl, self.base.progress)
+        rc, msgs = self.base.do_transaction()
         self._can_quit = True
         self._reset_base()
         self.TransactionEvent('end-run',NONE)
-        return self.working_ended(0)
+        return self.working_ended(rc)
+
+    def _get_packages_to_download(self):
+        to_dnl = []
+        for tsi in self.base.transaction:
+            if tsi.installed:
+                to_dnl.append(tsi.installed)
+        return to_dnl
 
     @Logger
     @dbus.service.method(DAEMON_INTERFACE,
@@ -770,7 +800,7 @@ class DnfDaemon(DnfDaemonBase):
         userid = gpg_info['userid']
         hexkeyid = gpg_info['hexkeyid']
         keyurl = gpg_info['keyurl']
-        fingerprint = gpg_info['fingerprint']
+        #fingerprint = gpg_info['fingerprint']
         timestamp = gpg_info['timestamp']
         if not hexkeyid in self._gpg_confirm: # the gpg key has not been confirmed by the user
             self._gpg_confirm[hexkeyid] = False
@@ -817,17 +847,56 @@ class DnfDaemon(DnfDaemonBase):
         Generate a list of the current transaction
         '''
         out_list = []
-        # TODO : Add dnf code (_get_transaction_list)
+        sublist = []
+        tx_list = self._make_trans_dict()
+        for (action, pkglist) in [('install', tx_list['install']),
+                            ('update', tx_list['update']),
+                            ('remove', tx_list['remove']),
+                            ('reinstall', tx_list['reinstall']),
+                            ('downgrade', tx_list['downgrade'])]:
+
+            for tsi in pkglist:
+                po = _active_pkg(tsi)
+                (n, a, e, v, r) = po.pkgtup
+                size = float(po.size)
+                alist = []
+                # TODO : Add support for showing package replacement
+                el = (self._get_id(po), size, alist)
+                sublist.append(el)
+            if pkglist:
+                out_list.append([action, sublist])
+                sublist = []
         return out_list
 
-    def _to_transaction_id_list(self, txmbrs):
+    def _make_trans_dict(self):
+        b = {}
+        for t in ('downgrade', 'remove', 'install', 'reinstall', 'update'):
+            b[t] = []
+        for tsi in self.base.transaction:
+            if tsi.op_type == dnf.transaction.DOWNGRADE:
+                b['downgrade'].append(tsi)
+            elif tsi.op_type == dnf.transaction.ERASE:
+                b['remove'].append(tsi)
+            elif tsi.op_type == dnf.transaction.INSTALL:
+                b['install'].append(tsi)
+            elif tsi.op_type == dnf.transaction.REINSTALL:
+                b['reinstall'].append(tsi)
+            elif tsi.op_type == dnf.transaction.UPGRADE:
+                b['update'].append(tsi)
+        return b
+
+
+
+    def _to_transaction_id_list(self):
         '''
         return a sorted list of package ids from a list of packages
         if and po is installed, the installed po id will be returned
         :param pkgs:
         '''
         result = []
-        # TODO : Add dnf code (_to_transaction_id_list)
+        for tsi in self.base.transaction:
+            po = tsi.active
+            result.append("%s,%s" % (self._get_id(po), tsi.active_history_state ))
         return result
 
     def check_lock(self, sender):

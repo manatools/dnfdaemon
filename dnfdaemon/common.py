@@ -64,24 +64,11 @@ def Logger(func):
 
 class DownloadCallback:
     '''
-    Yum Download callback handler class
-    the updateProgress will be called while something is being downloaded
+    Dnf Download callback handler class
     '''
     def __init__(self):
         pass
 
-    def updateProgress(self,name,frac,fread,ftime):
-        '''
-        Update the progressbar
-        :param name: filename
-        :param frac: Progress fracment (0 -> 1)
-        :param fread: formated string containing BytesRead
-        :param ftime : formated string containing remaining or elapsed time
-        '''
-        # send a DBus signal with progress info
-        self.UpdateProgress(name,frac,fread,ftime)
-
-# Parallel Download Progress
     def downloadStart(self, num_files, num_bytes):
         ''' Starting a new parallel download batch '''
         self.DownloadStart(num_files, num_bytes) # send a signal
@@ -92,6 +79,10 @@ class DownloadCallback:
 
     def downloadEnd(self, name, status, msg):
         ''' Download of af single instace ended '''
+        if not status:
+            status = -1
+        if not msg:
+            msg = ""
         self.DownloadEnd(name, status, msg) # send a signal
 
     def repoMetaDataProgress(self, name, frac):
@@ -488,10 +479,11 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
 
     def _reset_base(self):
         '''
-        destroy the current YumBase object
+        destroy the current DnfBase object
         '''
-        del self._base
-        self._base = None
+        if self._base:
+            self._base.close()
+            self._base = None
 
 
     def _setup_watchdog(self):
@@ -650,29 +642,6 @@ class DnfBase(dnf.Base):
         conf.cachedir = cli_cache.cachedir
         self._system_cachedir = cli_cache.system_cachedir
         print("cachedir: %s" % conf.cachedir)
-
-    def apply_transaction(self):
-        ''' apply the current transaction to the system'''
-        rc = self.resolve()
-        if rc:
-            to_dnl = self.get_packages_to_download()
-            # Downloading Packages
-            self.download_packages(to_dnl, self.progress)
-            rc, msg = self.do_transaction()
-            if rc <> 0:
-                return (False, "transaction-error", msg)
-            else:
-                return (True, "transaction-ok","")
-        else:
-            return (False, "depsolve-failed", "")
-
-    def get_packages_to_download(self):
-        ''' Get a list of packages to download from the current transaction'''
-        to_dnl = []
-        for tsi in self.transaction:
-            if tsi.installed:
-                to_dnl.append(tsi.installed)
-        return to_dnl
 
     def search(self, fields, values, match_all=True, showdups=False):
         '''
