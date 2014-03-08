@@ -28,11 +28,10 @@ import dbus.glib
 import gobject
 import json
 import logging
-from datetime import datetime
 
 import argparse
 
-from common import DnfDaemonBase, doTextLoggerSetup, Logger, DownloadCallback, NONE, FAKE_ATTR
+from common import DnfDaemonBase, doTextLoggerSetup, Logger, NONE
 
 version = 000101 #  (00.01.01) must be integer
 DAEMON_ORG = 'org.baseurl.DnfSystem'

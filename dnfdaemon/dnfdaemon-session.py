@@ -31,17 +31,12 @@ import logging
 
 import argparse
 
-import sys
-import os
 
-from common import DnfDaemonBase, doTextLoggerSetup, Logger, DownloadCallback, FAKE_ATTR, NONE, \
-                   TransactionDisplay
+from common import DnfDaemonBase, doTextLoggerSetup, Logger, NONE
 
 version = 101 #  (00.01.01) must be integer
 DAEMON_ORG = 'org.baseurl.DnfSession'
 DAEMON_INTERFACE = DAEMON_ORG
-FAKE_ATTR = ['downgrades','action','pkgtags']
-NONE = json.dumps(None)
 
 def _(msg):
     return msg
