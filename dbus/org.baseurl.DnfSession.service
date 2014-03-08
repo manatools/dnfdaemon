@@ -1,3 +1,3 @@
 [D-BUS Service]
 Name=org.baseurl.DnfSession
-Exec=/usr/share/dnfdaemon/yumdaemon-session
+Exec=/usr/share/dnfdaemon/dnfdaemon-session
