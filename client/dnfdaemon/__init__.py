@@ -41,10 +41,6 @@ Usage: (Make your own subclass based on :class:`dnfdaemon.DnfDaemonClient` and o
             DnfDaemonClient.__init__(self)
             # Do your stuff here
 
-        def on_UpdateProgress(self,name,frac,fread,ftime):
-            # Do your stuff here
-            pass
-
         def on_TransactionEvent(self,event, data):
             # Do your stuff here
             pass
@@ -54,6 +50,26 @@ Usage: (Make your own subclass based on :class:`dnfdaemon.DnfDaemonClient` and o
             pass
 
         def on_GPGImport(self, pkg_id, userid, hexkeyid, keyurl,  timestamp ):
+           # do stuff here
+           pass
+
+        def on_DownloadStart(self, num_files, num_bytes):
+            ''' Starting a new parallel download batch '''
+           # do stuff here
+           pass
+
+        def on_DownloadProgress(self, name, frac, total_frac, total_files):
+            ''' Progress for a single instance in the batch '''
+           # do stuff here
+           pass
+
+        def on_DownloadEnd(self, name, status, msg):
+            ''' Download of af single instace ended '''
+           # do stuff here
+           pass
+
+        def on_RepoMetaDataProgress(self, name, frac):
+            ''' Repository Metadata Download progress '''
            # do stuff here
            pass
 
@@ -69,9 +85,10 @@ Usage: (Make your own subclass based on :class:`dnfdaemon.DnfDaemonReadOnlyClien
             DnfDaemonClient.__init__(self)
             # Do your stuff here
 
-        def on_UpdateProgress(self,name,frac,fread,ftime):
-            # Do your stuff here
-            pass
+        def on_RepoMetaDataProgress(self, name, frac):
+            ''' Repository Metadata Download progress '''
+           # do stuff here
+           pass
 
 """
 
@@ -278,15 +295,6 @@ class DnfDaemonBase:
 ###############################################################################
 # Dbus Signal Handlers (Overload in child class)
 ###############################################################################
-
-    def on_UpdateProgress(self,name,frac,fread,ftime):
-        if name.startswith('repomd'):
-            print("repo metadata : %.2f" % frac)
-        elif "/" in name:
-            repo,file = name.split("/",1)
-            print("getting %s from %s repository : %.2f" % (file,repo,frac))
-        else:
-            print("downloading : %s %s" % (name,frac))
 
     def on_TransactionEvent(self,event, data):
         print("TransactionEvent : %s" % event)
@@ -531,8 +539,8 @@ class DnfDaemonReadOnlyClient(DnfDaemonBase):
         '''
         DBUS signal Handler
         '''
-        if signal == "UpdateProgress":
-            self.on_UpdateProgress(*args)
+        if signal == "RepoMetaDataProgress":
+            self.on_RepoMetaDataProgress(*args)
         else:
             print("Unhandled Signal : "+signal," Param: ",args)
 
@@ -549,9 +557,7 @@ class DnfDaemonClient(DnfDaemonBase):
         '''
         DBUS signal Handler
         '''
-        if signal == "UpdateProgress":
-            self.on_UpdateProgress(*args)
-        elif signal == "TransactionEvent":
+        if signal == "TransactionEvent":
             self.on_TransactionEvent(*args)
         elif signal == "RPMProgress":
             self.on_RPMProgress(*args)
