@@ -16,7 +16,6 @@
 
 # (C) 2013 - Tim Lauridsen <timlau@fedoraproject.org>
 
-
 #
 # dnf session bus dBus service (Readonly)
 #
@@ -38,7 +37,7 @@ import os
 from common import DnfDaemonBase, doTextLoggerSetup, Logger, DownloadCallback, FAKE_ATTR, NONE, \
                    TransactionDisplay
 
-version = 902 #  (00.09.02) must be integer
+version = 101 #  (00.01.01) must be integer
 DAEMON_ORG = 'org.baseurl.DnfSession'
 DAEMON_INTERFACE = DAEMON_ORG
 FAKE_ATTR = ['downgrades','action','pkgtags']

@@ -16,6 +16,12 @@
 
 # (C) 2013 - Tim Lauridsen <timlau@fedoraproject.org>
 
+#
+# dnf session bus dBus service (Readonly)
+#
+
+from __future__ import print_function
+from __future__ import absolute_import
 import dbus
 import dbus.service
 import dbus.glib
@@ -26,9 +32,9 @@ from datetime import datetime
 
 import argparse
 
-from common import DaemonBase, doTextLoggerSetup, Logger, DownloadCallback, NONE, FAKE_ATTR
+from common import DnfDaemonBase, doTextLoggerSetup, Logger, DownloadCallback, NONE, FAKE_ATTR
 
-version = 902 #  (00.09.02) must be integer
+version = 000101 #  (00.01.01) must be integer
 DAEMON_ORG = 'org.baseurl.DnfSystem'
 DAEMON_INTERFACE = DAEMON_ORG
 
@@ -39,74 +45,16 @@ def _(msg):
 class AccessDeniedError(dbus.DBusException):
     _dbus_error_name = DAEMON_ORG+'.AccessDeniedError'
 
-class YumLockedError(dbus.DBusException):
+class LockedError(dbus.DBusException):
     _dbus_error_name = DAEMON_ORG+'.LockedError'
 
 class YumTransactionError(dbus.DBusException):
     _dbus_error_name = DAEMON_ORG+'.TransactionError'
 
-class YumNotImplementedError(dbus.DBusException):
+class NotImplementedError(dbus.DBusException):
     _dbus_error_name = DAEMON_ORG+'.NotImplementedError'
 
 #------------------------------------------------------------------------------ Callback handlers
-
-class ProcessTransCallback:
-    STATES = { PT_DOWNLOAD      : "download",
-               PT_DOWNLOAD_PKGS : "pkg-to-download",
-               PT_GPGCHECK      : "signature-check",
-               PT_TEST_TRANS    : "run-test-transaction",
-               PT_TRANSACTION   : "run-transaction"}
-
-    def __init__(self, base):
-        self.base = base
-
-    def event(self,state,data=NONE):
-        if state in ProcessTransCallback.STATES:
-            if data != NONE:
-                data = [self.base._get_id(po) for po in data]
-            self.base.TransactionEvent(ProcessTransCallback.STATES[state], data)
-
-class RPMCallback(RPMBaseCallback):
-    '''
-    RPMTransaction display callback class
-    '''
-    ACTIONS = { TS_UPDATE : 'update',
-                TS_ERASE: 'erase',
-                TS_INSTALL: 'install',
-                TS_TRUEINSTALL : 'install',
-                TS_OBSOLETED: 'obsolete',
-                TS_OBSOLETING: 'install',
-                TS_UPDATED: 'cleanup',
-                'repackaging': 'repackage'}
-
-    def __init__(self, base):
-        RPMBaseCallback.__init__(self)
-        self.base = base
-
-    def event(self, package, action, te_current, te_total, ts_current, ts_total):
-        """
-        :param package: A yum package object or simple string of a package name
-        :param action: A yum.constant transaction set state or in the obscure
-                       rpm repackage case it could be the string 'repackaging'
-        :param te_current: Current number of bytes processed in the transaction
-                           element being processed
-        :param te_total: Total number of bytes in the transaction element being
-                         processed
-        :param ts_current: number of processes completed in whole transaction
-        :param ts_total: total number of processes in the transaction.
-        """
-        if not isinstance(package, str): # package can be both str or yum package object
-            id = self.base._get_id(package)
-        else:
-            id = package
-        if action in RPMCallback.ACTIONS:
-            action = RPMCallback.ACTIONS[action]
-        self.base.RPMProgress(id, action, te_current, te_total, ts_current, ts_total)
-
-    def scriptout(self, package, msgs):
-        """package is the package.  msgs is the messages that were
-        output (if any)."""
-        pass
 
 
 class DaemonBase():
@@ -119,13 +67,13 @@ class DaemonBase():
         return 0
 
 
-logger = logging.getLogger('yumdaemon')
+logger = logging.getLogger('dnfdaemon')
 
 #------------------------------------------------------------------------------ Main class
-class DnfDaemon(DaemonBase):
+class DnfDaemon(DnfDaemonBase):
 
     def __init__(self, mainloop):
-        DaemonBase.__init__(self,  mainloop)
+        DnfDaemonBase.__init__(self,  mainloop)
         self.logger = logging.getLogger('dnfdaemon.system')
         bus_name = dbus.service.BusName(DAEMON_ORG, bus = dbus.SystemBus())
         dbus.service.Object.__init__(self, bus_name, '/')
