@@ -350,3 +350,44 @@ class TestAPIDevel(TestBase):
             self.assertGreater(len(pkgs),0)
         self.RunTransaction()
         self.assertFalse(self._is_installed('yumex'))
+
+    def test_AddTransaction(self):
+        '''
+        System: AddTransaction, GetTransaction, ClearTransaction
+        '''
+        print
+        self._remove_if_installed('0xFFFF') # make sure pkg is not installed
+        rc, trans = self._add_to_transaction('0xFFFF')
+        self.show_transaction_result(trans)
+        for action,pkglist in trans:
+            print("action : ", action)
+            print(pkglist)
+            self.assertEqual(action,'install')
+            self.assertIsInstance(pkglist, list) # is a list
+            self.assertEqual(len(pkglist),1)
+        # Clear the current goal/transaction
+        self.ClearTransaction()
+        trans = self.GetTransaction()
+        print(trans)
+        self.assertIsInstance(trans, list) # is a list
+        self.assertEqual(len(trans),0) # this should be an empty list
+        # install 0xFFFF
+        rc, trans = self._add_to_transaction('0xFFFF')
+        self.show_transaction_result(trans)
+        for action,pkglist in trans:
+            print("action : ", action)
+            print(pkglist)
+            self.assertEqual(action,'install')
+            self.assertIsInstance(pkglist, list) # is a list
+            self.assertEqual(len(pkglist),1)
+        self.RunTransaction()
+        # remove 0xFFFF
+        rc, trans = self._add_to_transaction('0xFFFF')
+        self.show_transaction_result(trans)
+        for action,pkglist in trans:
+            print("action : ", action)
+            print(pkglist)
+            self.assertEqual(action,'remove')
+            self.assertIsInstance(pkglist, list) # is a list
+            self.assertEqual(len(pkglist),1)
+        self.RunTransaction()

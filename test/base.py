@@ -69,9 +69,9 @@ class TestBase(unittest.TestCase, DnfDaemonClient):
             action='remove'
         else:
             action='install'
-        txmbrs = self.AddTransaction(pkg,action)
-        self.assertIsInstance(txmbrs, list)
-        return txmbrs
+        print(action, pkg)
+        rc, trans = self.AddTransaction(pkg,action)
+        return (rc,trans)
 
     def _run_transaction(self, build=True):
         '''
@@ -84,6 +84,13 @@ class TestBase(unittest.TestCase, DnfDaemonClient):
             self.show_transaction_result(output)
             self.assertGreater(len(output),0)
         self.RunTransaction()
+
+
+    def _remove_if_installed(self, name):
+        rc, output = self.Remove(name)
+        if rc:
+            self.RunTransaction()
+
 
     def check_installed(self, name):
         pkgs = self.GetPackagesByName(name, newest_only=True)
