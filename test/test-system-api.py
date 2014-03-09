@@ -317,3 +317,36 @@ class TestAPIDevel(TestBase):
             self.RunTransaction()
         self.assertFalse(self._is_installed('0xFFFF'))
 
+    def test_DowngradeUpdate(self):
+        '''
+        System: DownGrade & Update
+        '''
+        print
+        # Test if more then one version if yumex is available
+        pkgs = self.GetPackagesByName('yumex',False)
+        print(pkgs)
+        if not len(pkgs) > 1:
+            raise SkipTest('more than one available version of yumex is needed for downgrade test')
+        rc, output = self.Downgrade('yumex')
+        print('  Return Code : %i' % rc)
+        print('  output : %s' % output)
+        if not rc:
+            raise SkipTest('nothing to do in Downgrade(\'yumex\')')
+        self.assertTrue(rc)
+        self.show_transaction_result(output)
+        self.assertGreater(len(output),0)
+        for action, pkgs in output:
+            # old version of yumex might need python-enum
+            self.assertEqual(action,u'downgrade')
+            self.assertGreater(len(pkgs),0)
+        self.RunTransaction()
+        rc, output = self.Update('yumex')
+        print('  Return Code : %i' % rc)
+        self.assertTrue(rc)
+        self.show_transaction_result(output)
+        self.assertGreater(len(output),0)
+        for action, pkgs in output:
+            self.assertEqual(action,u'update')
+            self.assertGreater(len(pkgs),0)
+        self.RunTransaction()
+        self.assertFalse(self._is_installed('yumex'))

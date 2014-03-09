@@ -452,8 +452,11 @@ class DnfDaemon(DnfDaemonBase):
         '''
         self.working_start(sender)
         value = 0
-        for cmd in cmds.split(' '):
-            self.base.upgrade(cmd)
+        try:
+            for cmd in cmds.split(' '):
+                self.base.upgrade(cmd)
+        except PackagesNotInstalledError: # ignore if the package is not installed
+            pass
         value = self._build_transaction()
         return self.working_ended(value)
 
@@ -493,8 +496,11 @@ class DnfDaemon(DnfDaemonBase):
         '''
         self.working_start(sender)
         value = 0
-        for cmd in cmds.split(' '):
-            self.base.downgrade(cmd)
+        try:
+            for cmd in cmds.split(' '):
+                self.base.downgrade(cmd)
+        except PackagesNotInstalledError: # ignore if the package is not installed
+            pass
         value = self._build_transaction()
         return self.working_ended(value)
 
