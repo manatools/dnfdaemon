@@ -33,7 +33,7 @@ import operator
 import argparse
 
 import dnf.transaction
-from dnf.exceptions import PackagesNotInstalledError
+from dnf.exceptions import PackagesNotInstalledError, DownloadError
 
 from common import DnfDaemonBase, doTextLoggerSetup, Logger, NONE
 
@@ -562,7 +562,7 @@ class DnfDaemon(DnfDaemonBase):
         '''
         self.working_start(sender)
         self.base.reset(goal = True) # reset the current goal
-        value = self._build_transaction() # desolve empty goal, to clean the transaction obj.
+        self._build_transaction() # desolve empty goal, to clean the transaction obj.
         return self.working_ended()
 
 
@@ -625,9 +625,12 @@ class DnfDaemon(DnfDaemonBase):
         self.TransactionEvent('start-run',NONE)
         self._can_quit = False
         to_dnl = self._get_packages_to_download()
-        if to_dnl:
-            self.base.download_packages(to_dnl, self.base.progress)
-        rc, msgs = self.base.do_transaction()
+        try:
+            if to_dnl:
+                self.base.download_packages(to_dnl, self.base.progress)
+            rc, msgs = self.base.do_transaction()
+        except DownloadError as e:
+            print("download error : ", str(e))
         self._can_quit = True
         self._reset_base()
         self.TransactionEvent('end-run',NONE)

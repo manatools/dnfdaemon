@@ -69,7 +69,6 @@ class TestBase(unittest.TestCase, DnfDaemonClient):
             action='remove'
         else:
             action='install'
-        print(action, pkg)
         rc, trans = self.AddTransaction(pkg,action)
         return (rc,trans)
 
