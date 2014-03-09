@@ -290,4 +290,30 @@ class TestAPIDevel(TestBase):
         self.RunTransaction()
 
 
+    def test_Reinstall(self):
+        '''
+        System: Reinstall
+        '''
+        # install test package
+        rc, output = self.Install('0xFFFF')
+        if rc:
+            self.show_transaction_result(output)
+            self.RunTransaction()
+        self.assertTrue(self._is_installed('0xFFFF'))
+        rc, output = self.Reinstall('0xFFFF')
+        print('  Return Code : %i' % rc)
+        self.assertTrue(rc)
+        self.show_transaction_result(output)
+        self.assertGreater(len(output),0)
+        for action, pkgs in output:
+            self.assertEqual(action,u'reinstall')
+            self.assertEqual(len(pkgs),1)
+        self.RunTransaction()
+        self.assertTrue(self._is_installed('0xFFFF'))
+        # cleanup again
+        rc, output = self.Remove('0xFFFF')
+        if rc:
+            self.show_transaction_result(output)
+            self.RunTransaction()
+        self.assertFalse(self._is_installed('0xFFFF'))
 

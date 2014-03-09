@@ -471,8 +471,12 @@ class DnfDaemon(DnfDaemonBase):
         '''
         self.working_start(sender)
         value = 0
-        # TODO : Add dnf code (Reinstall)
-        # no Base.reinstall, so we need to use Transaction.add_reinstall()
+        try:
+            for cmd in cmds.split(' '):
+                self.base.reinstall(cmd)
+        except PackagesNotInstalledError: # ignore if the package is not installed
+            pass
+        value = self._build_transaction()
         return self.working_ended(value)
 
     @Logger
