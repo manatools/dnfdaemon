@@ -350,3 +350,14 @@ class TestAPIDevel(TestBase):
             self.assertGreater(len(pkgs),0)
         self.RunTransaction()
         self.assertFalse(self._is_installed('yumex'))
+
+
+    def test_AddTransaction(self):
+        '''
+        System: AddTransaction
+        '''
+        print
+        rc, trans = self._add_to_transaction('0xFFFF')
+        self.show_transaction_result(trans)
+        for action,pkglist in trans:
+            self.assertEqual(len(pkglist),1)

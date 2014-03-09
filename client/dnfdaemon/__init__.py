@@ -603,7 +603,7 @@ class DnfDaemonClient(DnfDaemonBase):
 
         :return: the current transaction
         '''
-        return self._run_dbus_async('GetTransaction')
+        return json.loads(self._run_dbus_async('GetTransaction'))
 
 
     def AddTransaction(self, id, action):
@@ -615,8 +615,7 @@ class DnfDaemonClient(DnfDaemonBase):
         :param action: the action to perform ( install, update, remove, obsolete, reinstall, downgrade, localinstall )
         :type action: string
         '''
-        return self._run_dbus_async('AddTransaction','(ss)',id, action)
-
+        return json.loads(self._run_dbus_async('AddTransaction','(ss)',id, action))
 
     def Install(self, pattern):
         '''

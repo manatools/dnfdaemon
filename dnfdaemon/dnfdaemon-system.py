@@ -508,7 +508,7 @@ class DnfDaemon(DnfDaemonBase):
     @Logger
     @dbus.service.method(DAEMON_INTERFACE,
                                           in_signature='ss',
-                                          out_signature='as',
+                                          out_signature='s',
                                           sender_keyword='sender')
 
     def AddTransaction(self, pkg_id, action, sender=None):
@@ -519,8 +519,9 @@ class DnfDaemon(DnfDaemonBase):
         :param action: the action to perform ( install, update, remove, obsolete, reinstall, downgrade, localinstall )
         '''
         self.working_start(sender)
-        value = 0
-        po = self._get_po(pkg_id)
+        value = None
+        if action != "localinstall": # localinstall has the path to the local rpm, not pkg_id
+            po = self._get_po(pkg_id)
         # TODO : Add dnf code (AddTransaction)
         # FIXME: missing dnf API of adding to hawkey.Goal object
         # no easy way to add to the hawkey.Sack object in dnf
@@ -528,21 +529,22 @@ class DnfDaemon(DnfDaemonBase):
         # filed upstream bug
         # https://bugzilla.redhat.com/show_bug.cgi?id=1073859
         if action == 'install':
-            pass
+            self.base.install(str(po),reponame=po.reponame) # FIXME: reponame is not public api
         elif action == 'remove':
-            pass
+            self.base.remove(str(po),reponame=po.reponame) # FIXME: reponame is not public api
         elif action == 'update':
-            pass
+            self.base.upgrade(str(po),reponame=po.reponame) # FIXME: reponame is not public api
         elif action == 'obsolete':
-            pass
+            self.base.obsolete(str(po),reponame=po.reponame) # FIXME: reponame is not public api
         elif action == 'reinstall':
-            pass
+            self.base.reinstall(str(po),reponame=po.reponame) # FIXME: reponame is not public api
         elif action == 'downgrade':
-            pass
+            self.base.downgtade(str(po),reponame=po.reponame) # FIXME: reponame is not public api
         elif action == 'localinstall':
-            pass
-
-
+            self.base.install_local(pkg_id) # FIXME: install_local is not public api
+        # FIXME: No public api to list the current hawkey.goal
+        # so we depsolve and return the current transaction
+        value = self._build_transaction()
         return self.working_ended(value)
 
     @Logger
@@ -555,14 +557,15 @@ class DnfDaemon(DnfDaemonBase):
         Clear the transactopm
         '''
         self.working_start(sender)
-        # TODO : Add dnf code (ClearTransaction)
+
+        self.base.reset(goal = True) # reset the current goal
         return self.working_ended()
 
 
     @Logger
     @dbus.service.method(DAEMON_INTERFACE,
                                           in_signature='',
-                                          out_signature='as',
+                                          out_signature='s',
                                           sender_keyword='sender')
 
     def GetTransaction(self, sender=None):
@@ -570,8 +573,9 @@ class DnfDaemon(DnfDaemonBase):
         Return the members of the current transaction
         '''
         self.working_start(sender)
-        value = []
-        # TODO : Add dnf code (GetTransaction)
+        # FIXME: We sould return the current hawkey.goal not the transaction
+        # because the transaction is not populated before the depsolve.
+        value = self._get_transaction_list()
         return self.working_ended(value)
 
 

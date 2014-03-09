@@ -69,9 +69,8 @@ class TestBase(unittest.TestCase, DnfDaemonClient):
             action='remove'
         else:
             action='install'
-        txmbrs = self.AddTransaction(pkg,action)
-        self.assertIsInstance(txmbrs, list)
-        return txmbrs
+        rc, trans = self.AddTransaction(pkg,action)
+        return (rc,trans)
 
     def _run_transaction(self, build=True):
         '''
