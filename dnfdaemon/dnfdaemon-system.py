@@ -522,7 +522,6 @@ class DnfDaemon(DnfDaemonBase):
         value = None
         if action != "localinstall": # localinstall has the path to the local rpm, not pkg_id
             po = self._get_po(pkg_id)
-        # TODO : Add dnf code (AddTransaction)
         # FIXME: missing dnf API of adding to hawkey.Goal object
         # no easy way to add to the hawkey.Sack object in dnf
         # using public api
