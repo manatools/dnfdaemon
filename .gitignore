@@ -41,3 +41,6 @@ nosetests.xml
 /dnfdaemon-*.tar.gz
 
 docs/_build
+
+test/pkgs/repo
+/test/pkgs/dnf-daemon-test.repo

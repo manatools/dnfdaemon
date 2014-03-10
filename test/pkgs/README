@@ -1,0 +1,1 @@
+Run ./buildrpms.sh to build the test repository and install a .repo file on the current system
