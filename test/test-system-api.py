@@ -402,3 +402,28 @@ class TestAPIDevel(TestBase):
         print("bact to start : ", enabled)
         self.assertEqual(len(enabled),len(enabled_pre)) # the should only be one :)
         self.assertEqual(enabled,enabled_pre) # and it should be 'fedora'
+
+    def test_SetConfig(self):
+        '''
+        System: SetConfig
+        '''
+        print()
+        before = self.GetConfig("fastestmirror")
+        print("fastestmirror=%s" % before)
+        rc = self.SetConfig("fastestmirror",True)
+        self.assertTrue(rc)
+        after = self.GetConfig("fastestmirror")
+        self.assertTrue(after)
+        rc = self.SetConfig("fastestmirror",False)
+        self.assertTrue(rc)
+        after = self.GetConfig("fastestmirror")
+        self.assertFalse(after)
+        rc = self.SetConfig("fastestmirror",before)
+        self.assertTrue(rc)
+        after = self.GetConfig("fastestmirror")
+        self.assertEqual(after,before)
+        rc = self.SetConfig("fastestmirror",True)
+        self.assertTrue(rc)
+        # check setting unknown conf setting
+        rc = self.SetConfig("thisisnotfound",True)
+        self.assertFalse(rc)

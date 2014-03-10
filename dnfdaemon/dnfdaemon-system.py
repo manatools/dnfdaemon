@@ -834,7 +834,16 @@ class DnfDaemon(DnfDaemonBase):
 
 
     def _set_option(self, option, value):
-        # TODO : Add dnf code (_set_option)
+        if hasattr(self.base.conf, option):
+            setattr(self.base.conf, option, value)
+            self.logger.debug(_("Setting Option %s = %s") % (option, value))
+            for repo in self.base.repos.iter_enabled():
+                if hasattr(repo, option):
+                    setattr(repo, option, value)
+                    self.logger.debug("Setting Option %s = %s (%s)" % (option, value, repo.id), __name__)
+            return True
+        else:
+            return False
         pass
 
 
