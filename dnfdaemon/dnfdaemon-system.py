@@ -190,12 +190,7 @@ class DnfDaemon(DnfDaemonBase):
         :param sender:
         '''
         self.working_start(sender)
-        for repo in self.base.repos.all():
-            if repo.id in repo_ids:
-                repo.enable()
-            else:
-                repo.disable()
-        self.base.fill_sack() # load the sack with the current enabled repos
+        self._set_enabled_repos(repo_ids)
         return self.working_ended()
 
 

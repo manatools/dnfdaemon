@@ -246,6 +246,23 @@ class TestAPIDevel(TestBaseReadonly):
         self.assertIsNone(not_found)
 
 
+    def test_SetEnabledRepos(self):
+        '''
+        System: SetEnabledRepos
+        '''
+        print
+        enabled_pre = self.GetRepositories('enabled')
+        print("before : ", enabled_pre)
+        self.SetEnabledRepos(['fedora'])
+        enabled = self.GetRepositories('enabled')
+        print("after : ", enabled)
+        self.assertEqual(len(enabled),1) # the should only be one :)
+        self.assertEqual(enabled[0],'fedora') # and it should be 'fedora'
+        self.SetEnabledRepos(enabled_pre)
+        enabled = self.GetRepositories('enabled')
+        print("bact to start : ", enabled)
+        self.assertEqual(len(enabled),len(enabled_pre)) # the should only be one :)
+        self.assertEqual(enabled,enabled_pre) # and it should be 'fedora'
 
 
 

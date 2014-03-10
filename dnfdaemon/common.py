@@ -238,6 +238,18 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
             value = json.dumps(repo_conf)
         return value
 
+    def _set_enabled_repos(self, repo_ids):
+        '''
+        Enable a list of repos, disable the ones not in list
+        '''
+        for repo in self.base.repos.all():
+            if repo.id in repo_ids:
+                repo.enable()
+            else:
+                repo.disable()
+        self.base.fill_sack() # load the sack with the current enabled repos
+
+
     def _get_packages(self, pkg_filter):
         '''
         Get a list of package ids, based on a package pkg_filterer

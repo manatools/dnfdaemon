@@ -154,7 +154,7 @@ class DnfDaemon(DnfDaemonBase):
         :param sender:
         '''
         self.working_start(sender)
-        #  TODO : Add dnf code
+        self._set_enabled_repos(repo_ids)
         return self.working_ended()
 
 
@@ -278,7 +278,6 @@ class DnfDaemon(DnfDaemonBase):
     def Unlock(self, sender=None):
         ''' release the lock'''
         if self.check_lock(sender):
-            #  TODO : Add dnf code
             self.logger.info('UNLOCK: Lock Release by %s' % self._lock)
             self._lock = None
             return True
