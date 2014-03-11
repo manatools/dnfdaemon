@@ -1,20 +1,17 @@
 %global dnf_org org.baseurl.Dnf
 
 Name:           dnfdaemon
-Version:        0.1.0
+Version:        0.1.1
 Release:        1%{?dist}
 Summary:        DBus daemon for dnf package actions
-
 License:        GPLv2+
 URL:            https://github.com/timlau/dnf-daemon
 Source0:        https://fedorahosted.org/releases/y/u/yumex/%{name}-%{version}.tar.gz
-
 BuildArch:      noarch
 BuildRequires:  python2-devel
 Requires:       dbus-python
 Requires:       dnf >= 0.4.17
 Requires:       polkit
-
 Requires(post):     policycoreutils-python
 Requires(postun):   policycoreutils-python
 
@@ -23,7 +20,6 @@ Dbus daemon for performing package actions with the dnf package manager
 
 %prep
 %setup -q
-
 
 %build
 # Nothing to build
@@ -41,7 +37,6 @@ Requires:       python3-gobject
 %description -n python3-%{name}
 Python 3 api for communicating with the dnf-daemon DBus service
 
-
 %files -n  python3-%{name}
 %{python3_sitelib}/%{name}/
 
@@ -54,7 +49,6 @@ Requires:       pygobject3
 
 %description -n python-%{name}
 Python 2 api for communicating with the dnf-daemon DBus service
-
 
 %files -n  python-%{name}
 %{python_sitelib}/%{name}/
@@ -82,6 +76,8 @@ fi
 
 
 %changelog
+* Tue Mar 11 2014 Tim Lauridsen <timlau@fedoraproject.org> 0.1.1-1
+- bumped release
 
-* Sat Mar 08 2014 Tim Lauridsen <timlau@fedoraproject.org> 0.10-1
+* Sat Mar 08 2014 Tim Lauridsen <timlau@fedoraproject.org> 0.1.0-1
 - Initial rpm for dnfdaemon

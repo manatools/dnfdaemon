@@ -126,11 +126,11 @@ test-release:
 	# Make Changelog
 	@git log --pretty --numstat --summary | ./tools/git2cl > ChangeLog
 	@git commit -a -m "updated ChangeLog"
-		# Make archive
-	@rm -rf ${PKGNAME}-${NEW_VER}.tar.gz
-	@git archive --format=tar --prefix=$(PKGNAME)-$(NEW_VER)/ HEAD | gzip -9v >${PKGNAME}-$(NEW_VER).tar.gz
+	# Make archive
+	rm -rf ${PKGNAME}-${NEW_VER}.tar.gz
+	git archive --format=tar --prefix=$(PKGNAME)-$(NEW_VER)/ HEAD | gzip -9v >${PKGNAME}-$(NEW_VER).tar.gz
 	# Build RPMS
-	@rpmbuild -ta ${PKGNAME}-${NEW_VER}.tar.gz
+	rpmbuild -ta ${PKGNAME}-${NEW_VER}.tar.gz
 	@$(MAKE) test-cleanup
 
 test-inst:
