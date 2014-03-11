@@ -63,9 +63,30 @@ class TestAPIDevel(TestBase):
             self.assertEqual(len(pkgs),0) # the should be notting
             print('  packages found : %s ' % len(pkgs))
 
+
+    def test_AnyUpdate(self):
+        '''
+        System: GetPackages(update)
+        '''
+        print
+        # make sure there is one update
+        self._remove_if_installed('foobar') # make sure pkg is not installed
+        rc, output = self.Install('foobar-1.0')
+        if rc:
+            self.show_transaction_result(output)
+            self.RunTransaction()
+        for narrow in ['updates']:
+            print('  ==================== Getting packages : %s =============================' % narrow)
+            pkgs = self.GetPackages(narrow)
+            self.assertIsInstance(pkgs, list)
+            print('  packages found : %s ' % len(pkgs))
+            self.assertGreater(len(pkgs),0)
+        self._remove_if_installed('foobar') # make sure pkg is not installed
+
+
     def test_GetPackagesByName(self):
         '''
-        Session: GetPackagesByName
+        System: GetPackagesByName
         '''
         print
         print "Get all available versions of foo"

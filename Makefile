@@ -53,16 +53,20 @@ selinux:
 
 # Run as root or you will get a password prompt
 test-verbose: FORCE
-	@nosetests -v -s test/
+	@sudo nosetests -v -s test/
 
 
 # Run as root or you will get a password prompt
 test: FORCE
-	@nosetests -v test/
+	@sudo nosetests -v test/
 
 # Run as root or you will get a password prompt 
 test-system: FORCE
-	@nosetests -v test/test-system-api.py
+	@sudo nosetests -v test/test-system-api.py
+
+# Run as root or you will get a password prompt 
+test-system-verbose: FORCE
+	@sudo nosetests -v -s test/test-system-api.py
 
 test-session: FORCE
 	@nosetests -v test/test-session-api.py
