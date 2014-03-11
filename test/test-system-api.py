@@ -65,11 +65,11 @@ class TestAPIDevel(TestBase):
 
     def test_GetPackagesByName(self):
         '''
-        System: GetPackagesByName
+        Session: GetPackagesByName
         '''
         print
-        print "Get all available versions of yum"
-        pkgs = self.GetPackagesByName('yum', newest_only=False)
+        print "Get all available versions of foo"
+        pkgs = self.GetPackagesByName('foo', newest_only=False)
         # pkgs should be a list instance
         self.assertIsInstance(pkgs, list)
         num1 = len(pkgs)
@@ -77,9 +77,9 @@ class TestAPIDevel(TestBase):
         for pkg in pkgs:
             print "  Package : %s" % pkg
             (n, e, v, r, a, repo_id) = self.to_pkg_tuple(pkg)
-            self.assertEqual(n,"yum")
-        print "Get newest versions of yum"
-        pkgs = self.GetPackagesByName('yum', newest_only=True)
+            self.assertEqual(n,"foo")
+        print "Get newest versions of foo"
+        pkgs = self.GetPackagesByName('foo', newest_only=True)
         # pkgs should be a list instance
         self.assertIsInstance(pkgs, list)
         num2 = len(pkgs)
@@ -87,9 +87,9 @@ class TestAPIDevel(TestBase):
         for pkg in pkgs:
             print "  Package : %s" % pkg
             (n, e, v, r, a, repo_id) = self.to_pkg_tuple(pkg)
-            self.assertEqual(n,"yum")
-        print "Get the newest packages starting with yum-plugin-"
-        pkgs = self.GetPackagesByName('yum-plugin-*', newest_only=True)
+            self.assertEqual(n,"foo")
+        print "Get the newest packages starting with foo"
+        pkgs = self.GetPackagesByName('foo*', newest_only=True)
         # pkgs should be a list instance
         self.assertIsInstance(pkgs, list)
         num3 = len(pkgs)
@@ -97,7 +97,7 @@ class TestAPIDevel(TestBase):
         for pkg in pkgs:
             print "  Package : %s" % pkg
             (n, e, v, r, a, repo_id) = self.to_pkg_tuple(pkg)
-            self.assertTrue(n.startswith('yum'))
+            self.assertTrue(n.startswith('foo'))
 
     def test_Repositories(self):
         '''
@@ -149,12 +149,6 @@ class TestAPIDevel(TestBase):
         self.assertEqual(len(pkgs), 0) # when should not find any matches
         keys = ['yum','zzzzddddsss'] # second key should not be found
         pkgs = self.Search(fields, keys ,False, True, False)
-        self.assertIsInstance(pkgs, list)
-        print "found %i packages" % len(pkgs)
-        self.assertGreater(len(pkgs), 0) # we should find some matches
-        # retro should match some pkgtags
-        keys = ['retro'] # second key should not be found
-        pkgs = self.Search(fields, keys ,True, True, True)
         self.assertIsInstance(pkgs, list)
         print "found %i packages" % len(pkgs)
         self.assertGreater(len(pkgs), 0) # we should find some matches
@@ -214,7 +208,7 @@ class TestAPIDevel(TestBase):
         System: GetAttribute( downgrades )
         '''
         print "Get newest versions of yum"
-        pkgs = self.GetPackagesByName('yum', newest_only=True)
+        pkgs = self.GetPackagesByName('bar', newest_only=True)
         # pkgs should be a list instance
         self.assertIsInstance(pkgs, list)
         num2 = len(pkgs)
@@ -256,16 +250,16 @@ class TestAPIDevel(TestBase):
         '''
         print()
         # Make sure that the test packages is not installed
-        rc, output = self.Remove('0xFFFF Hermes')
+        rc, output = self.Remove('foo bar')
         if rc:
             self.show_transaction_result(output)
             self.RunTransaction()
         # Both test packages should be uninstalled now
-        self.assertFalse(self._is_installed('0xFFFF'))
-        self.assertFalse(self._is_installed('Hermes'))
+        self.assertFalse(self._is_installed('foo'))
+        self.assertFalse(self._is_installed('bar'))
         # Install the test packages
-        print "Installing Test Packages : 0xFFFF Hermes"
-        rc, output = self.Install('0xFFFF Hermes')
+        print "Installing Test Packages : foo bar"
+        rc, output = self.Install('foo bar')
         print('  Return Code : %i' % rc)
         self.assertEqual(rc,True)
         self.show_transaction_result(output)
@@ -275,11 +269,11 @@ class TestAPIDevel(TestBase):
             self.assertGreater(len(pkgs),0)
         self.RunTransaction()
         # Both test packages should be installed now
-        self.assertTrue(self._is_installed('0xFFFF'))
-        self.assertTrue(self._is_installed('Hermes'))
+        self.assertTrue(self._is_installed('foo'))
+        self.assertTrue(self._is_installed('bar'))
         # Remove the test packages
-        print "Removing Test Packages : 0xFFFF Hermes"
-        rc, output = self.Remove('0xFFFF Hermes')
+        print "Removing Test Packages : foo bar"
+        rc, output = self.Remove('foo bar')
         print('  Return Code : %i' % rc)
         self.assertEqual(rc,True)
         self.show_transaction_result(output)
@@ -295,12 +289,12 @@ class TestAPIDevel(TestBase):
         System: Reinstall
         '''
         # install test package
-        rc, output = self.Install('0xFFFF')
+        rc, output = self.Install('foo')
         if rc:
             self.show_transaction_result(output)
             self.RunTransaction()
-        self.assertTrue(self._is_installed('0xFFFF'))
-        rc, output = self.Reinstall('0xFFFF')
+        self.assertTrue(self._is_installed('foo'))
+        rc, output = self.Reinstall('foo')
         print('  Return Code : %i' % rc)
         self.assertTrue(rc)
         self.show_transaction_result(output)
@@ -309,38 +303,34 @@ class TestAPIDevel(TestBase):
             self.assertEqual(action,u'reinstall')
             self.assertEqual(len(pkgs),1)
         self.RunTransaction()
-        self.assertTrue(self._is_installed('0xFFFF'))
+        self.assertTrue(self._is_installed('foo'))
         # cleanup again
-        rc, output = self.Remove('0xFFFF')
+        rc, output = self.Remove('foo')
         if rc:
             self.show_transaction_result(output)
             self.RunTransaction()
-        self.assertFalse(self._is_installed('0xFFFF'))
+        self.assertFalse(self._is_installed('foo'))
 
     def test_DowngradeUpdate(self):
         '''
         System: DownGrade & Update
         '''
         print
-        # Test if more then one version if yumex is available
-        pkgs = self.GetPackagesByName('yumex',False)
-        print(pkgs)
-        if not len(pkgs) > 1:
-            raise SkipTest('more than one available version of yumex is needed for downgrade test')
-        rc, output = self.Downgrade('yumex')
+        rc, output = self.Install('foo')
+        if rc:
+            self.show_transaction_result(output)
+            self.RunTransaction()
+        rc, output = self.Downgrade('foo')
         print('  Return Code : %i' % rc)
         print('  output : %s' % output)
-        if not rc:
-            raise SkipTest('nothing to do in Downgrade(\'yumex\')')
         self.assertTrue(rc)
         self.show_transaction_result(output)
         self.assertGreater(len(output),0)
         for action, pkgs in output:
-            # old version of yumex might need python-enum
             self.assertEqual(action,u'downgrade')
             self.assertGreater(len(pkgs),0)
         self.RunTransaction()
-        rc, output = self.Update('yumex')
+        rc, output = self.Update('foo')
         print('  Return Code : %i' % rc)
         self.assertTrue(rc)
         self.show_transaction_result(output)
@@ -355,8 +345,8 @@ class TestAPIDevel(TestBase):
         System: AddTransaction, GetTransaction, ClearTransaction
         '''
         print
-        self._remove_if_installed('0xFFFF') # make sure pkg is not installed
-        rc, trans = self._add_to_transaction('0xFFFF')
+        self._remove_if_installed('foo') # make sure pkg is not installed
+        rc, trans = self._add_to_transaction('foo')
         self.show_transaction_result(trans)
         for action,pkglist in trans:
             self.assertEqual(action,'install')
@@ -369,7 +359,7 @@ class TestAPIDevel(TestBase):
         self.assertIsInstance(trans, list) # is a list
         self.assertEqual(len(trans),0) # this should be an empty list
         # install 0xFFFF
-        rc, trans = self._add_to_transaction('0xFFFF')
+        rc, trans = self._add_to_transaction('foo')
         self.show_transaction_result(trans)
         for action,pkglist in trans:
             self.assertEqual(action,'install')
@@ -377,31 +367,13 @@ class TestAPIDevel(TestBase):
             self.assertEqual(len(pkglist),1)
         self.RunTransaction()
         # remove 0xFFFF
-        rc, trans = self._add_to_transaction('0xFFFF')
+        rc, trans = self._add_to_transaction('foo')
         self.show_transaction_result(trans)
         for action,pkglist in trans:
             self.assertEqual(action,'remove')
             self.assertIsInstance(pkglist, list) # is a list
             self.assertEqual(len(pkglist),1)
         self.RunTransaction()
-
-    def test_SetEnabledRepos(self):
-        '''
-        System: SetEnabledRepos
-        '''
-        print
-        enabled_pre = self.GetRepositories('enabled')
-        print("before : ", enabled_pre)
-        self.SetEnabledRepos(['fedora'])
-        enabled = self.GetRepositories('enabled')
-        print("after : ", enabled)
-        self.assertEqual(len(enabled),1) # the should only be one :)
-        self.assertEqual(enabled[0],'fedora') # and it should be 'fedora'
-        self.SetEnabledRepos(enabled_pre)
-        enabled = self.GetRepositories('enabled')
-        print("bact to start : ", enabled)
-        self.assertEqual(len(enabled),len(enabled_pre)) # the should only be one :)
-        self.assertEqual(enabled,enabled_pre) # and it should be 'fedora'
 
     def test_SetConfig(self):
         '''

@@ -33,7 +33,7 @@ import operator
 import argparse
 
 import dnf.transaction
-from dnf.exceptions import PackagesNotInstalledError, DownloadError
+from dnf.exceptions import PackagesNotInstalledError, DownloadError, MarkingError
 
 from common import DnfDaemonBase, doTextLoggerSetup, Logger, NONE
 
@@ -412,7 +412,10 @@ class DnfDaemon(DnfDaemonBase):
             if cmd.endswith('.rpm'):
                 self.base.install_local(cmd)
             else:
-                self.base.install(cmd)
+                try:
+                    self.base.install(cmd)
+                except MarkingError:
+                    pass
         value = self._build_transaction()
         return self.working_ended(value)
 
