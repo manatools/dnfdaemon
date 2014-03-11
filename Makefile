@@ -53,36 +53,36 @@ selinux:
 
 # Run as root or you will get a password prompt
 test-verbose: FORCE
-	@sudo nosetests -v -s test/
+	@sudo nosetests-3.3 -v -s test/
 
 
 # Run as root or you will get a password prompt
 test: FORCE
-	@sudo nosetests -v test/
+	@sudo nosetests-3.3 -v test/
 
 # Run as root or you will get a password prompt 
 test-system: FORCE
-	@sudo nosetests -v test/test-system-api.py
+	@sudo nosetests-3.3 -v test/test-system-api.py
 
 # Run as root or you will get a password prompt 
 test-system-verbose: FORCE
-	@sudo nosetests -v -s test/test-system-api.py
+	@sudo nosetests-3.3 -v -s test/test-system-api.py
 
 test-session: FORCE
-	@nosetests -v test/test-session-api.py
+	@nosetests-3.3 -v test/test-session-api.py
 
 test-session-verbose: FORCE
-	@nosetests -v -s test/test-session-api.py
+	@nosetests-3.3 -v -s test/test-session-api.py
 
 # Run as root or you will get a password prompt for each test method :)
 test-devel: FORCE
-	@nosetests -v -s test/unit-devel.py
+	@nosetests-3.3 -v -s test/unit-devel.py
 
 instdeps:
-	sudo yum install python-nose python3-gobject pygobject3	
+	sudo yum install python-nose python3-gobject pygobject3	python3-nose
 
 get-builddeps:
-	yum install perl-TimeDate gettext intltool rpmdevtools python-devel python3-devel python-sphinx
+	yum install perl-TimeDate gettext intltool rpmdevtools python-devel python3-devel python-sphinx python3-nose
 
 archive:
 	@rm -rf ${PKGNAME}-${VERSION}.tar.gz

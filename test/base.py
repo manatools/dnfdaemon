@@ -1,3 +1,5 @@
+from __future__ import print_function
+from __future__ import absolute_import
 import sys
 import os.path
 sys.path.insert(0,os.path.abspath('client'))
@@ -41,19 +43,19 @@ class TestBase(unittest.TestCase, DnfDaemonClient):
     def show_package_list(self, pkgs):
         for pkg_id in pkgs:
             (n, e, v, r, a, repo_id) = self.to_pkg_tuple(pkg_id)
-            print " --> %s-%s:%s-%s.%s (%s)" % (n, e, v, r, a, repo_id)
+            print( " --> %s-%s:%s-%s.%s (%s)" % (n, e, v, r, a, repo_id))
 
     def show_transaction_list(self, pkgs):
         for pkg_id in pkgs:
             pkg_id = str(pkg_id)
             (n, e, v, r, a, repo_id, ts_state) = self.to_txmbr_tuple(pkg_id)
-            print " --> %s-%s:%s-%s.%s (%s) - %s" % (n, e, v, r, a, repo_id, ts_state)
+            print( " --> %s-%s:%s-%s.%s (%s) - %s" % (n, e, v, r, a, repo_id, ts_state))
 
     def show_transaction_result(self, output):
         for action, pkgs in output:
-            print "  %s" % action
+            print( "  %s" % action)
             for pkg in pkgs:
-                print "  --> %s" % str(pkg)
+                print( "  --> %s" % str(pkg))
 
 # ======================== Helpers =======================
     def _add_to_transaction(self, name):
@@ -114,14 +116,14 @@ class TestBase(unittest.TestCase, DnfDaemonClient):
 
     def _show_package(self, id):
         (n, e, v, r, a, repo_id) = self.to_pkg_tuple(id)
-        print "\nPackage attributes"
-        print "Name : %s " % n
+        print( "\nPackage attributes")
+        print( "Name : %s " % n)
         summary = self.GetAttribute(id, 'summary')
-        print "Summary : %s" % summary
-        print "\nDescription:"
+        print( "Summary : %s" % summary)
+        print( "\nDescription:")
         desc = self.GetAttribute(id, 'description')
-        print desc
-#         print "\nChangelog:"
+        print( desc)
+#         print( "\nChangelog:")
 #         changelog = self.GetAttribute(id, 'changelog')
 #         self.assertIsInstance(changelog, list)
 #         self.show_changelog(changelog, max_elem=2)
@@ -147,7 +149,7 @@ class TestBase(unittest.TestCase, DnfDaemonClient):
         self._signals.append("GPGImport")
         values =  (pkg_id, userid, hexkeyid, keyurl, timestamp)
         self._gpg_confirm = values
-        print "received signal : GPGImport%s" % (repr(values))
+        print( "received signal : GPGImport%s" % (repr(values)))
 
     def on_DownloadStart(self, num_files, num_bytes):
         ''' Starting a new parallel download batch '''
@@ -199,7 +201,7 @@ class TestBaseReadonly(unittest.TestCase, DnfDaemonReadOnlyClient):
     def show_package_list(self, pkgs):
         for pkg_id in pkgs:
             (n, e, v, r, a, repo_id) = self.to_pkg_tuple(pkg_id)
-            print " --> %s-%s:%s-%s.%s (%s)" % (n, e, v, r, a, repo_id)
+            print( " --> %s-%s:%s-%s.%s (%s)" % (n, e, v, r, a, repo_id))
 
 
     def _is_installed(self, name):
@@ -215,13 +217,13 @@ class TestBaseReadonly(unittest.TestCase, DnfDaemonReadOnlyClient):
 
     def _show_package(self, id):
         (n, e, v, r, a, repo_id) = self.to_pkg_tuple(id)
-        print "\n   Package attributes"
-        print "      Name : %s " % n
+        print( "\n   Package attributes")
+        print( "      Name : %s " % n)
         summary = self.GetAttribute(id, 'summary')
-        print "      Summary : %s" % summary
-        print "\nDescription:"
+        print( "      Summary : %s" % summary)
+        print( "\nDescription:")
         desc = self.GetAttribute(id, 'description')
-        print desc
+        print( desc)
 
 ##############################################################################
 # Dbus Signal Handlers

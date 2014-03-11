@@ -67,35 +67,35 @@ class TestAPIDevel(TestBaseReadonly):
         '''
         Session: GetPackagesByName
         '''
-        print
-        print "Get all available versions of foo"
+        print()
+        print( "Get all available versions of foo")
         pkgs = self.GetPackagesByName('foo', newest_only=False)
         # pkgs should be a list instance
         self.assertIsInstance(pkgs, list)
         num1 = len(pkgs)
         self.assertNotEqual(num1, 0) # yum should always be there
         for pkg in pkgs:
-            print "  Package : %s" % pkg
+            print( "  Package : %s" % pkg)
             (n, e, v, r, a, repo_id) = self.to_pkg_tuple(pkg)
             self.assertEqual(n,"foo")
-        print "Get newest versions of foo"
+        print( "Get newest versions of foo")
         pkgs = self.GetPackagesByName('foo', newest_only=True)
         # pkgs should be a list instance
         self.assertIsInstance(pkgs, list)
         num2 = len(pkgs)
         self.assertEqual(num2, 1) # there can only be one :)
         for pkg in pkgs:
-            print "  Package : %s" % pkg
+            print( "  Package : %s" % pkg)
             (n, e, v, r, a, repo_id) = self.to_pkg_tuple(pkg)
             self.assertEqual(n,"foo")
-        print "Get the newest packages starting with foo"
+        print( "Get the newest packages starting with foo")
         pkgs = self.GetPackagesByName('foo*', newest_only=True)
         # pkgs should be a list instance
         self.assertIsInstance(pkgs, list)
         num3 = len(pkgs)
         self.assertGreater(num3, 1) # there should be more than one :)
         for pkg in pkgs:
-            print "  Package : %s" % pkg
+            print( "  Package : %s" % pkg)
             (n, e, v, r, a, repo_id) = self.to_pkg_tuple(pkg)
             self.assertTrue(n.startswith('foo'))
 
@@ -103,13 +103,13 @@ class TestAPIDevel(TestBaseReadonly):
         '''
         Session: GetRepository and GetRepo
         '''
-        print
+        print()
         print("  Getting enabled repos")
         repos = self.GetRepositories('')
         self.assertIsInstance(repos, list)
         for repo_id in repos:
             print("    Repo : %s" % repo_id)
-        print "  Getting *-source repos"
+        print( "  Getting *-source repos")
         repos = self.GetRepositories('*-source')
         self.assertIsInstance(repos, list)
         for repo_id in repos:
@@ -139,18 +139,18 @@ class TestAPIDevel(TestBaseReadonly):
         self.assertIsInstance(pkgs, list)
         for p in pkgs:
             summary = self.GetAttribute(p,'summary')
-            print str(p),summary
+            print( str(p),summary)
             self.assertTrue(keys[0] in str(p) or keys[0] in summary)
             self.assertTrue(keys[1] in str(p) or keys[1] in summary)
         keys = ['yum','zzzzddddsss'] # second key should not be found
         pkgs = self.Search(fields, keys ,True,True, False)
         self.assertIsInstance(pkgs, list)
-        print "found %i packages" % len(pkgs)
+        print( "found %i packages" % len(pkgs))
         self.assertEqual(len(pkgs), 0) # when should not find any matches
         keys = ['yum','zzzzddddsss'] # second key should not be found
         pkgs = self.Search(fields, keys ,False, True, False)
         self.assertIsInstance(pkgs, list)
-        print "found %i packages" % len(pkgs)
+        print( "found %i packages" % len(pkgs))
         self.assertGreater(len(pkgs), 0) # we should find some matches
 
     def test_PackageActions(self):
@@ -188,26 +188,26 @@ class TestAPIDevel(TestBaseReadonly):
             self.assertIsInstance(cat, list) # cat is a list
             self.assertIsInstance(grps, list) # grps is a list
             self.assertEqual(len(cat),3) # cat has 3 elements
-            print " --> %s" % cat[0]
+            print( " --> %s" % cat[0])
             for grp in grps:
                 # [group_id, group_name, group_desc, group_is_installed]
                 self.assertIsInstance(grp, list) # grp is a list
                 self.assertEqual(len(grp),4) # grp has 4 elements
-                print "   tag: %s name: %s \n       desc: %s \n       installed : %s " % tuple(grp)
+                print( "   tag: %s name: %s \n       desc: %s \n       installed : %s " % tuple(grp))
                 # Test GetGroupPackages
                 grp_id = grp[0]
                 pkgs = self.GetGroupPackages(grp_id,'all')
                 self.assertIsInstance(pkgs, list) # cat is a list
-                print "       # of Packages in group         : ",len(pkgs)
+                print( "       # of Packages in group         : ",len(pkgs))
                 pkgs = self.GetGroupPackages(grp_id,'default')
                 self.assertIsInstance(pkgs, list) # cat is a list
-                print "       # of Default Packages in group : ",len(pkgs)
+                print( "       # of Default Packages in group : ",len(pkgs))
 
     def test_Downgrades(self):
         '''
         Session: GetAttribute( downgrades )
         '''
-        print "Get newest versions of yum"
+        print( "Get newest versions of yum")
         pkgs = self.GetPackagesByName('foo', newest_only=True)
         # pkgs should be a list instance
         self.assertIsInstance(pkgs, list)
@@ -231,7 +231,7 @@ class TestAPIDevel(TestBaseReadonly):
         all_conf = self.GetConfig('*')
         self.assertIsInstance(all_conf, dict)
         for key in all_conf:
-            print "   %s = %s" % (key,all_conf[key])
+            print( "   %s = %s" % (key,all_conf[key]))
         fastestmirror = self.GetConfig('fastestmirror')
         print("fastestmirror : %s" % fastestmirror)
         self.assertIn(fastestmirror, [True,False])

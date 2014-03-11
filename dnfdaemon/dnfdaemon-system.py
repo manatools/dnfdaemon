@@ -29,6 +29,8 @@ import gobject
 import json
 import logging
 import operator
+from datetime import datetime
+
 
 import argparse
 
@@ -851,8 +853,22 @@ class DnfDaemon(DnfDaemonBase):
         :param start: start days from today
         :param end: end days from today
         '''
+        # FIXME: Base.history is not public api
         result = []
-        # TODO : Add dnf code (_get_history_by_days)
+        now = datetime.now()
+        history = self.base.history.old()
+        i = 0
+        result = []
+        while i < len(history):
+            ht = history[i]
+            i += 1
+            tm = datetime.fromtimestamp(ht.end_timestamp)
+            delta = now-tm
+            if delta.days < start: # before start days
+                continue
+            elif delta.days > end: # after end days
+                break
+            result.append(ht)
         return self._get_id_time_list(result)
 
     def _history_search(self, pattern):
@@ -861,8 +877,13 @@ class DnfDaemon(DnfDaemonBase):
         :param pattern: list of search patterns
         :type pattern: list
         '''
+        # FIXME: Base.history is not public api
         result = []
-        # TODO : Add dnf code (_history_search)
+        tids = self.base.history.search(pattern)
+        if len(tids) >0 :
+            result = self.base.history.old(tids)
+        else:
+            result = []
         return self._get_id_time_list(result)
 
     def _get_history_transaction_pkgs(self, tid):
@@ -870,8 +891,15 @@ class DnfDaemon(DnfDaemonBase):
         return a list of (pkg_id, tx_state, installed_state) pairs from a given
         yum history transaction id
         '''
+        # FIXME: Base.history is not public api
         result = []
-        # TODO : Add dnf code (_get_history_transaction_pkgs)
+        tx = self.base.history.old([tid])
+        result = []
+        for pkg in tx[0].trans_data:
+            values = [pkg.name, pkg.epoch, pkg.version, pkg.release, pkg.arch, pkg.ui_from_repo]
+            pkg_id = ",".join(values)
+            elem = (pkg_id, pkg.state, pkg.state_installed)
+            result.append(elem)
         return result
 
     def _get_transaction_list(self):

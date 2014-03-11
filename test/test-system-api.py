@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from __future__ import print_function
+from __future__ import absolute_import
 import sys, os
 sys.path.insert(0,os.path.abspath('../client'))
 from base import TestBase
@@ -23,7 +25,7 @@ class TestAPIDevel(TestBase):
         '''
         System: Unlock and Lock
         '''
-        print
+        print()
         # release the lock (grabbed by setUp)
         self.Unlock()
         # calling a method without a lock should raise a YumLockedError
@@ -37,7 +39,7 @@ class TestAPIDevel(TestBase):
         '''
         System: GetPackages
         '''
-        print
+        print()
         for narrow in ['installed','available']:
             print(' Getting packages : %s' % narrow)
             pkgs = self.GetPackages(narrow)
@@ -68,7 +70,7 @@ class TestAPIDevel(TestBase):
         '''
         System: GetPackages(update)
         '''
-        print
+        print()
         # make sure there is one update
         self._remove_if_installed('foobar') # make sure pkg is not installed
         rc, output = self.Install('foobar-1.0')
@@ -88,35 +90,35 @@ class TestAPIDevel(TestBase):
         '''
         System: GetPackagesByName
         '''
-        print
-        print "Get all available versions of foo"
+        print()
+        print("Get all available versions of foo")
         pkgs = self.GetPackagesByName('foo', newest_only=False)
         # pkgs should be a list instance
         self.assertIsInstance(pkgs, list)
         num1 = len(pkgs)
         self.assertNotEqual(num1, 0) # yum should always be there
         for pkg in pkgs:
-            print "  Package : %s" % pkg
+            print( "  Package : %s" % pkg)
             (n, e, v, r, a, repo_id) = self.to_pkg_tuple(pkg)
             self.assertEqual(n,"foo")
-        print "Get newest versions of foo"
+        print( "Get newest versions of foo")
         pkgs = self.GetPackagesByName('foo', newest_only=True)
         # pkgs should be a list instance
         self.assertIsInstance(pkgs, list)
         num2 = len(pkgs)
         self.assertEqual(num2, 1) # there can only be one :)
         for pkg in pkgs:
-            print "  Package : %s" % pkg
+            print( "  Package : %s" % pkg)
             (n, e, v, r, a, repo_id) = self.to_pkg_tuple(pkg)
             self.assertEqual(n,"foo")
-        print "Get the newest packages starting with foo"
+        print( "Get the newest packages starting with foo")
         pkgs = self.GetPackagesByName('foo*', newest_only=True)
         # pkgs should be a list instance
         self.assertIsInstance(pkgs, list)
         num3 = len(pkgs)
         self.assertGreater(num3, 1) # there should be more than one :)
         for pkg in pkgs:
-            print "  Package : %s" % pkg
+            print( "  Package : %s" % pkg)
             (n, e, v, r, a, repo_id) = self.to_pkg_tuple(pkg)
             self.assertTrue(n.startswith('foo'))
 
@@ -124,13 +126,13 @@ class TestAPIDevel(TestBase):
         '''
         System: GetRepository and GetRepo
         '''
-        print
+        print()
         print("  Getting enabled repos")
         repos = self.GetRepositories('')
         self.assertIsInstance(repos, list)
         for repo_id in repos:
             print("    Repo : %s" % repo_id)
-        print "  Getting *-source repos"
+        print( "  Getting *-source repos")
         repos = self.GetRepositories('*-source')
         self.assertIsInstance(repos, list)
         for repo_id in repos:
@@ -160,18 +162,18 @@ class TestAPIDevel(TestBase):
         self.assertIsInstance(pkgs, list)
         for p in pkgs:
             summary = self.GetAttribute(p,'summary')
-            print str(p),summary
+            print( str(p),summary)
             self.assertTrue(keys[0] in str(p) or keys[0] in summary)
             self.assertTrue(keys[1] in str(p) or keys[1] in summary)
         keys = ['yum','zzzzddddsss'] # second key should not be found
         pkgs = self.Search(fields, keys ,True,True, False)
         self.assertIsInstance(pkgs, list)
-        print "found %i packages" % len(pkgs)
+        print( "found %i packages" % len(pkgs))
         self.assertEqual(len(pkgs), 0) # when should not find any matches
         keys = ['yum','zzzzddddsss'] # second key should not be found
         pkgs = self.Search(fields, keys ,False, True, False)
         self.assertIsInstance(pkgs, list)
-        print "found %i packages" % len(pkgs)
+        print( "found %i packages" % len(pkgs))
         self.assertGreater(len(pkgs), 0) # we should find some matches
 
     def test_PackageActions(self):
@@ -209,26 +211,26 @@ class TestAPIDevel(TestBase):
             self.assertIsInstance(cat, list) # cat is a list
             self.assertIsInstance(grps, list) # grps is a list
             self.assertEqual(len(cat),3) # cat has 3 elements
-            print " --> %s" % cat[0]
+            print( " --> %s" % cat[0])
             for grp in grps:
                 # [group_id, group_name, group_desc, group_is_installed]
                 self.assertIsInstance(grp, list) # grp is a list
                 self.assertEqual(len(grp),4) # grp has 4 elements
-                print "   tag: %s name: %s \n       desc: %s \n       installed : %s " % tuple(grp)
+                print( "   tag: %s name: %s \n       desc: %s \n       installed : %s " % tuple(grp))
                 # Test GetGroupPackages
                 grp_id = grp[0]
                 pkgs = self.GetGroupPackages(grp_id,'all')
                 self.assertIsInstance(pkgs, list) # cat is a list
-                print "       # of Packages in group         : ",len(pkgs)
+                print( "       # of Packages in group         : ",len(pkgs))
                 pkgs = self.GetGroupPackages(grp_id,'default')
                 self.assertIsInstance(pkgs, list) # cat is a list
-                print "       # of Default Packages in group : ",len(pkgs)
+                print( "       # of Default Packages in group : ",len(pkgs))
 
     def test_Downgrades(self):
         '''
         System: GetAttribute( downgrades )
         '''
-        print "Get newest versions of yum"
+        print( "Get newest versions of yum")
         pkgs = self.GetPackagesByName('bar', newest_only=True)
         # pkgs should be a list instance
         self.assertIsInstance(pkgs, list)
@@ -252,7 +254,7 @@ class TestAPIDevel(TestBase):
         all_conf = self.GetConfig('*')
         self.assertIsInstance(all_conf, dict)
         for key in all_conf:
-            print "   %s = %s" % (key,all_conf[key])
+            print( "   %s = %s" % (key,all_conf[key]))
         fastestmirror = self.GetConfig('fastestmirror')
         print("fastestmirror : %s" % fastestmirror)
         self.assertIn(fastestmirror, [True,False])
@@ -279,7 +281,7 @@ class TestAPIDevel(TestBase):
         self.assertFalse(self._is_installed('foo'))
         self.assertFalse(self._is_installed('bar'))
         # Install the test packages
-        print "Installing Test Packages : foo bar"
+        print( "Installing Test Packages : foo bar")
         rc, output = self.Install('foo bar')
         print('  Return Code : %i' % rc)
         self.assertEqual(rc,True)
@@ -293,7 +295,7 @@ class TestAPIDevel(TestBase):
         self.assertTrue(self._is_installed('foo'))
         self.assertTrue(self._is_installed('bar'))
         # Remove the test packages
-        print "Removing Test Packages : foo bar"
+        print( "Removing Test Packages : foo bar")
         rc, output = self.Remove('foo bar')
         print('  Return Code : %i' % rc)
         self.assertEqual(rc,True)
@@ -336,7 +338,7 @@ class TestAPIDevel(TestBase):
         '''
         System: DownGrade & Update
         '''
-        print
+        print()
         rc, output = self.Install('foo')
         if rc:
             self.show_transaction_result(output)
@@ -365,7 +367,7 @@ class TestAPIDevel(TestBase):
         '''
         System: AddTransaction, GetTransaction, ClearTransaction
         '''
-        print
+        print()
         self._remove_if_installed('foo') # make sure pkg is not installed
         rc, trans = self._add_to_transaction('foo')
         self.show_transaction_result(trans)
@@ -420,3 +422,43 @@ class TestAPIDevel(TestBase):
         # check setting unknown conf setting
         rc = self.SetConfig("thisisnotfound",True)
         self.assertFalse(rc)
+
+
+    def test_History(self):
+        '''
+        System: GetHistoryByDays, GetHistoryPackages
+        '''
+        result = self.GetHistoryByDays(0, 5)
+        self.assertIsInstance(result, list)
+        for tx_mbr in result:
+            tid, dt = tx_mbr
+            print("%-4i - %s" % (tid, dt))
+            pkgs = self.GetHistoryPackages(tid)
+            self.assertIsInstance(pkgs, list)
+            for (id, state, is_installed) in pkgs:
+                print( id, state, is_installed)
+                self.assertIsInstance(is_installed, bool)
+
+    def test_HistorySearch(self):
+        '''
+        System: HistorySearch
+        '''
+        print()
+        result = self.HistorySearch(['dnf']) # this should be found
+        print("# found = ", len(result))
+        self.assertGreater(len(result), 0)
+        self.assertIsInstance(result, list)
+        for tx_mbr in result:
+            tid, dt = tx_mbr
+            print("%i - %s" % (tid, dt))
+            pkgs = self.GetHistoryPackages(tid)
+            self.assertIsInstance(pkgs, list)
+            for (tid, state, is_installed) in pkgs:
+                if 'dnf' in tid:
+                    print("     ",tid, state, is_installed)
+                    self.assertIsInstance(is_installed, bool)
+
+        result = self.HistorySearch(['thiscannotbefound']) # this should not be found
+        print("# found = ", len(result))
+        self.assertIsInstance(result, list)
+        self.assertEqual(len(result), 0)
