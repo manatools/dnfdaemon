@@ -13,26 +13,45 @@ When the test method is completted it is move som test-api.py
 use 'nosetest -v -s unit-devel.py' to run the tests
 """
 
-#class TestAPIDevel(TestBaseReadonly):
-class TestAPIDevel(TestBase):
+class TestAPIDevel(TestBaseReadonly):
+#class TestAPIDevel(TestBase):
 
     def __init__(self, methodName='runTest'):
-        TestBase.__init__(self, methodName)
+        #TestBase.__init__(self, methodName)
+        TestBaseReadonly.__init__(self, methodName)
 
-    def test_Locking(self):
+    def test_GetPackages(self):
         '''
-        System: Unlock and Lock
+        Session: GetPackages
         '''
         print
-        # release the lock (grabbed by setUp)
-        self.Unlock()
-        # calling a method without a lock should raise a YumLockedError
-        # self.assertRaises(YumLockedError,self.Install, '0xFFFF')
-        # trying to unlock method without a lock should raise a YumLockedError
-        self.assertRaises(LockedError,self.Unlock)
-        # get the Lock again, else tearDown will fail
-        self.Lock()
-
+        for narrow in ['installed','available']:
+            print(' ******** Getting packages : %s ***************' % narrow)
+            pkgs = self.GetPackages(narrow)
+            self.assertIsInstance(pkgs, list)
+            self.assertGreater(len(pkgs),1) # the should be more than once
+            print('  packages found : %s ' % len(pkgs))
+            if narrow == 'available':
+                for pkg_id in pkgs:
+                    self._show_package(pkg_id)
+            else:
+                pkg_id = pkgs[-1] # last pkg in list
+                self._show_package(pkg_id)
+        for narrow in ['updates','obsoletes','recent','extras']:
+            print('  ==================== Getting packages : %s =============================' % narrow)
+            pkgs = self.GetPackages(narrow)
+            self.assertIsInstance(pkgs, list)
+            print('  packages found : %s ' % len(pkgs))
+            if len(pkgs) > 0:
+                pkg_id = pkgs[0] # last pkg in list
+                print(pkg_id)
+                self._show_package(pkg_id)
+        for narrow in ['notfound']: # Dont exist, but it should not blow up
+            print(' Getting packages : %s' % narrow)
+            pkgs = self.GetPackages(narrow)
+            self.assertIsInstance(pkgs, list)
+            self.assertEqual(len(pkgs),0) # the should be notting
+            print('  packages found : %s ' % len(pkgs))
 
 
 

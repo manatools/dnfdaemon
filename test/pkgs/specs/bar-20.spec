@@ -11,7 +11,7 @@ Source0:        source.tar.gz
 BuildArch:      noarch
 
 %description
-bar test package for dnf-daemon testing
+bar test package for dnf-daemon testing (search key words : yum plugin )
 
 %prep
 %setup -q -n source

@@ -26,7 +26,7 @@ class TestAPIDevel(TestBaseReadonly):
         print
         # release the lock (grabbed by setUp)
         self.Unlock()
-        # calling a method without a lock should raise a YumLockedError
+        # calling a method without a lock should raise a LockedError
         # self.assertRaises(YumLockedError,self.Install, '0xFFFF')
         # trying to unlock method without a lock should raise a YumLockedError
         self.assertRaises(LockedError,self.Unlock)
@@ -68,8 +68,8 @@ class TestAPIDevel(TestBaseReadonly):
         Session: GetPackagesByName
         '''
         print
-        print "Get all available versions of yum"
-        pkgs = self.GetPackagesByName('yum', newest_only=False)
+        print "Get all available versions of foo"
+        pkgs = self.GetPackagesByName('foo', newest_only=False)
         # pkgs should be a list instance
         self.assertIsInstance(pkgs, list)
         num1 = len(pkgs)
@@ -77,9 +77,9 @@ class TestAPIDevel(TestBaseReadonly):
         for pkg in pkgs:
             print "  Package : %s" % pkg
             (n, e, v, r, a, repo_id) = self.to_pkg_tuple(pkg)
-            self.assertEqual(n,"yum")
-        print "Get newest versions of yum"
-        pkgs = self.GetPackagesByName('yum', newest_only=True)
+            self.assertEqual(n,"foo")
+        print "Get newest versions of foo"
+        pkgs = self.GetPackagesByName('foo', newest_only=True)
         # pkgs should be a list instance
         self.assertIsInstance(pkgs, list)
         num2 = len(pkgs)
@@ -87,9 +87,9 @@ class TestAPIDevel(TestBaseReadonly):
         for pkg in pkgs:
             print "  Package : %s" % pkg
             (n, e, v, r, a, repo_id) = self.to_pkg_tuple(pkg)
-            self.assertEqual(n,"yum")
-        print "Get the newest packages starting with yum-plugin-"
-        pkgs = self.GetPackagesByName('yum-plugin-*', newest_only=True)
+            self.assertEqual(n,"foo")
+        print "Get the newest packages starting with foo"
+        pkgs = self.GetPackagesByName('foo*', newest_only=True)
         # pkgs should be a list instance
         self.assertIsInstance(pkgs, list)
         num3 = len(pkgs)
@@ -97,7 +97,7 @@ class TestAPIDevel(TestBaseReadonly):
         for pkg in pkgs:
             print "  Package : %s" % pkg
             (n, e, v, r, a, repo_id) = self.to_pkg_tuple(pkg)
-            self.assertTrue(n.startswith('yum'))
+            self.assertTrue(n.startswith('foo'))
 
     def test_Repositories(self):
         '''
@@ -149,12 +149,6 @@ class TestAPIDevel(TestBaseReadonly):
         self.assertEqual(len(pkgs), 0) # when should not find any matches
         keys = ['yum','zzzzddddsss'] # second key should not be found
         pkgs = self.Search(fields, keys ,False, True, False)
-        self.assertIsInstance(pkgs, list)
-        print "found %i packages" % len(pkgs)
-        self.assertGreater(len(pkgs), 0) # we should find some matches
-        # retro should match some pkgtags
-        keys = ['retro'] # second key should not be found
-        pkgs = self.Search(fields, keys ,True, True, True)
         self.assertIsInstance(pkgs, list)
         print "found %i packages" % len(pkgs)
         self.assertGreater(len(pkgs), 0) # we should find some matches
@@ -214,7 +208,7 @@ class TestAPIDevel(TestBaseReadonly):
         Session: GetAttribute( downgrades )
         '''
         print "Get newest versions of yum"
-        pkgs = self.GetPackagesByName('yum', newest_only=True)
+        pkgs = self.GetPackagesByName('foo', newest_only=True)
         # pkgs should be a list instance
         self.assertIsInstance(pkgs, list)
         num2 = len(pkgs)
@@ -245,24 +239,6 @@ class TestAPIDevel(TestBaseReadonly):
         print("not_found : %s" % not_found)
         self.assertIsNone(not_found)
 
-
-    def test_SetEnabledRepos(self):
-        '''
-        System: SetEnabledRepos
-        '''
-        print
-        enabled_pre = self.GetRepositories('enabled')
-        print("before : ", enabled_pre)
-        self.SetEnabledRepos(['fedora'])
-        enabled = self.GetRepositories('enabled')
-        print("after : ", enabled)
-        self.assertEqual(len(enabled),1) # the should only be one :)
-        self.assertEqual(enabled[0],'fedora') # and it should be 'fedora'
-        self.SetEnabledRepos(enabled_pre)
-        enabled = self.GetRepositories('enabled')
-        print("bact to start : ", enabled)
-        self.assertEqual(len(enabled),len(enabled_pre)) # the should only be one :)
-        self.assertEqual(enabled,enabled_pre) # and it should be 'fedora'
 
 
 

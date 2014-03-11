@@ -14,6 +14,7 @@ class TestBase(unittest.TestCase, DnfDaemonClient):
 
     def setUp(self):
         self.Lock()
+        self.SetEnabledRepos(["dnf-daemon-test"])
 
     def tearDown(self):
         self.Unlock()
@@ -114,23 +115,17 @@ class TestBase(unittest.TestCase, DnfDaemonClient):
     def _show_package(self, id):
         (n, e, v, r, a, repo_id) = self.to_pkg_tuple(id)
         print "\nPackage attributes"
-        self.assertIsInstance(n, str)
         print "Name : %s " % n
         summary = self.GetAttribute(id, 'summary')
-        self.assertIsInstance(summary, unicode)
         print "Summary : %s" % summary
         print "\nDescription:"
         desc = self.GetAttribute(id, 'description')
-        self.assertIsInstance(desc, unicode)
         print desc
 #         print "\nChangelog:"
 #         changelog = self.GetAttribute(id, 'changelog')
 #         self.assertIsInstance(changelog, list)
 #         self.show_changelog(changelog, max_elem=2)
         # Check a not existing attribute dont make it blow up
-        notfound = self.GetAttribute(id, 'notfound')
-        self.assertIsNone(notfound)
-        print " Value of attribute 'notfound' : %s" % notfound
 
 ###############################################################################
 # Dbus Signal Handlers
@@ -186,6 +181,7 @@ class TestBaseReadonly(unittest.TestCase, DnfDaemonReadOnlyClient):
 
     def setUp(self):
         self.Lock()
+        self.SetEnabledRepos(["dnf-daemon-test"])
 
     def tearDown(self):
         self.Unlock()
@@ -219,26 +215,15 @@ class TestBaseReadonly(unittest.TestCase, DnfDaemonReadOnlyClient):
 
     def _show_package(self, id):
         (n, e, v, r, a, repo_id) = self.to_pkg_tuple(id)
-        print "\nPackage attributes"
-        self.assertIsInstance(n, str)
-        print "Name : %s " % n
+        print "\n   Package attributes"
+        print "      Name : %s " % n
         summary = self.GetAttribute(id, 'summary')
-        self.assertIsInstance(summary, unicode)
-        print "Summary : %s" % summary
+        print "      Summary : %s" % summary
         print "\nDescription:"
         desc = self.GetAttribute(id, 'description')
-        self.assertIsInstance(desc, unicode)
         print desc
-#         print "\nChangelog:"
-#         changelog = self.GetAttribute(id, 'changelog')
-#         self.assertIsInstance(changelog, list)
-#         self.show_changelog(changelog, max_elem=2)
-        # Check a not existing attribute dont make it blow up
-        notfound = self.GetAttribute(id, 'notfound')
-        self.assertIsNone(notfound)
-        print " Value of attribute 'notfound' : %s" % notfound
 
-###############################################################################
+##############################################################################
 # Dbus Signal Handlers
 ###############################################################################
 

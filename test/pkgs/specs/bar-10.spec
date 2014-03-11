@@ -1,9 +1,9 @@
-%global pkg_ver 2.0
+%global pkg_ver 1.0
 
 Name:           bar
 Version:        %{pkg_ver}
 Release:        1%{?dist}
-Summary:        bar test package for dnf-daemon testing
+Summary:        bar test package for dnf-daemon testing (search key words : yum plugin )
 
 License:        GPLv2+
 URL:            https://github.com/timlau/yum-daemon

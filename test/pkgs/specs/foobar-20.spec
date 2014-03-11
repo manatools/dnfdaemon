@@ -1,4 +1,4 @@
-%global pkg_ver 2.0
+%global pkg_ver 1.0
 
 Name:           foobar
 Version:        %{pkg_ver}
@@ -11,7 +11,7 @@ Source0:        source.tar.gz
 BuildArch:      noarch
 
 %description
-foo test package for dnf-daemon testing
+foo test package for dnf-daemon testing (search key words : yum plugin )
 
 %prep
 %setup -q -n source

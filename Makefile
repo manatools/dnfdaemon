@@ -2,7 +2,6 @@ PKGNAME = dnfdaemon
 DATADIR=/usr/share
 SYSCONFDIR=/etc
 PKGDIR = $(DATADIR)/$(PKGNAME)
-PKGDIR_DNF = $(DATADIR)/$(PKGNAME_DNF)
 ORG_NAME = org.baseurl.DnfSystem
 ORG_RO_NAME = org.baseurl.DnfSession
 SUBDIRS = client/dnfdaemon
@@ -52,23 +51,24 @@ selinux:
 	restorecon $(DESTDIR)/$(PKGDIR_DNF)/dnfdaemon-system
 	
 
-# Run as root or you will get a password prompt for each test method :)
+# Run as root or you will get a password prompt
 test-verbose: FORCE
 	@nosetests -v -s test/
 
 
-# Run as root or you will get a password prompt for each test method :)
+# Run as root or you will get a password prompt
 test: FORCE
 	@nosetests -v test/
 
-# Run as root or you will get a password prompt for each test method :)
+# Run as root or you will get a password prompt 
 test-system: FORCE
 	@nosetests -v test/test-system-api.py
 
-# Run as root or you will get a password prompt for each test method :)
 test-session: FORCE
 	@nosetests -v test/test-session-api.py
 
+test-session-verbose: FORCE
+	@nosetests -v -s test/test-session-api.py
 
 # Run as root or you will get a password prompt for each test method :)
 test-devel: FORCE

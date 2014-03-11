@@ -242,12 +242,15 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
         '''
         Enable a list of repos, disable the ones not in list
         '''
+        self._reset_base()
+        self._get_base(reset=True, load_sack=False)
         for repo in self.base.repos.all():
             if repo.id in repo_ids:
+                print("enable : ", repo.id)
                 repo.enable()
             else:
                 repo.disable()
-        self.base.fill_sack() # load the sack with the current enabled repos
+        self._base.setup_base() # load the sack with the current enabled repos
 
 
     def _get_packages(self, pkg_filter):
@@ -480,12 +483,14 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
                             action = 'downgrade'
         return action
 
-    def _get_base(self):
+    def _get_base(self, reset = False, load_sack=True):
         '''
         Get a Dnf Base object to work with
         '''
-        if not self._base:
+        if not self._base or reset:
             self._base = DnfBase(self)
+            if load_sack:
+                self._base.setup_base()
         return self._base
 
 
@@ -586,7 +591,7 @@ class Packages:
         if showdups:
             return self.filter_packages(self.query.available().run(), replace=False)
         else:
-            return self.filter_packages(self.query.latest().run(), replace=False)
+            return self.filter_packages(self.query.available().latest().run(), replace=False)
 
     @property
     def extras(self):
@@ -635,6 +640,9 @@ class DnfBase(dnf.Base):
         self.read_all_repos()
         self.progress = Progress(parent)
         self.repos.all().set_progress_bar( self.md_progress)
+        self._packages = None
+
+    def setup_base(self):
         self.fill_sack()
         self._packages = Packages(self)
 

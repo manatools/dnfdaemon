@@ -1,9 +1,9 @@
-%global pkg_ver 2.0
+%global pkg_ver 1.0
 
 Name:           foobar
 Version:        %{pkg_ver}
 Release:        1%{?dist}
-Summary:        foo test package for dnf-daemon testing
+Summary:        foo test package for dnf-daemon testing (search key words : yum plugin )
 
 License:        GPLv2+
 URL:            https://github.com/timlau/yum-daemon
