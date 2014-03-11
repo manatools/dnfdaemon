@@ -8,8 +8,8 @@ License:        GPLv2+
 URL:            https://github.com/timlau/dnf-daemon
 Source0:        https://fedorahosted.org/releases/y/u/yumex/%{name}-%{version}.tar.gz
 BuildArch:      noarch
-BuildRequires:  python2-devel
-Requires:       dbus-python
+BuildRequires:  python3-devel
+Requires:       python3-dbus
 Requires:       dnf >= 0.4.17
 Requires:       polkit
 Requires(post):     policycoreutils-python
@@ -77,7 +77,7 @@ fi
 
 %changelog
 * Tue Mar 11 2014 Tim Lauridsen <timlau@fedoraproject.org> 0.1.1-1
-- bumped release
+- used python3, instead of python2 for dbus services
 
 * Sat Mar 08 2014 Tim Lauridsen <timlau@fedoraproject.org> 0.1.0-1
 - Initial rpm for dnfdaemon

@@ -23,10 +23,11 @@ from __future__ import absolute_import
 import dbus
 import dbus.service
 import dbus.glib
-import gobject
 import json
 import logging
 from datetime import datetime
+from gi.repository import GLib
+
 
 import sys
 from time import time
@@ -93,9 +94,8 @@ class DownloadCallback:
 
 class DnfDaemonBase(dbus.service.Object, DownloadCallback):
 
-    def __init__(self, mainloop):
+    def __init__(self):
         self.logger = logging.getLogger('dnfdaemon.base')
-        self.mainloop = mainloop # use to terminate mainloop
         self.authorized_sender = set()
         self._lock = None
         self._base = None
@@ -507,7 +507,7 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
         '''
         Setup the watchdog to run every second when idle
         '''
-        gobject.timeout_add(1000, self._watchdog)
+        GLib.timeout_add(1000, self._watchdog)
 
     def _watchdog(self):
         terminate = False
@@ -522,7 +522,7 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
         if terminate: # shall we quit
             if self._can_quit:
                 self._reset_base()
-                self.mainloop.quit()
+                Gtk.main_quit()
         else:
             self._watchdog_count += 1
             self.logger.debug("Watchdog : %i" % self._watchdog_count )

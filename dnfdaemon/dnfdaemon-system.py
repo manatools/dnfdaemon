@@ -1,4 +1,4 @@
-#!/usr/bin/python -tt
+#!/usr/bin/python3 -tt
 #coding: utf-8
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -22,14 +22,15 @@
 
 from __future__ import print_function
 from __future__ import absolute_import
-import dbus
-import dbus.service
-import dbus.glib
-import gobject
+
 import json
 import logging
 import operator
 from datetime import datetime
+from gi.repository import Gtk
+import dbus
+import dbus.service
+from dbus.mainloop.glib import DBusGMainLoop
 
 
 import argparse
@@ -90,8 +91,8 @@ logger = logging.getLogger('dnfdaemon')
 #------------------------------------------------------------------------------ Main class
 class DnfDaemon(DnfDaemonBase):
 
-    def __init__(self, mainloop):
-        DnfDaemonBase.__init__(self,  mainloop)
+    def __init__(self):
+        DnfDaemonBase.__init__(self)
         self.logger = logging.getLogger('dnfdaemon.system')
         bus_name = dbus.service.BusName(DAEMON_ORG, bus = dbus.SystemBus())
         dbus.service.Object.__init__(self, bus_name, '/')
@@ -124,7 +125,7 @@ class DnfDaemon(DnfDaemonBase):
         self.check_permission(sender)
         if self._can_quit:
             self._reset_base()
-            self.mainloop.quit()
+            Gtk.main_quit()
             return True
         else:
             return False
@@ -1007,12 +1008,13 @@ def main():
             doTextLoggerSetup(logroot='dnfdaemon')
 
     # setup the DBus mainloop
+    DBusGMainLoop(set_as_default=True)
     dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
-    mainloop = gobject.MainLoop()
-    yd = DnfDaemon(mainloop)
+    yd = DnfDaemon()
     if not args.notimeout:
         yd._setup_watchdog()
-    mainloop.run()
+    Gtk.main()
+
 
 if __name__ == '__main__':
     main()
