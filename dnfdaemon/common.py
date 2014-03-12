@@ -146,7 +146,10 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
         pkg_ids = self._to_package_id_list(result)
         return pkg_ids
 
-
+    def _expire_cache(self):
+        self.base.expire_cache()
+        self.base.reset(sack=True)
+        self.base.setup_base()
 
     def _get_packages_by_name(self, name, newest_only):
         '''
@@ -644,6 +647,9 @@ class DnfBase(dnf.Base):
         self.progress = Progress(parent)
         self.repos.all().set_progress_bar( self.md_progress)
         self._packages = None
+
+    def expire_cache(self):
+        self.cleanExpireCache() # FIXME : this is not public API
 
     def setup_base(self):
         self.fill_sack()

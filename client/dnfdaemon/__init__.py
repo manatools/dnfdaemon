@@ -382,6 +382,13 @@ class DnfDaemonBase:
         result = self._run_dbus_async('GetPackageWithAttributes','(sas)',pkg_filter, fields)
         return json.loads(result)
 
+    def ExpireCache(self):
+        '''
+        Expire the dnf metadata, so they will be refresed
+        '''
+        self._run_dbus_async('ExpireCache','()')
+        return True
+
 
     def GetRepositories(self, repo_filter):
         '''

@@ -15,29 +15,27 @@ When the test method is completted it is move som test-api.py
 use 'nosetest -v -s unit-devel.py' to run the tests
 """
 
-#class TestAPIDevel(TestBaseReadonly):
-class TestAPIDevel(TestBase):
+class TestAPIDevel(TestBaseReadonly):
+#class TestAPIDevel(TestBase):
 
     def __init__(self, methodName='runTest'):
-        TestBase.__init__(self, methodName)
-        #TestBaseReadonly.__init__(self, methodName)
+        super(TestAPIDevel, self).__init__(methodName)
 
-
-    def test_Transaction(self):
+    def test_ExpireCache(self):
         '''
-        System: AddTransaction (Remove with deps)
+        Session: ExpireCache
         '''
         print()
+        print("Enable default system repositories")
         self._enable_default_repos()
-        rc, output = self.Install('btanks')
-        if rc:
-            self.show_transaction_result(output)
-            self.RunTransaction()
-        rc, trans = self._add_to_transaction('btanks')
-        self.show_transaction_result(trans)
-        for action,pkglist in trans:
-            self.assertEqual(action,'remove')
-            self.assertIsInstance(pkglist, list) # is a list
-            self.assertEqual(len(pkglist),2)
-        rc,trans  = self.BuildTransaction()
-        self.RunTransaction()
+        print("Expire the dnf cache")
+        self.reset_signals()
+        self.ExpireCache()
+        self.show_signals()
+        self.assertTrue(self.check_signal('RepoMetaDataProgress'))
+        print("Getting Updates")
+        pkgs = self.GetPackages('updates')
+        print("# of packages : %d" % len(pkgs))
+        print("Getting Installed")
+        pkgs = self.GetPackages('installed')
+        print("# of packages : %d" % len(pkgs))

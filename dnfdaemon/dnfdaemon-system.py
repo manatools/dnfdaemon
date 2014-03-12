@@ -196,6 +196,22 @@ class DnfDaemon(DnfDaemonBase):
         self._set_enabled_repos(repo_ids)
         return self.working_ended()
 
+    @Logger
+    @dbus.service.method(DAEMON_INTERFACE,
+                                          in_signature='',
+                                          out_signature='',
+                                          sender_keyword='sender')
+
+    def ExpireCache(self, sender=None):
+        '''
+        Enabled a list of repositories, disabled all other repos
+        :param repo_ids: list of repo ids to enable
+        :param sender:
+        '''
+        self.working_start(sender)
+        self._expire_cache()
+        return self.working_ended()
+
 
     @Logger
     @dbus.service.method(DAEMON_INTERFACE,

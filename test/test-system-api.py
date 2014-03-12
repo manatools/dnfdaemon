@@ -485,3 +485,22 @@ class TestAPIDevel(TestBase):
             self.assertEqual(len(pkglist),2)
         rc,trans  = self.BuildTransaction()
         self.RunTransaction()
+
+    def test_ExpireCache(self):
+        '''
+        System: ExpireCache
+        '''
+        print()
+        print("Enable default system repositories")
+        self._enable_default_repos()
+        print("Expire the dnf cache")
+        self.reset_signals()
+        self.ExpireCache()
+        self.show_signals()
+        self.assertTrue(self.check_signal('RepoMetaDataProgress'))
+        print("Getting Updates")
+        pkgs = self.GetPackages('updates')
+        print("# of packages : %d" % len(pkgs))
+        print("Getting Installed")
+        pkgs = self.GetPackages('installed')
+        print("# of packages : %d" % len(pkgs))

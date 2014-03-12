@@ -4,6 +4,8 @@ import sys
 import os.path
 sys.path.insert(0,os.path.abspath('client'))
 import unittest
+import datetime
+import time
 from datetime import date
 from dnfdaemon import DnfDaemonClient, DnfDaemonReadOnlyClient
 
@@ -12,7 +14,7 @@ class TestBase(unittest.TestCase, DnfDaemonClient):
         unittest.TestCase.__init__(self, methodName)
         DnfDaemonClient.__init__(self)
         self._gpg_confirm = None
-        self._signals = []
+        self._signals = {}
         self.default_repos = []
 
     def setUp(self):
@@ -24,13 +26,29 @@ class TestBase(unittest.TestCase, DnfDaemonClient):
         self.Unlock()
 
     def reset_signals(self):
-        self._signals = []
+        self._signals = {}
 
     def check_signal(self, name):
         if name in self._signals:
             return True
         else:
             return False
+
+    def add_signal(self, name, parms="()"):
+        ts = time.time()
+        st = datetime.datetime.fromtimestamp(ts).strftime('%H:%M:%S')
+        entry = (st, parms)
+        if name in self._signals:
+            self._signals[name].append(entry)
+        else:
+            self._signals[name] = [entry]
+
+
+    def show_signals(self):
+        for sig in self._signals:
+            print("Signal : %s" % sig)
+            for ts, parms in self._signals[sig]:
+                print("  --> %s : %s" % (ts, parms))
 
     def show_changelog(self, changelog, max_elem=3):
         i = 0
@@ -142,17 +160,14 @@ class TestBase(unittest.TestCase, DnfDaemonClient):
 # Dbus Signal Handlers
 ###############################################################################
 
-    def on_UpdateProgress(self,name,frac,fread,ftime):
-        self._signals.append("UpdateProgress")
-        pass
 
     def on_TransactionEvent(self,event, data):
-        self._signals.append("TransactionEvent")
-        pass
+        values = (event, data)
+        self.add_signal("TransactionEvent", repr(values))
 
     def on_RPMProgress(self, package, action, te_current, te_total, ts_current, ts_total):
-        self._signals.append("RPMProgress")
-        pass
+        values = (package, action, te_current, te_total, ts_current, ts_total)
+        self.add_signal("RPMProgress", repr(values))
 
     def on_GPGImport(self, pkg_id, userid, hexkeyid, keyurl, timestamp ):
         self._signals.append("GPGImport")
@@ -162,26 +177,26 @@ class TestBase(unittest.TestCase, DnfDaemonClient):
 
     def on_DownloadStart(self, num_files, num_bytes):
         ''' Starting a new parallel download batch '''
-        self._signals.append("DownloadStart")
-        #values =  (num_files, num_bytes)
+        values =  (num_files, num_bytes)
+        self.add_signal("DownloadStart", repr(values))
         #print("on_DownloadStart : %s" % (repr(values)))
 
     def on_DownloadProgress(self, name, frac, total_frac, total_files):
         ''' Progress for a single instance in the batch '''
-        self._signals.append("DownloadProgress")
-        #values =  (name, frac, total_frac, total_files)
+        values =  (name, frac, total_frac, total_files)
+        self.add_signal("DownloadProgress", repr(values))
         #print("on_DownloadProgress : %s" % (repr(values)))
 
     def on_DownloadEnd(self, name, status, msg):
         ''' Download of af single instace ended '''
-        self._signals.append("DownloadEnd")
         values =  (name, status, msg)
-        print("on_DownloadEnd : %s" % (repr(values)))
+        self.add_signal("DownloadEnd", repr(values))
+        #print("on_DownloadEnd : %s" % (repr(values)))
 
     def on_RepoMetaDataProgress(self, name, frac):
         ''' Repository Metadata Download progress '''
-        self._signals.append("RepoMetaDataProgress")
-        #values =  (name, frac)
+        values =  (name, frac)
+        self.add_signal("RepoMetaDataProgress", repr(values))
         #print("on_RepoMetaDataProgress : %s" % (repr(values)))
 
 
@@ -189,13 +204,40 @@ class TestBaseReadonly(unittest.TestCase, DnfDaemonReadOnlyClient):
     def __init__(self, methodName='runTest'):
         unittest.TestCase.__init__(self, methodName)
         DnfDaemonReadOnlyClient.__init__(self)
+        self.default_repos = []
 
     def setUp(self):
         self.Lock()
-        self.SetEnabledRepos(["dnf-daemon-test"])
+        self.default_repos = self.GetRepositories('enabled')
+        self._enable_test_repos()
 
     def tearDown(self):
         self.Unlock()
+
+    def reset_signals(self):
+        self._signals = {}
+
+    def check_signal(self, name):
+        if name in self._signals:
+            return True
+        else:
+            return False
+
+    def add_signal(self, name, parms="()"):
+        ts = time.time()
+        st = datetime.datetime.fromtimestamp(ts).strftime('%H:%M:%S')
+        entry = (st, parms)
+        if name in self._signals:
+            self._signals[name].append(entry)
+        else:
+            self._signals[name] = [entry]
+
+
+    def show_signals(self):
+        for sig in self._signals:
+            print("Signal : %s" % sig)
+            for ts, parms in self._signals[sig]:
+                print("  --> %s : %s" % (ts, parms))
 
     def show_changelog(self, changelog, max_elem=3):
         i = 0
@@ -234,11 +276,15 @@ class TestBaseReadonly(unittest.TestCase, DnfDaemonReadOnlyClient):
         desc = self.GetAttribute(id, 'description')
         print( desc)
 
-##############################################################################
-# Dbus Signal Handlers
-###############################################################################
-
     def on_RepoMetaDataProgress(self, name, frac):
         ''' Repository Metadata Download progress '''
         values =  (name, frac)
-        print("on_RepoMetaDataProgress : %s" % (repr(values)))
+        self.add_signal("RepoMetaDataProgress", repr(values))
+        #print("on_RepoMetaDataProgress : %s" % (repr(values)))
+
+    def _enable_default_repos(self):
+        self.SetEnabledRepos(self.default_repos)
+
+    def _enable_test_repos(self):
+        self.SetEnabledRepos(["dnf-daemon-test"])
+
