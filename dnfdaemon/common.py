@@ -742,7 +742,7 @@ class Progress(DownloadProgress):
 
     def start(self, total_files, total_size):
         self.total_files = total_files
-        self.total_size = total_size
+        self.total_size = float(total_size)
         self.download_files = 0
         self.download_size = 0.0
         self.parent.downloadStart(total_files, total_size)
@@ -760,21 +760,21 @@ class Progress(DownloadProgress):
             self.dnl[pload] = 0.0
         else:
             self.dnl[pload] = done
-            total_frac = self.get_total()
-            if total_frac > self.last_frac:
-                self.last_frac = total_frac
-                if cur_total_bytes:
-                    frac = done / cur_total_bytes
-                else:
-                    frac = 0.0
-                self.parent.downloadProgress(pload, frac, total_frac, self.download_files)
+        total_frac = self.get_total()
+        if total_frac > self.last_frac:
+            self.last_frac = total_frac
+            if cur_total_bytes:
+                frac = done / cur_total_bytes
+            else:
+                frac = 0.0
+            self.parent.downloadProgress(pload, frac, total_frac, self.download_files)
 
     def get_total(self):
         """ Get the total downloaded percentage"""
         tot = 0.0
         for value in self.dnl.values():
             tot += value
-        frac = int((tot / float(self.total_size)))
+        frac = tot / self.total_size
         return frac
 
     def update(self):
