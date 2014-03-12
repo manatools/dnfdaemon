@@ -205,6 +205,8 @@ class TestBaseReadonly(unittest.TestCase, DnfDaemonReadOnlyClient):
         unittest.TestCase.__init__(self, methodName)
         DnfDaemonReadOnlyClient.__init__(self)
         self.default_repos = []
+        self._signals = {}
+
 
     def setUp(self):
         self.Lock()
