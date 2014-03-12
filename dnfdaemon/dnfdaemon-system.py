@@ -632,7 +632,11 @@ class DnfDaemon(DnfDaemonBase):
         to_dnl = self._get_packages_to_download()
         try:
             if to_dnl:
+                data = [self._get_id(po) for po in to_dnl]
+                self.TransactionEvent('pkg-to-download',data)
+                self.TransactionEvent('download',NONE)
                 self.base.download_packages(to_dnl, self.base.progress)
+            self.TransactionEvent('run-transaction',NONE)
             rc, msgs = self.base.do_transaction()
         except DownloadError as e:
             print("download error : ", str(e))
