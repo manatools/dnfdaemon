@@ -281,6 +281,7 @@ class DnfDaemon(DnfDaemonBase):
         if self.check_lock(sender):
             self.logger.info('UNLOCK: Lock Release by %s' % self._lock)
             self._lock = None
+            self._reset_base()
             return True
 
     @Logger
