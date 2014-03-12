@@ -534,26 +534,27 @@ class DnfDaemon(DnfDaemonBase):
         # filed upstream bug
         # https://bugzilla.redhat.com/show_bug.cgi?id=1073859
         print(action,str(po))
+        rc = 0
         try:
             if action == 'install':
-                self.base.install(str(po),reponame=po.reponame) # FIXME: reponame is not public api
+                rc = self.base.install(str(po),reponame=po.reponame) # FIXME: reponame is not public api
             elif action == 'remove':
-                self.base.remove(str(po)) # FIXME: reponame is not public api
+                rc = self.base.remove(str(po)) # FIXME: reponame is not public api
             elif action == 'update':
-                self.base.upgrade(str(po),reponame=po.reponame) # FIXME: reponame is not public api
+                rc = self.base.upgrade(str(po),reponame=po.reponame) # FIXME: reponame is not public api
             elif action == 'obsolete':
-                self.base.obsolete(str(po),reponame=po.reponame) # FIXME: reponame is not public api
+                rc = self.base.obsolete(str(po),reponame=po.reponame) # FIXME: reponame is not public api
             elif action == 'reinstall':
-                self.base.reinstall(str(po),reponame=po.reponame) # FIXME: reponame is not public api
+                rc = self.base.reinstall(str(po),reponame=po.reponame) # FIXME: reponame is not public api
             elif action == 'downgrade':
-                self.base.downgtade(str(po),reponame=po.reponame) # FIXME: reponame is not public api
+                rc = self.base.downgtade(str(po),reponame=po.reponame) # FIXME: reponame is not public api
             elif action == 'localinstall':
-                self.base.install_local(pkg_id) # FIXME: install_local is not public api
+                rc = self.base.install_local(pkg_id) # FIXME: install_local is not public api
         except PackagesNotInstalledError: # ignore if the package is not installed
             pass
-        # FIXME: No public api to list the current hawkey.goal
-        # so we depsolve and return the current transaction
-        value = self._build_transaction()
+        rc = self.base.run_hawkey_goal(self.base._goal)
+        value = json.dumps((rc, self._get_goal_list()))
+        print("TX:", value)
         return self.working_ended(value)
 
     @Logger
@@ -929,6 +930,33 @@ class DnfDaemon(DnfDaemonBase):
                 sublist = []
         return out_list
 
+    def _get_goal_list(self):
+        '''
+        Generate a list of the current goal
+        '''
+        out_list = []
+        sublist = []
+        tx_list = self._make_goal_dict()
+        print(tx_list)
+        for (action, pkglist) in [('install', tx_list['install']),
+                            ('update', tx_list['update']),
+                            ('remove', tx_list['remove']),
+                            ('reinstall', tx_list['reinstall']),
+                            ('downgrade', tx_list['downgrade'])]:
+
+            for po in pkglist:
+                (n, a, e, v, r) = po.pkgtup
+                size = float(po.size)
+                alist = []
+                # TODO : Add support for showing package replacement
+                el = (self._get_id(po), size, alist)
+                sublist.append(el)
+            if pkglist:
+                out_list.append([action, sublist])
+                sublist = []
+        return out_list
+
+
     def _make_trans_dict(self):
         b = {}
         for t in ('downgrade', 'remove', 'install', 'reinstall', 'update'):
@@ -946,6 +974,22 @@ class DnfDaemon(DnfDaemonBase):
                 b['update'].append(tsi)
         return b
 
+    def _make_goal_dict(self):
+        b = {}
+        for t in ('downgrade', 'remove', 'install', 'reinstall', 'update'):
+            b[t] = []
+        goal = self.base._goal # FIXME; Base._goal is not public API
+        for pkg in goal.list_downgrades():
+            b['downgrade'].append(pkg)
+        for pkg in goal.list_reinstalls():
+            b['reinstall'].append(pkg)
+        for pkg in goal.list_installs():
+            b['install'].append(pkg)
+        for pkg in goal.list_upgrades():
+            b['update'].append(pkg)
+        for pkg in goal.list_erasures():
+            b['remove'].append(pkg)
+        return b
 
 
     def _to_transaction_id_list(self):
