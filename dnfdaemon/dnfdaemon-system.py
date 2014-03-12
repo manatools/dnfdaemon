@@ -529,6 +529,9 @@ class DnfDaemon(DnfDaemonBase):
         value = json.dumps((0, []))
         if action != "localinstall": # localinstall has the path to the local rpm, not pkg_id
             po = self._get_po(pkg_id)
+            if not po:
+                self.ErrorMessage("Cant find package object for : %s" % pkg_id)
+                return self.working_ended(value)
         # FIXME: missing dnf API of adding to hawkey.Goal object
         # no easy way to add to the hawkey.Sack object in dnf
         # using public api
@@ -740,6 +743,12 @@ class DnfDaemon(DnfDaemonBase):
 # DBus signals
 #===============================================================================
 # Parallel Download Progress signals
+
+    @dbus.service.signal(DAEMON_INTERFACE)
+    def ErrorMessage(self, error_msg):
+        ''' Send an error message '''
+        pass
+
 
     @dbus.service.signal(DAEMON_INTERFACE)
     def DownloadStart(self, num_files, num_bytes):

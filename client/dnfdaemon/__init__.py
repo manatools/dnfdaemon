@@ -328,6 +328,10 @@ class DnfDaemonBase:
         values =  (name, frac)
         print("on_RepoMetaDataProgress : %s" % (repr(values)))
 
+    def on_ErrorMessage(self, msg):
+        ''' Error message from daemon service '''
+        print("on_ErrorMessage : %s" % (msg))
+
 ###############################################################################
 # API Methods
 ###############################################################################
@@ -571,6 +575,8 @@ class DnfDaemonClient(DnfDaemonBase):
             self.on_DownloadProgress(*args)
         elif signal == "RepoMetaDataProgress":
             self.on_RepoMetaDataProgress(*args)
+        elif signal == "ErrorMessage":
+            self.on_ErrorMessage(*args)
         else:
             print("Unhandled Signal : "+signal," Param: ",args)
 
