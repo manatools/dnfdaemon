@@ -137,11 +137,7 @@ test-release:
 
 test-inst:
 	@$(MAKE) test-release
-	sudo yum install ~/rpmbuild/RPMS/noarch/*${PKGNAME}-${NEW_VER}*.rpm
-
-test-reinst:
-	@$(MAKE) test-release
-	sudo yum reinstall ~/rpmbuild/RPMS/noarch/*${PKGNAME}-${NEW_VER}*.rpm
+	sudo dnf install ~/rpmbuild/RPMS/noarch/*${PKGNAME}-${NEW_VER}*.rpm
 	
 rpm:
 	@$(MAKE) archive
