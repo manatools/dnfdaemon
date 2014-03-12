@@ -634,6 +634,9 @@ class DnfBase(dnf.Base):
 
     def __init__(self, parent):
         dnf.Base.__init__(self)
+        # FIXME: Not public api
+        # make remove able to remove deps also
+        self.goal_parameters.allow_uninstall = True
         self.parent = parent
         self.md_progress = MDProgress(parent)
         self.setup_cache()

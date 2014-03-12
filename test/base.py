@@ -13,10 +13,12 @@ class TestBase(unittest.TestCase, DnfDaemonClient):
         DnfDaemonClient.__init__(self)
         self._gpg_confirm = None
         self._signals = []
+        self.default_repos = []
 
     def setUp(self):
         self.Lock()
-        self.SetEnabledRepos(["dnf-daemon-test"])
+        self.default_repos = self.GetRepositories('enabled')
+        self._enable_test_repos()
 
     def tearDown(self):
         self.Unlock()
@@ -58,6 +60,13 @@ class TestBase(unittest.TestCase, DnfDaemonClient):
                 print( "  --> %s" % str(pkg))
 
 # ======================== Helpers =======================
+
+    def _enable_default_repos(self):
+        self.SetEnabledRepos(self.default_repos)
+
+    def _enable_test_repos(self):
+        self.SetEnabledRepos(["dnf-daemon-test"])
+
     def _add_to_transaction(self, name):
         '''
         Helper to add a package to transaction

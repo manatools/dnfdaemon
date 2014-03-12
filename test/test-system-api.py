@@ -465,3 +465,23 @@ class TestAPIDevel(TestBase):
         print("# found = ", len(result))
         self.assertIsInstance(result, list)
         self.assertEqual(len(result), 0)
+
+
+    def test_Transaction(self):
+        '''
+        System: AddTransaction (Remove with deps)
+        '''
+        print()
+        self._enable_default_repos()
+        rc, output = self.Install('btanks')
+        if rc:
+            self.show_transaction_result(output)
+            self.RunTransaction()
+        rc, trans = self._add_to_transaction('btanks')
+        self.show_transaction_result(trans)
+        for action,pkglist in trans:
+            self.assertEqual(action,'remove')
+            self.assertIsInstance(pkglist, list) # is a list
+            self.assertEqual(len(pkglist),2)
+        rc,trans  = self.BuildTransaction()
+        self.RunTransaction()

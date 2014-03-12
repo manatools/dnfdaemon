@@ -975,18 +975,19 @@ class DnfDaemon(DnfDaemonBase):
         b = {}
         for t in ('downgrade', 'remove', 'install', 'reinstall', 'update'):
             b[t] = []
-        resolve_rc = self.base.run_hawkey_goal(self.base._goal) # FIXME: Base.run_hawkey_goal not public API
-        goal = self.base._goal # FIXME; Base._goal is not public API
-        for pkg in goal.list_downgrades():
-            b['downgrade'].append(pkg)
-        for pkg in goal.list_reinstalls():
-            b['reinstall'].append(pkg)
-        for pkg in goal.list_installs():
-            b['install'].append(pkg)
-        for pkg in goal.list_upgrades():
-            b['update'].append(pkg)
-        for pkg in goal.list_erasures():
-            b['remove'].append(pkg)
+        resolve_rc = self.base.resolve()
+        if resolve_rc:
+            goal = self.base._goal # FIXME; Base._goal is not public API
+            for pkg in goal.list_downgrades():
+                b['downgrade'].append(pkg)
+            for pkg in goal.list_reinstalls():
+                b['reinstall'].append(pkg)
+            for pkg in goal.list_installs():
+                b['install'].append(pkg)
+            for pkg in goal.list_upgrades():
+                b['update'].append(pkg)
+            for pkg in goal.list_erasures():
+                b['remove'].append(pkg)
         return resolve_rc, b
 
 
