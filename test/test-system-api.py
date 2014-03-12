@@ -377,8 +377,9 @@ class TestAPIDevel(TestBase):
             self.assertEqual(len(pkglist),1)
         # Clear the current goal/transaction
         self.ClearTransaction()
-        trans = self.GetTransaction()
+        rc, trans = self.GetTransaction()
         print("clear", trans)
+        self.assertTrue(rc)
         self.assertIsInstance(trans, list) # is a list
         self.assertEqual(len(trans),0) # this should be an empty list
         # install 0xFFFF
@@ -388,6 +389,7 @@ class TestAPIDevel(TestBase):
             self.assertEqual(action,'install')
             self.assertIsInstance(pkglist, list) # is a list
             self.assertEqual(len(pkglist),1)
+        self.BuildTransaction()
         self.RunTransaction()
         # remove 0xFFFF
         rc, trans = self._add_to_transaction('foo')
@@ -396,6 +398,7 @@ class TestAPIDevel(TestBase):
             self.assertEqual(action,'remove')
             self.assertIsInstance(pkglist, list) # is a list
             self.assertEqual(len(pkglist),1)
+        self.BuildTransaction()
         self.RunTransaction()
 
     def test_SetConfig(self):

@@ -525,7 +525,7 @@ class DnfDaemon(DnfDaemonBase):
         :param action: the action to perform ( install, update, remove, obsolete, reinstall, downgrade, localinstall )
         '''
         self.working_start(sender)
-        value = None
+        value = json.dumps((0, []))
         if action != "localinstall": # localinstall has the path to the local rpm, not pkg_id
             po = self._get_po(pkg_id)
         # FIXME: missing dnf API of adding to hawkey.Goal object
@@ -533,7 +533,6 @@ class DnfDaemon(DnfDaemonBase):
         # using public api
         # filed upstream bug
         # https://bugzilla.redhat.com/show_bug.cgi?id=1073859
-        print(action,str(po))
         rc = 0
         try:
             if action == 'install':
@@ -547,13 +546,15 @@ class DnfDaemon(DnfDaemonBase):
             elif action == 'reinstall':
                 rc = self.base.reinstall(str(po),reponame=po.reponame) # FIXME: reponame is not public api
             elif action == 'downgrade':
-                rc = self.base.downgtade(str(po),reponame=po.reponame) # FIXME: reponame is not public api
+                rc = self.base.downgrade(str(po),reponame=po.reponame) # FIXME: reponame is not public api
             elif action == 'localinstall':
                 rc = self.base.install_local(pkg_id) # FIXME: install_local is not public api
+            else:
+                self.logger.error("unknown action :", action)
         except PackagesNotInstalledError: # ignore if the package is not installed
-            pass
-        rc = self.base.run_hawkey_goal(self.base._goal)
-        value = json.dumps((rc, self._get_goal_list()))
+            self.logger.warning("package not installed : ",str(po))
+        if rc:
+            value = json.dumps(self._get_goal_list())
         print("TX:", value)
         return self.working_ended(value)
 
@@ -568,7 +569,6 @@ class DnfDaemon(DnfDaemonBase):
         '''
         self.working_start(sender)
         self.base.reset(goal = True) # reset the current goal
-        self._build_transaction() # desolve empty goal, to clean the transaction obj.
         return self.working_ended()
 
 
@@ -583,9 +583,7 @@ class DnfDaemon(DnfDaemonBase):
         Return the members of the current transaction
         '''
         self.working_start(sender)
-        # FIXME: We sould return the current hawkey.goal not the transaction
-        # because the transaction is not populated before the depsolve.
-        value = json.dumps(self._get_transaction_list())
+        value = json.dumps(self._get_goal_list())
         return self.working_ended(value)
 
 
@@ -936,8 +934,7 @@ class DnfDaemon(DnfDaemonBase):
         '''
         out_list = []
         sublist = []
-        tx_list = self._make_goal_dict()
-        print(tx_list)
+        resolve_rc, tx_list = self._make_goal_dict()
         for (action, pkglist) in [('install', tx_list['install']),
                             ('update', tx_list['update']),
                             ('remove', tx_list['remove']),
@@ -954,7 +951,7 @@ class DnfDaemon(DnfDaemonBase):
             if pkglist:
                 out_list.append([action, sublist])
                 sublist = []
-        return out_list
+        return resolve_rc, out_list
 
 
     def _make_trans_dict(self):
@@ -978,6 +975,7 @@ class DnfDaemon(DnfDaemonBase):
         b = {}
         for t in ('downgrade', 'remove', 'install', 'reinstall', 'update'):
             b[t] = []
+        resolve_rc = self.base.run_hawkey_goal(self.base._goal) # FIXME: Base.run_hawkey_goal not public API
         goal = self.base._goal # FIXME; Base._goal is not public API
         for pkg in goal.list_downgrades():
             b['downgrade'].append(pkg)
@@ -989,7 +987,7 @@ class DnfDaemon(DnfDaemonBase):
             b['update'].append(pkg)
         for pkg in goal.list_erasures():
             b['remove'].append(pkg)
-        return b
+        return resolve_rc, b
 
 
     def _to_transaction_id_list(self):
