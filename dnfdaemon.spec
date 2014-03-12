@@ -10,7 +10,7 @@ Source0:        https://fedorahosted.org/releases/y/u/yumex/%{name}-%{version}.t
 BuildArch:      noarch
 BuildRequires:  python3-devel
 Requires:       python3-dbus
-Requires:       dnf >= 0.4.17
+Requires:       python3-dnf >= 0.4.17
 Requires:       polkit
 Requires(post):     policycoreutils-python
 Requires(postun):   policycoreutils-python
