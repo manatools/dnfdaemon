@@ -487,14 +487,15 @@ class DnfDaemonBase:
         '''
         return json.loads(self._run_dbus_async('GetGroups'))
 
-    def GetGroupPackages(self, grp_id, grp_flt):
+    def GetGroupPackages(self, grp_id, grp_flt, fields):
         '''
         Get packages in a group
 
         :param grp_id: the group id to get packages for
         :param grp_flt: the filter ('all' = all packages ,'default' = packages to be installed, before the group is installed)
+        :param fields: extra package attributes to include in result
         '''
-        return self._run_dbus_async('GetGroupPackages', '(ss)', grp_id, grp_flt)
+        return json.loads(self._run_dbus_async('GetGroupPackages', '(ssas)', grp_id, grp_flt, fields))
 
 
     def Search(self, fields, keys, match_all, newest_only, tags):

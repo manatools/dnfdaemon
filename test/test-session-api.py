@@ -196,10 +196,10 @@ class TestAPIDevel(TestBaseReadonly):
                 print( "   tag: %s name: %s \n       desc: %s \n       installed : %s " % tuple(grp))
                 # Test GetGroupPackages
                 grp_id = grp[0]
-                pkgs = self.GetGroupPackages(grp_id,'all')
+                pkgs = self.GetGroupPackages(grp_id,'all',[])
                 self.assertIsInstance(pkgs, list) # cat is a list
                 print( "       # of Packages in group         : ",len(pkgs))
-                pkgs = self.GetGroupPackages(grp_id,'default')
+                pkgs = self.GetGroupPackages(grp_id,'default',[])
                 self.assertIsInstance(pkgs, list) # cat is a list
                 print( "       # of Default Packages in group : ",len(pkgs))
 

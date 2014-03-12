@@ -25,6 +25,7 @@ import dbus.service
 import dbus.glib
 import json
 import logging
+import time
 from datetime import datetime
 from gi.repository import GLib
 
@@ -324,7 +325,7 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
 
 
 
-    def _get_group_pkgs(self, grp_id, grp_flt):
+    def _get_group_pkgs(self, grp_id, grp_flt, fields):
         '''
         Get packages for a given grp_id and group filter
         '''
@@ -337,8 +338,10 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
                 pkg_names.extend([p.name for p in grp.default_packages ])
                 pkg_names.extend([p.name for p in grp.optional_packages ])
                 best_pkgs = []
+                now = time()
                 for name in pkg_names:
                     best_pkgs.extend(self._get_po_by_name(name,True))
+                print("grp-pkg : ",time()- now )
             else:
                 pkg_names = []
                 pkg_names.extend([p.name for p in grp.mandatory_packages ])
@@ -349,8 +352,8 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
             pkgs = self.base.packages.filter_packages(best_pkgs)
         else:
             pass
-        pkg_ids = self._to_package_id_list(pkgs)
-        return pkg_ids
+        value = [self._get_po_list(po,fields) for po in pkgs]
+        return value
 
 #===============================================================================
 # Helper methods
