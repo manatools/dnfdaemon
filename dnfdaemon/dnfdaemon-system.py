@@ -530,7 +530,9 @@ class DnfDaemon(DnfDaemonBase):
         if action != "localinstall": # localinstall has the path to the local rpm, not pkg_id
             po = self._get_po(pkg_id)
             if not po:
-                self.ErrorMessage("Cant find package object for : %s" % pkg_id)
+                msg = "Cant find package object for : %s" % pkg_id
+                self.ErrorMessage(msg)
+                value = json.dumps((0, [msg]))
                 return self.working_ended(value)
         # FIXME: missing dnf API of adding to hawkey.Goal object
         # no easy way to add to the hawkey.Sack object in dnf
@@ -557,9 +559,9 @@ class DnfDaemon(DnfDaemonBase):
                 self.logger.error("unknown action :", action)
         except PackagesNotInstalledError: # ignore if the package is not installed
             self.logger.warning("package not installed : ",str(po))
+            self.ErrorMessage("package not installed : ",str(po))
         if rc:
             value = json.dumps(self._get_goal_list())
-        print("TX:", value)
         return self.working_ended(value)
 
     @Logger
