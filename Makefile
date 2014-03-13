@@ -146,7 +146,7 @@ rpm:
 test-builds:
 	@$(MAKE) test-release
 	@ssh timlau.fedorapeople.org rm -f public_html/files/${PKGNAME}/*
-	@scp ${PKGNAME}-${NEW_VER}.tar.gz timlau.fedorapeople.org:public_html/files/${PKGNAME}/${PKGNAME}-${NEW_VER}-${GITDATE}.tar.gz
+	@scp ~/rpmbuild/SOURCES/${PKGNAME}-${NEW_VER}.tar.gz timlau.fedorapeople.org:public_html/files/${PKGNAME}/${PKGNAME}-${NEW_VER}-${GITDATE}.tar.gz
 	@scp ~/rpmbuild/RPMS/noarch/${PKGNAME}-${NEW_VER}*.rpm timlau.fedorapeople.org:public_html/files/${PKGNAME}/.
 	@scp ~/rpmbuild/RPMS/noarch/python-${PKGNAME}-${NEW_VER}*.rpm timlau.fedorapeople.org:public_html/files/${PKGNAME}/.
 	@scp ~/rpmbuild/RPMS/noarch/python3-${PKGNAME}-${NEW_VER}*.rpm timlau.fedorapeople.org:public_html/files/${PKGNAME}/.
