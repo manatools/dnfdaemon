@@ -564,7 +564,7 @@ class DnfDaemon(DnfDaemonBase):
             elif action == 'update':
                 rc = self.base.upgrade(str(po),reponame=po.reponame) # FIXME: reponame is not public api
             elif action == 'obsolete':
-                rc = self.base.obsolete(str(po),reponame=po.reponame) # FIXME: reponame is not public api
+                rc = self.base.upgrade(str(po),reponame=po.reponame) # FIXME: reponame is not public api
             elif action == 'reinstall':
                 rc = self.base.reinstall(str(po),reponame=po.reponame) # FIXME: reponame is not public api
             elif action == 'downgrade':
@@ -976,7 +976,7 @@ class DnfDaemon(DnfDaemonBase):
                                 ('remove', tx_list['remove']),
                                 ('reinstall', tx_list['reinstall']),
                                 ('downgrade', tx_list['downgrade'])]:
-    
+
                 for po in pkglist:
                     (n, a, e, v, r) = po.pkgtup
                     size = float(po.size)
