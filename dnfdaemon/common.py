@@ -27,7 +27,7 @@ import json
 import logging
 import time
 from datetime import datetime
-from gi.repository import GLib
+from gi.repository import GLib, Gtk
 
 
 import sys
