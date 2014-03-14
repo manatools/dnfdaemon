@@ -627,12 +627,15 @@ class DnfDaemon(DnfDaemonBase):
         '''
         Resolve dependencies of current transaction
         '''
+        output = []
         self.TransactionEvent('start-build',NONE)
-        rc = self.base.resolve()
+        try:
+            rc = self.base.resolve()
+        except dnf.exceptions.DepsolveError as e:
+            rc = False
+            output = e.value.split('. ')
         if rc: # OK
             output = self._get_transaction_list()
-        else:
-            output = []
         self.TransactionEvent('end-build',NONE)
         return json.dumps((rc,output))
 
@@ -967,23 +970,26 @@ class DnfDaemon(DnfDaemonBase):
         out_list = []
         sublist = []
         resolve_rc, tx_list = self._make_goal_dict()
-        for (action, pkglist) in [('install', tx_list['install']),
-                            ('update', tx_list['update']),
-                            ('remove', tx_list['remove']),
-                            ('reinstall', tx_list['reinstall']),
-                            ('downgrade', tx_list['downgrade'])]:
-
-            for po in pkglist:
-                (n, a, e, v, r) = po.pkgtup
-                size = float(po.size)
-                alist = []
-                # TODO : Add support for showing package replacement
-                el = (self._get_id(po), size, alist)
-                sublist.append(el)
-            if pkglist:
-                out_list.append([action, sublist])
-                sublist = []
-        return resolve_rc, out_list
+        if resolve_rc:
+            for (action, pkglist) in [('install', tx_list['install']),
+                                ('update', tx_list['update']),
+                                ('remove', tx_list['remove']),
+                                ('reinstall', tx_list['reinstall']),
+                                ('downgrade', tx_list['downgrade'])]:
+    
+                for po in pkglist:
+                    (n, a, e, v, r) = po.pkgtup
+                    size = float(po.size)
+                    alist = []
+                    # TODO : Add support for showing package replacement
+                    el = (self._get_id(po), size, alist)
+                    sublist.append(el)
+                if pkglist:
+                    out_list.append([action, sublist])
+                    sublist = []
+            return resolve_rc, out_list
+        else:
+            return resolve_rc, tx_list
 
 
     def _make_trans_dict(self):
@@ -1007,8 +1013,13 @@ class DnfDaemon(DnfDaemonBase):
         b = {}
         for t in ('downgrade', 'remove', 'install', 'reinstall', 'update'):
             b[t] = []
-        resolve_rc = self.base.resolve()
-        if resolve_rc:
+        try:
+            rc = self.base.resolve()
+            output = []
+        except dnf.exceptions.DepsolveError as e:
+            rc = False
+            output = e.value.split('. ')
+        if rc:
             goal = self.base._goal # FIXME; Base._goal is not public API
             for pkg in goal.list_downgrades():
                 b['downgrade'].append(pkg)
@@ -1020,7 +1031,9 @@ class DnfDaemon(DnfDaemonBase):
                 b['update'].append(pkg)
             for pkg in goal.list_erasures():
                 b['remove'].append(pkg)
-        return resolve_rc, b
+            return rc, b
+        else:
+            return rc, output
 
 
     def _to_transaction_id_list(self):
