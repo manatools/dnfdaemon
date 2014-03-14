@@ -13,6 +13,7 @@ BUMPED_MINOR=${shell VN=`cat ${PKGNAME}.spec | grep Version| sed  's/${VER_REGEX
 NEW_VER=${shell cat ${PKGNAME}.spec | grep Version| sed  's/\(^Version:\s*\)\([0-9]*\.[0-9]*\.\)\(.*\)/\2${BUMPED_MINOR}/'}
 NEW_REL=0.1.${GITDATE}
 DIST=${shell rpm --eval "%{dist}"}
+RPM_DIR=~/rpmbuild/RPMS/noarch/
 
 all: subdirs
 	
@@ -144,7 +145,9 @@ test-repo-build:
 
 test-inst:
 	@$(MAKE) test-release
-	sudo dnf install ~/rpmbuild/RPMS/noarch/*${PKGNAME}-${NEW_VER}*.rpm
+	@sudo dnf install ${RPM_DIR}/${PKGNAME}-${NEW_VER}-${NEW_REL}*.rpm \
+	                 ${RPM_DIR}/python-${PKGNAME}-${NEW_VER}-${NEW_REL}*.rpm \
+	                 ${RPM_DIR}/python3-${PKGNAME}-${NEW_VER}-${NEW_REL}*.rpm
 	
 rpm:
 	@$(MAKE) archive
