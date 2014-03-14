@@ -1,4 +1,4 @@
-%global pkg_ver 1.0
+%global pkg_ver 2.0
 
 Name:           foobar
 Version:        %{pkg_ver}

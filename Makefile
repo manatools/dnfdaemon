@@ -134,6 +134,13 @@ test-release:
 	# Build RPMS
 	@rpmbuild -ba ${PKGNAME}.spec
 	@$(MAKE) test-cleanup
+	
+test-repo-build:
+	@cd test/pkgs/ && ./build-rpms.sh
+	@# Dnf cant clean a local repo
+	@sudo rm -rf /var/cache/dnf/*/20/dnf-daemon-test
+	@sudo rm -f /var/cache/dnf/*/20/dnf-daemon-test*
+	
 
 test-inst:
 	@$(MAKE) test-release
