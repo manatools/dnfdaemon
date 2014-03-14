@@ -468,19 +468,17 @@ class TestAPIDevel(TestBase):
         self.assertIsInstance(result, list)
         self.assertEqual(len(result), 0)
 
-
     def test_TransactionDepRemove(self):
         '''
         System: AddTransaction (Remove with deps)
         '''
         print()
         self._enable_default_repos()
-        rc, output = self.Install('btanks')
-        if rc:
-            self.show_transaction_result(output)
-            self.RunTransaction()
-        else:
-            print('btanks already install')
+        if not self._is_installed('btanks'):
+            rc, output = self.Install('btanks')
+            if rc:
+                self.show_transaction_result(output)
+                self.RunTransaction()
         rc, trans = self._add_to_transaction('btanks')
         self.show_transaction_result(trans)
         for action,pkglist in trans:
@@ -508,7 +506,7 @@ class TestAPIDevel(TestBase):
         print("Getting Installed")
         pkgs = self.GetPackages('installed')
         print("# of packages : %d" % len(pkgs))
-        
+
     def test_DepsolveErr(self):
         '''
         System: DepSolveErrors
@@ -522,4 +520,4 @@ class TestAPIDevel(TestBase):
         self.assertGreater(len(output),0)
         for msg in output:
             print("  MSG : %s" % msg)
-        
+
