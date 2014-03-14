@@ -175,7 +175,8 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
         qa = subj.get_best_query(self.base.sack, with_provides=False)
         if newest_only:
             qa = qa.latest()
-        return list(qa)
+        pkgs = self.base.packages.filter_packages(qa)
+        return list(pkgs)
 
     def _get_groups(self):
         '''

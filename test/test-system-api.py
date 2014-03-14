@@ -542,3 +542,27 @@ class TestAPIDevel(TestBase):
             for pkg in pkgs:
                 print("    pkg: ", str(pkg))
         self._remove_if_installed('bar-old') # make sure pkg is not installed
+
+    def test_GetPackagesByNameForInstalledPkg(self):
+        '''
+        System: GetPackagesByName(bar is installed)
+        if bar-2.0 is installed, the GetPackagesByName('bar', newest_only=False)
+        should only list the installed bar-2.0 and the available bar-1.0
+        and not the available bar-2.0
+        '''
+        print()
+        # make sure there is one update
+        self._remove_if_installed('bar') # make sure pkg is not installed
+        rc, output = self.Install('bar')
+        self.assertTrue(rc)
+        if rc:
+            self.show_transaction_result(output)
+            self.RunTransaction()
+        pkgs = self.GetPackagesByName('bar', newest_only=False)
+        # pkgs should be a list instance
+        self.assertIsInstance(pkgs, list)
+        self.assertEqual(len(pkgs),2) # bar should only be there twice
+        for pkg in pkgs:
+            print( "  Package : %s" % pkg)
+            (n, e, v, r, a, repo_id) = self.to_pkg_tuple(pkg)
+            self.assertEqual(n,"bar")
