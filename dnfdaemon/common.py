@@ -250,7 +250,7 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
         self._get_base(reset=True, load_sack=False)
         for repo in self.base.repos.all():
             if repo.id in repo_ids:
-                print("enable : ", repo.id)
+                logger.debug("  enabled : ", repo.id)
                 repo.enable()
             else:
                 repo.disable()
@@ -673,7 +673,7 @@ class DnfBase(dnf.Base):
         cli_cache = dnf.conf.CliCache(conf.cachedir, suffix)
         conf.cachedir = cli_cache.cachedir
         self._system_cachedir = cli_cache.system_cachedir
-        print("cachedir: %s" % conf.cachedir)
+        logger.debug("dnf cachedir: %s" % conf.cachedir)
 
     def search(self, fields, values, match_all=True, showdups=False):
         '''
@@ -814,22 +814,22 @@ class TransactionDisplay(object):
             percent = int((float(te_current)/te_total)*100.0)
             if percent == 100:
                 self.last=-1
-                print(action, package, percent, ts_current, ts_total )
+                logger.debug(action, package, percent, ts_current, ts_total )
             elif percent > self.last and percent % 10 == 0:
                 self.last = percent
-                print(action, package, percent, ts_current, ts_total )
+                logger.debug(action, package, percent, ts_current, ts_total )
 
         else:
-            print(action, package)
+            logger.debug(action, package)
 
     def scriptout(self, msgs):
         """msgs is the messages that were output (if any)."""
         if msgs:
-            print("ScriptOut: ",msgs)
+            logger.debug("ScriptOut: ",msgs)
 
     def errorlog(self, msg):
         """takes a simple error msg string"""
-        print(msg, file=sys.stderr)
+        logger.debug(msg, file=sys.stderr)
 
     def filelog(self, package, action):
         # check package object type - if it is a string - just output it
@@ -838,7 +838,7 @@ class TransactionDisplay(object):
         pass
 
     def verify_tsi_package(self, pkg, count, total):
-        print("Verifing : %s "% pkg)
+        logger.debug("Verifing : %s "% pkg)
 
 
 
