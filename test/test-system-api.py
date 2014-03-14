@@ -230,7 +230,7 @@ class TestAPIDevel(TestBase):
         '''
         System: GetAttribute( downgrades )
         '''
-        print( "Get newest versions of yum")
+        print( "Get newest versions of bar")
         pkgs = self.GetPackagesByName('bar', newest_only=True)
         # pkgs should be a list instance
         self.assertIsInstance(pkgs, list)
@@ -370,6 +370,7 @@ class TestAPIDevel(TestBase):
         print()
         self._remove_if_installed('foo') # make sure pkg is not installed
         rc, trans = self._add_to_transaction('foo')
+        self.assertTrue(rc)
         self.show_transaction_result(trans)
         for action,pkglist in trans:
             self.assertEqual(action,'install')
@@ -379,11 +380,11 @@ class TestAPIDevel(TestBase):
         self.ClearTransaction()
         rc, trans = self.GetTransaction()
         print("clear", trans)
-        self.assertTrue(rc)
         self.assertIsInstance(trans, list) # is a list
         self.assertEqual(len(trans),0) # this should be an empty list
         # install 0xFFFF
         rc, trans = self._add_to_transaction('foo')
+        self.assertTrue(rc)
         self.show_transaction_result(trans)
         for action,pkglist in trans:
             self.assertEqual(action,'install')
@@ -393,6 +394,7 @@ class TestAPIDevel(TestBase):
         self.RunTransaction()
         # remove 0xFFFF
         rc, trans = self._add_to_transaction('foo')
+        self.assertTrue(rc)
         self.show_transaction_result(trans)
         for action,pkglist in trans:
             self.assertEqual(action,'remove')
@@ -467,7 +469,7 @@ class TestAPIDevel(TestBase):
         self.assertEqual(len(result), 0)
 
 
-    def test_Transaction(self):
+    def test_TransactionDepRemove(self):
         '''
         System: AddTransaction (Remove with deps)
         '''
@@ -477,6 +479,8 @@ class TestAPIDevel(TestBase):
         if rc:
             self.show_transaction_result(output)
             self.RunTransaction()
+        else:
+            print('btanks already install')
         rc, trans = self._add_to_transaction('btanks')
         self.show_transaction_result(trans)
         for action,pkglist in trans:
@@ -504,3 +508,18 @@ class TestAPIDevel(TestBase):
         print("Getting Installed")
         pkgs = self.GetPackages('installed')
         print("# of packages : %d" % len(pkgs))
+        
+    def test_DepsolveErr(self):
+        '''
+        System: DepSolveErrors
+        '''
+        print()
+        #rc, output = self.Install('foo-dep-error')
+        rc, output = self.Install('foo-dep-error bar-dep-error')
+        print('  Return Code : %i' % rc)
+        self.assertEqual(rc,False)
+        self.assertIsInstance(output,list)
+        self.assertGreater(len(output),0)
+        for msg in output:
+            print("  MSG : %s" % msg)
+        

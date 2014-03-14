@@ -15,27 +15,11 @@ When the test method is completted it is move som test-api.py
 use 'nosetest -v -s unit-devel.py' to run the tests
 """
 
-class TestAPIDevel(TestBaseReadonly):
-#class TestAPIDevel(TestBase):
+#class TestAPIDevel(TestBaseReadonly):
+class TestAPIDevel(TestBase):
 
     def __init__(self, methodName='runTest'):
         super(TestAPIDevel, self).__init__(methodName)
 
-    def test_ExpireCache(self):
-        '''
-        Session: ExpireCache
-        '''
-        print()
-        print("Enable default system repositories")
-        self._enable_default_repos()
-        print("Expire the dnf cache")
-        self.reset_signals()
-        self.ExpireCache()
-        self.show_signals()
-        self.assertTrue(self.check_signal('RepoMetaDataProgress'))
-        print("Getting Updates")
-        pkgs = self.GetPackages('updates')
-        print("# of packages : %d" % len(pkgs))
-        print("Getting Installed")
-        pkgs = self.GetPackages('installed')
-        print("# of packages : %d" % len(pkgs))
+        
+        

@@ -1,0 +1,4 @@
+eclipse.preferences.version=1
+encoding//dnfdaemon/common.py=utf-8
+encoding//dnfdaemon/dnfdaemon-system.py=utf-8
+encoding//test/test-system-api.py=utf-8

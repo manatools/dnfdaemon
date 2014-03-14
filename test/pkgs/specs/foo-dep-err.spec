@@ -1,17 +1,18 @@
-%global pkg_ver 2.0
+%global pkg_ver 1.0
 
-Name:           foo
+Name:           foo-dep-error
 Version:        %{pkg_ver}
 Release:        1%{?dist}
-Summary:        foo test package for dnf-daemon testing
+Summary:        foo-dep-err test package for dnf-daemon testing
 
 License:        GPLv2+
-URL:            https://github.com/timlau/yum-daemon
+URL:            https://github.com/timlau/dnf-daemon
 Source0:        source.tar.gz
 BuildArch:      noarch
+Requires:		not-found-dep
 
 %description
-foo test package for dnf-daemon testing
+foo-dep-err test package for dnf-daemon testing
 
 %prep
 %setup -q -n source

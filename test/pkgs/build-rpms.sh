@@ -10,6 +10,8 @@ rpmbuild -ba specs/bar-10.spec
 rpmbuild -ba specs/bar-20.spec
 rpmbuild -ba specs/foobar-10.spec
 rpmbuild -ba specs/foobar-20.spec
+rpmbuild -ba specs/foo-dep-err.spec
+rpmbuild -ba specs/bar-dep-err.spec
 # create the repo and install a .repo files
 mkdir repo
 cp ~/rpmbuild/RPMS/noarch/foo*.rpm ./repo/
