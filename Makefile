@@ -184,6 +184,8 @@ start-session:
 kill-both:
 	@-sudo killall -9 -r "dnfdaemon-system\.py" &> /dev/null 
 	@-sudo killall -9 -r "dnfdaemon-session\.py" &> /dev/null 
+	@-sudo killall -9 -r "dnfdaemon-system" &> /dev/null 
+	@-sudo killall -9 -r "dnfdaemon-session" &> /dev/null 
 	
 
 start-system:
