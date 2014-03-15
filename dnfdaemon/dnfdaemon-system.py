@@ -550,11 +550,6 @@ class DnfDaemon(DnfDaemonBase):
                 self.ErrorMessage(msg)
                 value = json.dumps((0, [msg]))
                 return self.working_ended(value)
-        # FIXME: missing dnf API of adding to hawkey.Goal object
-        # no easy way to add to the hawkey.Sack object in dnf
-        # using public api
-        # filed upstream bug
-        # https://bugzilla.redhat.com/show_bug.cgi?id=1073859
         rc = 0
         try:
             if action == 'install':
@@ -577,7 +572,8 @@ class DnfDaemon(DnfDaemonBase):
             self.logger.warning("package not installed : ",str(po))
             self.ErrorMessage("package not installed : ",str(po))
         if rc:
-            value = json.dumps(self._get_goal_list())
+            value = json.dumps(self._get_transaction_list())
+            #value = json.dumps(self._get_goal_list())
         return self.working_ended(value)
 
     @Logger
@@ -605,7 +601,7 @@ class DnfDaemon(DnfDaemonBase):
         Return the members of the current transaction
         '''
         self.working_start(sender)
-        value = json.dumps(self._get_goal_list())
+        value = json.dumps(self._get_transaction_list())
         return self.working_ended(value)
 
 
@@ -629,13 +625,7 @@ class DnfDaemon(DnfDaemonBase):
         '''
         output = []
         self.TransactionEvent('start-build',NONE)
-        try:
-            rc = self.base.resolve()
-        except dnf.exceptions.DepsolveError as e:
-            rc = False
-            output = e.value.split('. ')
-        if rc: # OK
-            output = self._get_transaction_list()
+        rc, output = self._get_transaction_list()
         self.TransactionEvent('end-build',NONE)
         return json.dumps((rc,output))
 
@@ -875,7 +865,7 @@ class DnfDaemon(DnfDaemonBase):
             for repo in self.base.repos.iter_enabled():
                 if hasattr(repo, option):
                     setattr(repo, option, value)
-                    self.logger.debug("Setting Option %s = %s (%s)" % (option, value, repo.id), __name__)
+                    self.logger.debug("Setting Option %s = %s (%s)",option, value, repo.id)
             return True
         else:
             return False
@@ -943,41 +933,16 @@ class DnfDaemon(DnfDaemonBase):
         '''
         out_list = []
         sublist = []
-        tx_list = self._make_trans_dict()
-        for (action, pkglist) in [('install', tx_list['install']),
-                            ('update', tx_list['update']),
-                            ('remove', tx_list['remove']),
-                            ('reinstall', tx_list['reinstall']),
-                            ('downgrade', tx_list['downgrade'])]:
-
-            for tsi in pkglist:
-                po = _active_pkg(tsi)
-                (n, a, e, v, r) = po.pkgtup
-                size = float(po.size)
-                alist = []
-                # TODO : Add support for showing package replacement
-                el = (self._get_id(po), size, alist)
-                sublist.append(el)
-            if pkglist:
-                out_list.append([action, sublist])
-                sublist = []
-        return out_list
-
-    def _get_goal_list(self):
-        '''
-        Generate a list of the current goal
-        '''
-        out_list = []
-        sublist = []
-        resolve_rc, tx_list = self._make_goal_dict()
-        if resolve_rc:
+        rc, tx_list = self._make_trans_dict()
+        if rc:
             for (action, pkglist) in [('install', tx_list['install']),
                                 ('update', tx_list['update']),
                                 ('remove', tx_list['remove']),
                                 ('reinstall', tx_list['reinstall']),
                                 ('downgrade', tx_list['downgrade'])]:
-
-                for po in pkglist:
+    
+                for tsi in pkglist:
+                    po = _active_pkg(tsi)
                     (n, a, e, v, r) = po.pkgtup
                     size = float(po.size)
                     alist = []
@@ -987,32 +952,16 @@ class DnfDaemon(DnfDaemonBase):
                 if pkglist:
                     out_list.append([action, sublist])
                     sublist = []
-            return resolve_rc, out_list
-        else:
-            return resolve_rc, tx_list
+            return rc, out_list
+        else: # Error in depsolve, return error msgs
+            return rc, tx_list
 
 
     def _make_trans_dict(self):
         b = {}
         for t in ('downgrade', 'remove', 'install', 'reinstall', 'update'):
             b[t] = []
-        for tsi in self.base.transaction:
-            if tsi.op_type == dnf.transaction.DOWNGRADE:
-                b['downgrade'].append(tsi)
-            elif tsi.op_type == dnf.transaction.ERASE:
-                b['remove'].append(tsi)
-            elif tsi.op_type == dnf.transaction.INSTALL:
-                b['install'].append(tsi)
-            elif tsi.op_type == dnf.transaction.REINSTALL:
-                b['reinstall'].append(tsi)
-            elif tsi.op_type == dnf.transaction.UPGRADE:
-                b['update'].append(tsi)
-        return b
-
-    def _make_goal_dict(self):
-        b = {}
-        for t in ('downgrade', 'remove', 'install', 'reinstall', 'update'):
-            b[t] = []
+        # Resolve to get the Transaction object popolated
         try:
             rc = self.base.resolve()
             output = []
@@ -1020,21 +969,20 @@ class DnfDaemon(DnfDaemonBase):
             rc = False
             output = e.value.split('. ')
         if rc:
-            goal = self.base._goal # FIXME; Base._goal is not public API
-            for pkg in goal.list_downgrades():
-                b['downgrade'].append(pkg)
-            for pkg in goal.list_reinstalls():
-                b['reinstall'].append(pkg)
-            for pkg in goal.list_installs():
-                b['install'].append(pkg)
-            for pkg in goal.list_upgrades():
-                b['update'].append(pkg)
-            for pkg in goal.list_erasures():
-                b['remove'].append(pkg)
+            for tsi in self.base.transaction:
+                if tsi.op_type == dnf.transaction.DOWNGRADE:
+                    b['downgrade'].append(tsi)
+                elif tsi.op_type == dnf.transaction.ERASE:
+                    b['remove'].append(tsi)
+                elif tsi.op_type == dnf.transaction.INSTALL:
+                    b['install'].append(tsi)
+                elif tsi.op_type == dnf.transaction.REINSTALL:
+                    b['reinstall'].append(tsi)
+                elif tsi.op_type == dnf.transaction.UPGRADE:
+                    b['update'].append(tsi)
             return rc, b
         else:
             return rc, output
-
 
     def _to_transaction_id_list(self):
         '''

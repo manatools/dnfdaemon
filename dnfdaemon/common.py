@@ -251,7 +251,7 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
         self._get_base(reset=True, load_sack=False)
         for repo in self.base.repos.all():
             if repo.id in repo_ids:
-                logger.debug("  enabled : ", repo.id)
+                logger.debug("  enabled : %s ",repo.id)
                 repo.enable()
             else:
                 repo.disable()
@@ -302,7 +302,7 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
 
     def _get_installed_na(self,name,arch):
         q = self.base.sack.query()
-        inst = q.installed().filter(name=po.name, arch=po.arch).run()
+        inst = q.installed().filter(name=name, arch=arch).run()
         if inst:
             return inst[0]
         else:
