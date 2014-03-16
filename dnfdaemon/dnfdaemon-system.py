@@ -37,6 +37,7 @@ import argparse
 
 import dnf.transaction
 from dnf.exceptions import PackagesNotInstalledError, DownloadError, MarkingError
+from dnf.yum.rpmtrans import TransactionDisplay
 
 from common import DnfDaemonBase, doTextLoggerSetup, Logger, NONE
 
@@ -58,6 +59,44 @@ def _active_pkg(tsi):
     """Return the package from tsi that takes the active role in the transaction.
     """
     return _ACTIVE_DCT[tsi.op_type](tsi)
+
+
+class RPMTransactionDisplay(TransactionDisplay): # FIXME: TransactionDisplay is not public API
+    
+    def __init__(self,base):
+        self.actions  = {self.PKG_CLEANUP   : 'cleanup',
+                        self.PKG_DOWNGRADE : 'downgrade',
+                        self.PKG_ERASE     : 'erase',
+                        self.PKG_INSTALL   : 'install',
+                        self.PKG_OBSOLETE  : 'obsolete',
+                        self.PKG_REINSTALL : 'reinstall',
+                        self.PKG_UPGRADE   : 'update'}
+
+        super(TransactionDisplay, self).__init__()
+        self.base = base
+
+    def event(self, package, action, te_current, te_total, ts_current, ts_total):
+        """
+        @param package: A yum package object or simple string of a package name
+        @param action: A constant transaction set state
+        @param te_current: current number of bytes processed in the transaction
+                           element being processed
+        @param te_total: total number of bytes in the transaction element being
+                         processed
+        @param ts_current: number of processes completed in whole transaction
+        @param ts_total: total number of processes in the transaction.
+        """
+        if not isinstance(package, str): # package can be both str or dnf package object
+            id = self.base._get_id(package)
+        else:
+            id = package
+        if action in self.actions:
+            action = self.actions[action]
+        self.base.RPMProgress(id, action, te_current, te_total, ts_current, ts_total)
+
+    def scriptout(self, msgs):
+        """msgs is the messages that were output (if any)."""
+        pass
 
 
 #------------------------------------------------------------------------------ DBus Exception
@@ -651,7 +690,8 @@ class DnfDaemon(DnfDaemonBase):
                 self.TransactionEvent('download',NONE)
                 self.base.download_packages(to_dnl, self.base.progress)
             self.TransactionEvent('run-transaction',NONE)
-            rc, msgs = self.base.do_transaction()
+            display= RPMTransactionDisplay(self) # RPM Display callback
+            rc, msgs = self.base.do_transaction(display=display)
         except DownloadError as e:
             print("download error : ", str(e))
         self._can_quit = True
