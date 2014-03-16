@@ -67,7 +67,7 @@ class AccessDeniedError(dbus.DBusException):
 class LockedError(dbus.DBusException):
     _dbus_error_name = DAEMON_ORG+'.LockedError'
 
-class YumTransactionError(dbus.DBusException):
+class TransactionError(dbus.DBusException):
     _dbus_error_name = DAEMON_ORG+'.TransactionError'
 
 class NotImplementedError(dbus.DBusException):
