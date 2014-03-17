@@ -335,9 +335,9 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
         if grp:
             if grp_flt == 'all':
                 pkg_names = []
-                pkg_names.extend([p.name for p in grp.mandatory_packages ])
-                pkg_names.extend([p.name for p in grp.default_packages ])
-                pkg_names.extend([p.name for p in grp.optional_packages ])
+                pkg_names.extend([p.name for p in grp.mandatory_packages ])# FIXME: mandatory_packages is not public API
+                pkg_names.extend([p.name for p in grp.default_packages ]) # FIXME: default_packages is not public API
+                pkg_names.extend([p.name for p in grp.optional_packages ])# FIXME: optional_packages is not public API
                 best_pkgs = []
                 now = time()
                 for name in pkg_names:
@@ -345,8 +345,8 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
                 print("grp-pkg : ",time()- now )
             else:
                 pkg_names = []
-                pkg_names.extend([p.name for p in grp.mandatory_packages ])
-                pkg_names.extend([p.name for p in grp.default_packages ])
+                pkg_names.extend([p.name for p in grp.mandatory_packages ]) # FIXME: mandatory_packages is not public API
+                pkg_names.extend([p.name for p in grp.default_packages ]) # FIXME: default_packages is not public API
                 best_pkgs = []
                 for name in pkg_names:
                     best_pkgs.extend(self._get_po_by_name(name,True))
@@ -506,7 +506,13 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
         destroy the current DnfBase object
         '''
         if self._base:
-            self._base.close()
+            # FIXME : workaround issue in 0.4.18
+            # https://bugzilla.redhat.com/show_bug.cgi?id=1077173
+            # remove this try/except when fixed in dnf.
+            try:
+                self._base.close()
+            except:
+                pass
             self._base = None
 
 
@@ -667,7 +673,9 @@ class DnfBase(dnf.Base):
         # perform the CLI-specific cachedir tricks
         conf = self.conf
         #conf.read() # Read the conf file from disk
-        conf.releasever = '20' # FIXME: dont hardcode fedora release
+        #conf.releasever = '20' # FIXME: dont hardcode fedora release
+        conf.releasever = None # FIXME: dont hardcode fedora release
+        print("release : ", conf.releasever)
         # conf.cachedir = CACHE_DIR # hardcoded cache dir
         # This is not public API, but we want the same cache as dnf cli
         suffix = dnf.yum.parser.varReplace(dnf.const.CACHEDIR_SUFFIX, conf.yumvar)
