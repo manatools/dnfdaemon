@@ -62,7 +62,7 @@ def _active_pkg(tsi):
 
 
 class RPMTransactionDisplay(TransactionDisplay): # FIXME: TransactionDisplay is not public API
-    
+
     def __init__(self,base):
         self.actions  = {self.PKG_CLEANUP   : 'cleanup',
                         self.PKG_DOWNGRADE : 'downgrade',
@@ -681,7 +681,7 @@ class DnfDaemon(DnfDaemonBase):
         self.check_permission(sender)
         self.check_lock(sender)
         self.TransactionEvent('start-run',NONE)
-        self._can_quit = False
+        rc = 0
         to_dnl = self._get_packages_to_download()
         try:
             if to_dnl:
@@ -691,6 +691,7 @@ class DnfDaemon(DnfDaemonBase):
                 self.base.download_packages(to_dnl, self.base.progress)
             self.TransactionEvent('run-transaction',NONE)
             display= RPMTransactionDisplay(self) # RPM Display callback
+            self._can_quit = False
             rc, msgs = self.base.do_transaction(display=display)
         except DownloadError as e:
             print("download error : ", str(e))
@@ -980,7 +981,7 @@ class DnfDaemon(DnfDaemonBase):
                                 ('remove', tx_list['remove']),
                                 ('reinstall', tx_list['reinstall']),
                                 ('downgrade', tx_list['downgrade'])]:
-    
+
                 for tsi in pkglist:
                     po = _active_pkg(tsi)
                     (n, a, e, v, r) = po.pkgtup
