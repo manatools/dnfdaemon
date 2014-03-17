@@ -929,6 +929,9 @@ class DnfDaemon(DnfDaemonBase):
         while i < len(history):
             ht = history[i]
             i += 1
+            print("DBG: ", ht,ht.end_timestamp )
+            if not ht.end_timestamp:
+                continue
             tm = datetime.fromtimestamp(ht.end_timestamp)
             delta = now-tm
             if delta.days < start: # before start days
