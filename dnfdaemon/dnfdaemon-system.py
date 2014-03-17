@@ -86,13 +86,14 @@ class RPMTransactionDisplay(TransactionDisplay): # FIXME: TransactionDisplay is 
         @param ts_current: number of processes completed in whole transaction
         @param ts_total: total number of processes in the transaction.
         """
-        if not isinstance(package, str): # package can be both str or dnf package object
-            id = self.base._get_id(package)
-        else:
-            id = package
-        if action in self.actions:
-            action = self.actions[action]
-        self.base.RPMProgress(id, action, te_current, te_total, ts_current, ts_total)
+        if package:
+            if not isinstance(package, str): # package can be both str or dnf package object
+                pkg_id = self.base._get_id(package)
+            else:
+                pkg_id = package
+            if action in self.actions:
+                action = self.actions[action]
+            self.base.RPMProgress(pkg_id, action, te_current, te_total, ts_current, ts_total)
 
     def scriptout(self, msgs):
         """msgs is the messages that were output (if any)."""
