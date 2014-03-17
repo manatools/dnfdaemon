@@ -672,12 +672,8 @@ class DnfBase(dnf.Base):
     def setup_cache(self):
         # perform the CLI-specific cachedir tricks
         conf = self.conf
-        #conf.read() # Read the conf file from disk
-        #conf.releasever = '20' # FIXME: dont hardcode fedora release
-        conf.releasever = None # FIXME: dont hardcode fedora release
-        print("release : ", conf.releasever)
-        # conf.cachedir = CACHE_DIR # hardcoded cache dir
-        # This is not public API, but we want the same cache as dnf cli
+        conf.releasever = None # This will take the current release
+        # FIXME: This is not public API, but we want the same cache as dnf cli
         suffix = dnf.yum.parser.varReplace(dnf.const.CACHEDIR_SUFFIX, conf.yumvar)
         cli_cache = dnf.conf.CliCache(conf.cachedir, suffix)
         conf.cachedir = cli_cache.cachedir
