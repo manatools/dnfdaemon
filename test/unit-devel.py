@@ -23,17 +23,3 @@ class TestAPIDevel(TestBase):
 
 
 
-    def test_History(self):
-        '''
-        System: GetHistoryByDays, GetHistoryPackages
-        '''
-        result = self.GetHistoryByDays(0, 5)
-        self.assertIsInstance(result, list)
-        for tx_mbr in result:
-            tid, dt = tx_mbr
-            print("%-4i - %s" % (tid, dt))
-            pkgs = self.GetHistoryPackages(tid)
-            self.assertIsInstance(pkgs, list)
-            for (id, state, is_installed) in pkgs:
-                print( id, state, is_installed)
-                self.assertIsInstance(is_installed, bool)

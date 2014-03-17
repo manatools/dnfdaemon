@@ -433,6 +433,9 @@ class TestAPIDevel(TestBase):
         '''
         System: GetHistoryByDays, GetHistoryPackages
         '''
+        HISTORY_STATES = ['Install', 'True-Install', 'Reinstall','Reinstalled', 'Update', 'Updated', 'Downgrade', \
+                           'Downgraded','Obsoleting', 'Obsoleted', 'Erased', 'Erase','Dep-Install' ]
+
         result = self.GetHistoryByDays(0, 5)
         self.assertIsInstance(result, list)
         for tx_mbr in result:
@@ -442,7 +445,8 @@ class TestAPIDevel(TestBase):
             self.assertIsInstance(pkgs, list)
             for (id, state, is_installed) in pkgs:
                 print( id, state, is_installed)
-                self.assertIsInstance(is_installed, bool)
+                self.assertIn(state, HISTORY_STATES)
+                self.assertIn(is_installed, [True,False,None])
 
     def test_HistorySearch(self):
         '''

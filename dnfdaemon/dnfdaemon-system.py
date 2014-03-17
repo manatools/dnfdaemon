@@ -923,7 +923,7 @@ class DnfDaemon(DnfDaemonBase):
         # FIXME: Base.history is not public api
         result = []
         now = datetime.now()
-        history = self.base.history.old()
+        history = self.base.history.old(complete_transactions_only=False)
         i = 0
         result = []
         while i < len(history):
@@ -963,7 +963,7 @@ class DnfDaemon(DnfDaemonBase):
         '''
         # FIXME: Base.history is not public api
         result = []
-        tx = self.base.history.old([tid])
+        tx = self.base.history.old([tid],complete_transactions_only=False)
         result = []
         for pkg in tx[0].trans_data:
             values = [pkg.name, pkg.epoch, pkg.version, pkg.release, pkg.arch, pkg.ui_from_repo]
