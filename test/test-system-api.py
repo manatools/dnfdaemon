@@ -528,6 +528,7 @@ class TestAPIDevel(TestBase):
     def test_AnyObsoletes(self):
         '''
         System: GetPackages(obsoletes)
+        Cheking obsoletes handling
         '''
         print()
         # make sure there is one update
@@ -545,7 +546,16 @@ class TestAPIDevel(TestBase):
             self.assertGreater(len(pkgs),0)
             for pkg in pkgs:
                 print("    pkg: ", str(pkg))
+        rc, output = self.Update('bar-new')
+        if rc:
+            self.show_transaction_result(output)
+            for action, pkg_info in output:
+                for pkg_id,size,obs_list in pkg_info:
+                    # The obs_list should be a list, with >0 elements
+                    self.assertIsInstance(obs_list, list)
+                    self.assertGreater(len(pkgs),0)
         self._remove_if_installed('bar-old') # make sure pkg is not installed
+
 
     def test_GetPackagesByNameForInstalledPkg(self):
         '''

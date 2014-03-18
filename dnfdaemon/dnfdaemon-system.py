@@ -990,8 +990,12 @@ class DnfDaemon(DnfDaemonBase):
                     po = _active_pkg(tsi)
                     (n, a, e, v, r) = po.pkgtup
                     size = float(po.size)
+                    # build a list of obsoleted packages
                     alist = []
-                    # TODO : Add support for showing package replacement
+                    for obs_po in tsi.obsoleted:
+                        alist.append(self._get_id(obs_po))
+                    if alist:
+                        logger.debug(repr(alist))
                     el = (self._get_id(po), size, alist)
                     sublist.append(el)
                 if pkglist:
