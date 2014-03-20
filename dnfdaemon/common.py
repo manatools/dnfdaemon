@@ -31,15 +31,15 @@ from gi.repository import GLib, Gtk
 
 
 import sys
-from time import time
 
 import dnf
 import dnf.yum
 import dnf.const
 import dnf.conf
 import dnf.subject
-from dnf.callback import DownloadProgress, STATUS_OK
+import dnf.callback
 import hawkey
+from dnf.exceptions import DownloadError
 
 FAKE_ATTR = ['downgrades','action','pkgtags','changelog']
 NONE = json.dumps(None)
@@ -654,7 +654,7 @@ class DnfBase(dnf.Base):
         self.md_progress = MDProgress(parent)
         self.setup_cache()
         self.read_all_repos()
-        self.progress = Progress(parent)
+        self.progress = Progress(parent, max_err = 4)
         self.repos.all().set_progress_bar( self.md_progress)
         self._packages = None
 
@@ -715,7 +715,7 @@ class DnfBase(dnf.Base):
             return self.sack.query().filter(**fdict)
 
 
-class MDProgress(DownloadProgress):
+class MDProgress(dnf.callback.DownloadProgress):
 
     def __init__(self, parent):
         super(MDProgress, self).__init__()
@@ -727,7 +727,7 @@ class MDProgress(DownloadProgress):
 
     def end(self,payload, status, msg):
         name  = str(payload)
-        if status == STATUS_OK:
+        if status == dnf.callback.STATUS_OK:
             self.parent.repoMetaDataProgress(name, 1.0)
 
     def progress(self, payload, done):
@@ -742,15 +742,18 @@ class MDProgress(DownloadProgress):
             self.parent.repoMetaDataProgress(name, frac)
 
 
-class Progress(DownloadProgress):
+class Progress(dnf.callback.DownloadProgress):
 
-    def __init__(self, parent):
+    def __init__(self, parent, max_err):
         super(Progress, self).__init__()
         self.parent = parent
+        self.max_err = max_err
         self.total_files = 0
         self.total_size = 0.0
         self.download_files = 0
         self.download_size = 0.0
+        self.errors = {}
+        self.err_count = 0
         self.dnl = {}
         self.last_frac = 0
 
@@ -763,8 +766,17 @@ class Progress(DownloadProgress):
 
 
     def end(self,payload, status, msg):
-        if not status: # payload download complete
+        if status in [dnf.callback.STATUS_OK, dnf.callback.STATUS_ALREADY_EXISTS] : # payload download complete
             self.download_files += 1
+        else:
+            pload = str(payload)
+            if pload in self.errors:
+                self.errors[pload].append(msg)
+            else:
+                self.errors[pload] = [msg]
+            self.err_count += 1
+            if self.err_count > self.max_err:
+                raise DownloadError(self.errors)
         self.parent.downloadEnd(str(payload), status, msg)
 
     def progress(self, payload, done):

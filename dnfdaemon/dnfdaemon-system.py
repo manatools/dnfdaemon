@@ -113,6 +113,7 @@ class TransactionError(dbus.DBusException):
 class NotImplementedError(dbus.DBusException):
     _dbus_error_name = DAEMON_ORG+'.NotImplementedError'
 
+
 #------------------------------------------------------------------------------ Callback handlers
 
 
@@ -695,7 +696,8 @@ class DnfDaemon(DnfDaemonBase):
             self._can_quit = False
             rc, msgs = self.base.do_transaction(display=display)
         except DownloadError as e:
-            print("download error : ", str(e))
+            print("download error : ", repr(e.errmap))
+            rc = 4 # Download errors
         self._can_quit = True
         self._reset_base()
         self.TransactionEvent('end-run',NONE)
