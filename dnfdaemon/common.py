@@ -25,8 +25,8 @@ import dbus.service
 import dbus.glib
 import json
 import logging
-import time
 from datetime import datetime
+from time import time
 from gi.repository import GLib, Gtk
 
 
@@ -107,7 +107,6 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
         self._timeout_idle = 20         # time to daemon is closed when unlocked
         self._timeout_locked = 600      # time to daemon is closed when locked and not working
         self._obsoletes_list = None     # Cache for obsoletes
-
 
     def _get_obsoletes(self):
         ''' Cache a list of obsoletes'''
@@ -654,7 +653,7 @@ class DnfBase(dnf.Base):
         self.md_progress = MDProgress(parent)
         self.setup_cache()
         self.read_all_repos()
-        self.progress = Progress(parent, max_err = 4)
+        self.progress = Progress(parent, max_err = 100)
         self.repos.all().set_progress_bar( self.md_progress)
         self._packages = None
 
@@ -679,6 +678,12 @@ class DnfBase(dnf.Base):
         conf.cachedir = cli_cache.cachedir
         self._system_cachedir = cli_cache.system_cachedir
         logger.debug("dnf cachedir: %s" % conf.cachedir)
+
+    def set_max_error(self, max_err):
+        """
+        Setup a new progress object with a new max number of download errors
+        """
+        self.progress = Progress(self.parent, max_err = max_err)
 
     def search(self, fields, values, match_all=True, showdups=False):
         '''

@@ -291,12 +291,14 @@ These methods is for handling the current yum transaction
    :rtype: string (s)
    
 	
-.. py:function:: RunTransaction()
+.. py:function:: RunTransaction(max_err)
 
    Execute the current transaction
    
-   :return: state of run transaction (0 = ok, 1 = need GPG import confirmation, 2 = error)
-   :rtype: int (i)
+   :param max_err: maximum download errors before we bail out
+   :type max_err: integer (i)
+   :return:  (rc,msg) rc = state of run transaction (0 = ok, 1 = need GPG import confirmation, 2 = error) and msgs =  list of error messages **(JSON)**
+   :rtype: string (s)
 
 .. py:function:: ConfirmGPGImport(self, hexkeyid, confirmed)
 

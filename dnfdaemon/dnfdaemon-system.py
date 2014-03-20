@@ -672,18 +672,21 @@ class DnfDaemon(DnfDaemonBase):
 
     @Logger
     @dbus.service.method(DAEMON_INTERFACE,
-                                          in_signature='',
-                                          out_signature='i',
+                                          in_signature='i',
+                                          out_signature='s',
                                           sender_keyword='sender')
-    def RunTransaction(self, sender = None):
+    def RunTransaction(self, max_err, sender = None):
         '''
         Run the current yum transaction
+        :param max_err: maximum download errors before bail out
         '''
         self.working_start(sender)
         self.check_permission(sender)
         self.check_lock(sender)
         self.TransactionEvent('start-run',NONE)
+        self.base.set_max_error(max_err)
         rc = 0
+        msgs = []
         to_dnl = self._get_packages_to_download()
         try:
             if to_dnl:
@@ -696,12 +699,14 @@ class DnfDaemon(DnfDaemonBase):
             self._can_quit = False
             rc, msgs = self.base.do_transaction(display=display)
         except DownloadError as e:
-            print("download error : ", repr(e.errmap))
+            self.logger.error("download error : ", repr(e.errmap))
             rc = 4 # Download errors
+            msgs = e.errmap
         self._can_quit = True
         self._reset_base()
         self.TransactionEvent('end-run',NONE)
-        return self.working_ended(rc)
+        result = json.dumps((rc, msgs))
+        return self.working_ended(result)
 
     def _get_packages_to_download(self):
         to_dnl = []

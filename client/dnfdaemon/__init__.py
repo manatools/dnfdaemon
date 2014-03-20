@@ -691,11 +691,12 @@ class DnfDaemonClient(DnfDaemonBase):
         return json.loads(self._run_dbus_async('BuildTransaction'))
 
 
-    def RunTransaction(self):
+    def RunTransaction(self, max_err=100):
         '''
         Get a list of pkg ids for the current availabe updates
+        :param max_err: maximun number of download error before we bail out
         '''
-        return self._run_dbus_async('RunTransaction')
+        return json.loads(self._run_dbus_async('RunTransaction','(i)', max_err))
 
 
     def GetHistoryByDays(self, start_days, end_days):
