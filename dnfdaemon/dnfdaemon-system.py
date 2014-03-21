@@ -607,7 +607,9 @@ class DnfDaemon(DnfDaemonBase):
             elif action == 'downgrade':
                 rc = self.base.downgrade(str(po),reponame=po.reponame) # FIXME: reponame is not public api
             elif action == 'localinstall':
-                rc = self.base.install_local(pkg_id) # FIXME: install_local is not public api
+                # FIXME: install_local is not public api
+                # https://bugzilla.redhat.com/show_bug.cgi?id=1079519
+                rc = self.base.install_local(pkg_id)
             else:
                 self.logger.error("unknown action :", action)
         except PackagesNotInstalledError: # ignore if the package is not installed
@@ -938,6 +940,7 @@ class DnfDaemon(DnfDaemonBase):
         :param end: end days from today
         '''
         # FIXME: Base.history is not public api
+        # https://bugzilla.redhat.com/show_bug.cgi?id=1079526
         result = []
         now = datetime.now()
         history = self.base.history.old(complete_transactions_only=False)
@@ -965,6 +968,7 @@ class DnfDaemon(DnfDaemonBase):
         :type pattern: list
         '''
         # FIXME: Base.history is not public api
+        # https://bugzilla.redhat.com/show_bug.cgi?id=1079526
         result = []
         tids = self.base.history.search(pattern)
         if len(tids) >0 :
@@ -979,6 +983,7 @@ class DnfDaemon(DnfDaemonBase):
         yum history transaction id
         '''
         # FIXME: Base.history is not public api
+        # https://bugzilla.redhat.com/show_bug.cgi?id=1079526
         result = []
         tx = self.base.history.old([tid],complete_transactions_only=False)
         result = []
