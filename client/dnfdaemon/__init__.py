@@ -386,8 +386,8 @@ class DnfDaemonBase:
         '''
         Expire the dnf metadata, so they will be refresed
         '''
-        self._run_dbus_async('ExpireCache','()')
-        return True
+        rc = self._run_dbus_async('ExpireCache','()')
+        return rc
 
 
     def GetRepositories(self, repo_filter):

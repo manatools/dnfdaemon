@@ -240,7 +240,7 @@ class DnfDaemon(DnfDaemonBase):
     @Logger
     @dbus.service.method(DAEMON_INTERFACE,
                                           in_signature='',
-                                          out_signature='',
+                                          out_signature='b',
                                           sender_keyword='sender')
 
     def ExpireCache(self, sender=None):
@@ -248,10 +248,11 @@ class DnfDaemon(DnfDaemonBase):
         Enabled a list of repositories, disabled all other repos
         :param repo_ids: list of repo ids to enable
         :param sender:
+        :return: True if cache is populated without errors
         '''
         self.working_start(sender)
-        self._expire_cache()
-        return self.working_ended()
+        rc = self._expire_cache()
+        return self.working_ended(rc)
 
 
     @Logger
@@ -699,9 +700,18 @@ class DnfDaemon(DnfDaemonBase):
             self._can_quit = False
             rc, msgs = self.base.do_transaction(display=display)
         except DownloadError as e:
-            self.logger.error("download error : ", repr(e.errmap))
             rc = 4 # Download errors
-            msgs = e.errmap
+            if isinstance(e.errmap, dict):
+                msgs = e.errmap
+                error_msgs = []
+                for fn in msgs:
+                    for msg in msgs[fn]:
+                        error_msgs.append("%s : %s" % (fn,msg))
+                        self.logger.debug("  %s : %s" % (fn,msg))
+                msgs = error_msgs
+            else:
+                msgs = [str(e)]
+                print("DEBUG:", msgs)
         self._can_quit = True
         self._reset_base()
         self.TransactionEvent('end-run',NONE)

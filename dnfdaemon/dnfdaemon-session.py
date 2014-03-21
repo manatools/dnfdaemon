@@ -128,7 +128,7 @@ class DnfDaemon(DnfDaemonBase):
     @Logger
     @dbus.service.method(DAEMON_INTERFACE,
                                           in_signature='',
-                                          out_signature='',
+                                          out_signature='b',
                                           sender_keyword='sender')
 
     def ExpireCache(self, sender=None):
@@ -138,8 +138,8 @@ class DnfDaemon(DnfDaemonBase):
         :param sender:
         '''
         self.working_start(sender)
-        self._expire_cache()
-        return self.working_ended()
+        rc = self._expire_cache()
+        return self.working_ended(rc)
 
 
     @Logger
@@ -371,6 +371,11 @@ class DnfDaemon(DnfDaemonBase):
 # DBus signals
 #===============================================================================
 # Parallel Download Progress signals
+  
+    @dbus.service.signal(DAEMON_INTERFACE)
+    def ErrorMessage(self, error_msg):
+        ''' Send an error message '''
+        pass
 
     @dbus.service.signal(DAEMON_INTERFACE)
     def DownloadStart(self, num_files, num_bytes):

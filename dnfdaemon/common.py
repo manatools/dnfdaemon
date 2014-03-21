@@ -147,9 +147,15 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
         return pkg_ids
 
     def _expire_cache(self):
-        self.base.expire_cache()
-        self.base.reset(sack=True)
-        self.base.setup_base()
+        try:
+            self.base.expire_cache()
+            self.base.reset(sack=True)
+            self.base.setup_base()
+            return True
+        except dnf.exceptions.RepoError as e:
+            self.logger.error(str(e))
+            self.ErrorMessage(str(e))
+            return False
 
     def _get_packages_by_name(self, name, newest_only):
         '''
@@ -757,8 +763,8 @@ class Progress(dnf.callback.DownloadProgress):
         self.total_size = 0.0
         self.download_files = 0
         self.download_size = 0.0
-        self.errors = {}
-        self.err_count = 0
+        self._dnl_errors = {}
+        self._err_count = 0
         self.dnl = {}
         self.last_frac = 0
 
@@ -775,13 +781,13 @@ class Progress(dnf.callback.DownloadProgress):
             self.download_files += 1
         else:
             pload = str(payload)
-            if pload in self.errors:
-                self.errors[pload].append(msg)
+            if pload in self._dnl_errors:
+                self._dnl_errors[pload].append(msg)
             else:
-                self.errors[pload] = [msg]
-            self.err_count += 1
-            if self.err_count > self.max_err:
-                raise DownloadError(self.errors)
+                self._dnl_errors[pload] = [msg]
+            self._err_count += 1
+            if self._err_count > self.max_err:
+                raise DownloadError(self._dnl_errors)
         self.parent.downloadEnd(str(payload), status, msg)
 
     def progress(self, payload, done):
