@@ -511,13 +511,7 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
         destroy the current DnfBase object
         '''
         if self._base:
-            # FIXME : workaround issue in 0.4.18
-            # https://bugzilla.redhat.com/show_bug.cgi?id=1077173
-            # remove this try/except when fixed in dnf.
-            try:
-                self._base.close()
-            except:
-                pass
+            self._base.close()
             self._base = None
 
 
@@ -652,7 +646,7 @@ class DnfBase(dnf.Base):
 
     def __init__(self, parent):
         dnf.Base.__init__(self)
-        # FIXME: Not public api
+        # FIXME: goal_parameters.allow_uninstall is not public api
         # make remove able to remove deps also
         self.goal_parameters.allow_uninstall = True
         self.parent = parent
@@ -664,7 +658,7 @@ class DnfBase(dnf.Base):
         self._packages = None
 
     def expire_cache(self):
-        self.cleanExpireCache() # FIXME : this is not public API
+        self.cleanExpireCache() # FIXME : cleanExpireCache() is not public API
 
     def setup_base(self):
         self.fill_sack()

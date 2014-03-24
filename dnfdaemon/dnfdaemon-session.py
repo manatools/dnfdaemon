@@ -35,7 +35,7 @@ import argparse
 
 from common import DnfDaemonBase, doTextLoggerSetup, Logger, NONE
 
-version = 101 #  (00.01.01) must be integer
+version = 102 #  (00.01.02) must be integer
 DAEMON_ORG = 'org.baseurl.DnfSession'
 DAEMON_INTERFACE = DAEMON_ORG
 
@@ -371,7 +371,7 @@ class DnfDaemon(DnfDaemonBase):
 # DBus signals
 #===============================================================================
 # Parallel Download Progress signals
-  
+
     @dbus.service.signal(DAEMON_INTERFACE)
     def ErrorMessage(self, error_msg):
         ''' Send an error message '''

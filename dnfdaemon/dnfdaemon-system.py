@@ -41,7 +41,7 @@ from dnf.yum.rpmtrans import TransactionDisplay
 
 from common import DnfDaemonBase, doTextLoggerSetup, Logger, NONE
 
-version = 101 #  (00.01.01) must be integer
+version = 102 #  (00.01.02) must be integer
 DAEMON_ORG = 'org.baseurl.DnfSystem'
 DAEMON_INTERFACE = DAEMON_ORG
 
@@ -597,7 +597,7 @@ class DnfDaemon(DnfDaemonBase):
             if action == 'install':
                 rc = self.base.install(str(po),reponame=po.reponame) # FIXME: reponame is not public api
             elif action == 'remove':
-                rc = self.base.remove(str(po)) # FIXME: reponame is not public api
+                rc = self.base.remove(str(po))
             elif action == 'update':
                 rc = self.base.upgrade(str(po),reponame=po.reponame) # FIXME: reponame is not public api
             elif action == 'obsolete':

@@ -1,7 +1,7 @@
 %global dnf_org org.baseurl.Dnf
 
 Name:           dnfdaemon
-Version:        0.1.1
+Version:        0.1.2
 Release:        1%{?dist}
 Summary:        DBus daemon for dnf package actions
 License:        GPLv2+
@@ -10,7 +10,7 @@ Source0:        https://fedorahosted.org/releases/y/u/yumex/%{name}-%{version}.t
 BuildArch:      noarch
 BuildRequires:  python3-devel
 Requires:       python3-dbus
-Requires:       python3-dnf >= 0.4.17
+Requires:       python3-dnf >= 0.4.19
 Requires:       polkit
 Requires(post):     policycoreutils-python
 Requires(postun):   policycoreutils-python
@@ -76,6 +76,10 @@ fi
 
 
 %changelog
+* Mon Mar 24 2014 Tim Lauridsen <timlau@fedoraproject.org> 0.1.2-1
+- bumped release to 0.1.2
+- updated requirement to dnf-0.4.19
+
 * Tue Mar 11 2014 Tim Lauridsen <timlau@fedoraproject.org> 0.1.1-1
 - used python3, instead of python2 for dbus services
 
