@@ -814,57 +814,6 @@ class Progress(dnf.callback.DownloadProgress):
         sys.stdout.write("Progress : %-3d %% (%d/%d)\r" % (self.last_pct,self.download_files, self.total_files))
 
 
-class TransactionDisplay(object):
-
-    def __init__(self):
-        self.last = -1
-
-    def event(self, package, action, te_current, te_total, ts_current, ts_total):
-        """
-        @param package: A yum package object or simple string of a package name
-        @param action: A constant transaction set state
-        @param te_current: current number of bytes processed in the transaction
-                           element being processed
-        @param te_total: total number of bytes in the transaction element being
-                         processed
-        @param ts_current: number of processes completed in whole transaction
-        @param ts_total: total number of processes in the transaction.
-        """
-        # this is where a progress bar would be called
-
-        if te_total and te_total > 0:
-            percent = int((float(te_current)/te_total)*100.0)
-            if percent == 100:
-                self.last=-1
-                logger.debug(action, package, percent, ts_current, ts_total )
-            elif percent > self.last and percent % 10 == 0:
-                self.last = percent
-                logger.debug(action, package, percent, ts_current, ts_total )
-
-        else:
-            logger.debug(action, package)
-
-    def scriptout(self, msgs):
-        """msgs is the messages that were output (if any)."""
-        if msgs:
-            logger.debug("ScriptOut: ",msgs)
-
-    def errorlog(self, msg):
-        """takes a simple error msg string"""
-        logger.debug(msg, file=sys.stderr)
-
-    def filelog(self, package, action):
-        # check package object type - if it is a string - just output it
-        """package is the same as in event() - a package object or simple string
-           action is also the same as in event()"""
-        pass
-
-    def verify_tsi_package(self, pkg, count, total):
-        logger.debug("Verifing : %s "% pkg)
-
-
-
-
 def doTextLoggerSetup(logroot='dnfdaemon', logfmt='%(asctime)s: %(message)s', loglvl=logging.INFO):
     ''' Setup Python logging  '''
     logger = logging.getLogger(logroot)
