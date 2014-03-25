@@ -82,7 +82,7 @@ system (as root)
 API Definitions: 
 ====================================
 
-The dnfdaemon api is documented [here](http://timlau.fedorapeople.org/dnfdaemon)
+The dnfdaemon api is documented [here](http://dnf-daemon.readthedocs.org/en/latest/index.html)
 
 The API is under development, so it might change, when we hit version 1.0, API methods will be frozen and
 API method names, parameters and return types will not change in future releases, new API can be added,
