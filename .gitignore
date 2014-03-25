@@ -45,3 +45,4 @@ docs/_build
 test/pkgs/repo
 .settings/
 /test/pkgs/dnf-daemon-test.repo
+*~
