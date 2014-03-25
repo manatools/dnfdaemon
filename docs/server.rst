@@ -406,7 +406,7 @@ Signals
         :param userid: GPG key name
         :param hexkeyid: GPG key hex id
         :param keyurl: Url to the GPG Key
-        :param timestamp: 
+        :param timestamp: GPG Timestamp
         '''
 
 .. note:: Under Development
