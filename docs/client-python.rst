@@ -13,7 +13,7 @@ System API
 .. autoclass:: dnfdaemon.DnfDaemonClient
     :members: Lock, Unlock, Exit, SetWatchdogState,GetRepositories, GetRepo, GetConfig, ExpireCache,
     		  GetPackages, GetPackagesByName, GetPackageWithAttributes, GetAttribute, GetUpdateInfo, 
-    		  GetGroups, GetGroupPackages,Search, SetEnabledRepos
+    		  GetGroups, GetGroupPackages,Search, SetEnabledRepos, 
               SetConfig, HistorySearch, GetHistoryPackages, ClearTransaction, GetTransaction, AddTransaction,
               Install, Remove, Update, Reinstall, Downgrade, BuildTransaction, RunTransaction, ConfirmGPGImport
     
