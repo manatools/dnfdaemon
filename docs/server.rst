@@ -13,7 +13,6 @@ Data structures
    Name                               Content
    =================================  =================================
    Package Id (pkg_id)                "name,epoch,ver,rel,arch,repo_id"
-   Transaction List (tx_list)	      "pkg_id,ts_state"		 
    =================================  =================================
    
 |
@@ -29,14 +28,13 @@ Data structures
    rel               Package Release
    arch				 Package Architecture
    repo_id			 Repository Id
-   ts_state			 Transaction Member state
    ================  =========================================================
    
 Transaction result::
 
 	<transaction_result> ::= <result>, <result>, ...., <result>
 	<result>             ::= <action>, <pkg_list>
-	<action>             ::= install | update | remove | install-deps | update-deps | remove-deps | skipped
+	<action>             ::= install | update | remove | reinstall | downgrade | obsolete
 	<plg_list>           ::= <pkg_info>, <pkg_info>, ......, <pkg_info>
 	<pkg_info>           ::= <pkg_id>, size, <obs_list>
 	<pkg_id>             ::= name, epoch, version, release, arch, repo_id
@@ -53,8 +51,8 @@ System Service
    ========================  =========================================================
    Attribute				 Value	
    ========================  =========================================================
-   object                    org.baseurl.YumSystem
-   interface                 org.baseurl.YumSystem
+   object                    org.baseurl.DnfSystem
+   interface                 org.baseurl.DnfSystem
    path                      /
    ========================  =========================================================
  
@@ -73,7 +71,7 @@ Misc methods
 
 .. function:: Unlock()
 
-   Get the daemon Lock, if posible
+   Release the daemon Lock, if posible
 
 Repository and config methods
 ------------------------------
@@ -424,8 +422,8 @@ Session Service
    ========================  =========================================================
    Attribute				 Value	
    ========================  =========================================================
-   object                    org.baseurl.YumSession
-   interface                 org.baseurl.YumSession
+   object                    org.baseurl.DnfSession
+   interface                 org.baseurl.DnfSession
    path                      /
    ========================  =========================================================
 
@@ -446,7 +444,7 @@ Misc methods
 
 .. function:: Unlock()
 
-   Get the daemon Lock, if posible
+   Release the daemon Lock, if posible
 
 Repository and config methods
 ------------------------------
