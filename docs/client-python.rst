@@ -11,18 +11,20 @@ System API
 -------------
 
 .. autoclass:: dnfdaemon.DnfDaemonClient
-    :members: Exit, Lock, Unlock, SetWatchdogState,GetPackageWithAttributes, GetRepositoriesGetRepo, GetConfig, SetConfig,
-    		  GetAttribute, GetUpdateInfo, GetPackages, GetPackagesByName, GetHistoryByDays, HistorySearch, GetHistoryPackages,
-    		  GetGroups, Search, ClearTransaction, GetTransaction, AddTransaction, Install, Remove, Update, Reinstal, Downgrade,
-    		  BuildTransaction, RunTransaction, GetEnabledRepos, GetGroupPackages, ConfirmGPGImport
+    :members: Lock, Unlock, Exit, SetWatchdogState,GetRepositories, GetRepo, GetConfig, ExpireCache,
+    		  GetPackages, GetPackagesByName, GetPackageWithAttributes, GetAttribute, GetUpdateInfo, 
+    		  GetGroups, GetGroupPackages,Search, GetEnabledRepos,
+              SetConfig, HistorySearch, GetHistoryPackages, ClearTransaction, GetTransaction, AddTransaction,
+              Install, Remove, Update, Reinstal, Downgrade, BuildTransaction, RunTransaction, ConfirmGPGImport
     
 Session API
 ------------
 
 .. autoclass:: dnfdaemon.DnfDaemonReadOnlyClient
-    :members: Exit, Lock, Unlock, SetWatchdogState,GetPackageWithAttributes, GetRepositoriesGetRepo, GetConfig, 
-    		  GetAttribute, GetUpdateInfo, GetPackages, GetPackagesByName, GetGroups, Search
-    		  BuildTransaction, RunTransaction, GetEnabledRepos, GetGroupPackages
+    :members: Lock, Unlock, Exit, SetWatchdogState,GetRepositories, GetRepo, GetConfig, ExpireCache,
+    		  GetPackages, GetPackagesByName, GetPackageWithAttributes, GetAttribute, GetUpdateInfo, 
+    		  GetGroups, GetGroupPackages,Search, GetEnabledRepos
+    		  
     
 Exceptions
 ============
