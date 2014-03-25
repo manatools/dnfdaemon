@@ -36,7 +36,7 @@ class Mock(object):
         else:
             return Mock()
 
-MOCK_MODULES = ['gi']
+MOCK_MODULES = ['gi','gi.repository']
 for mod_name in MOCK_MODULES:
     sys.modules[mod_name] = Mock()
 
