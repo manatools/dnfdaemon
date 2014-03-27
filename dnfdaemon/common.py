@@ -347,7 +347,6 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
                 now = time()
                 for name in pkg_names:
                     best_pkgs.extend(self._get_po_by_name(name,True))
-                print("grp-pkg : ",time()- now )
             else:
                 pkg_names = []
                 pkg_names.extend([p.name for p in grp.mandatory_packages ]) # FIXME: mandatory_packages is not public API
