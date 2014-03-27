@@ -122,6 +122,25 @@ class TestAPIDevel(TestBase):
             (n, e, v, r, a, repo_id) = self.to_pkg_tuple(pkg)
             self.assertTrue(n.startswith('foo'))
 
+    def test_GetPackagesByNameWithAttr(self):
+        '''
+        Session: GetPackagesByNameWithAttr
+        '''
+        print()
+        print( "Get all available versions of foo")
+        pkgs = self.GetPackagesByNameWithAttr('foo', newest_only=False, attr = ['summary','size','action'])
+        # pkgs should be a list instance
+        self.assertIsInstance(pkgs, list)
+        num1 = len(pkgs)
+        self.assertNotEqual(num1, 0) #  foo should always be there
+        for pkg_id,summary,size,action in pkgs:
+            self.assertIsInstance(summary, str)
+            self.assertIsInstance(size, int)
+            self.assertIsInstance(action, str)
+            print( "  Package : %s Size : %i  Action : %s" % (pkg_id, size, action))
+            (n, e, v, r, a, repo_id) = self.to_pkg_tuple(pkg_id)
+            self.assertEqual(n,"foo")
+
     def test_Repositories(self):
         '''
         System: GetRepository and GetRepo

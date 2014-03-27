@@ -329,7 +329,13 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
             value = json.dumps(None)
         return value
 
-
+    def _get_packages_by_name_with_attr(self,name, newest_only, attrs):
+        """
+        get packages matching a name wildcard with extra attributes
+        """
+        pkgs = self._get_po_by_name(name, newest_only)
+        values = [self._get_po_list(po,attrs) for po in pkgs]
+        return values
 
     def _get_group_pkgs(self, grp_id, grp_flt, fields):
         '''
@@ -344,7 +350,6 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
                 pkg_names.extend([p.name for p in grp.default_packages ]) # FIXME: default_packages is not public API
                 pkg_names.extend([p.name for p in grp.optional_packages ])# FIXME: optional_packages is not public API
                 best_pkgs = []
-                now = time()
                 for name in pkg_names:
                     best_pkgs.extend(self._get_po_by_name(name,True))
             else:

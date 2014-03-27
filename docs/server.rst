@@ -162,6 +162,19 @@ These methods is for getting packages and information about packages
    :return: list of pkg_id's
    :rtype: array of strings (as)
 
+.. py:function:: GetPackagesByNameWithAttr(name, newest_only, attrs)
+
+   Get a list of pkg ids for starts with name and some user defined attributes
+        
+   :param name: name prefix to match
+   :type name: string
+   :param newest_only: show only the newest match or every match.
+   :type newest_only: boolean
+   :param attrs: a list of packages attributes to return
+   :type attrs: list of strings   
+   :return: list of [pkg_id, attr1, attr2, ....]
+   :rtype: array of strings (as)
+
 
 .. py:function:: GetAttribute(id, attr,)
 
@@ -519,6 +532,19 @@ These methods is for getting packages and information about packages
    :param newest_only: show only the newest match or every match.
    :type newest_only: boolean
    :return: list of pkg_id's
+   :rtype: array of strings (as)
+
+.. py:function:: GetPackagesByNameWithAttr(name, newest_only, attrs)
+
+   Get a list of pkg ids for starts with name and some user defined attributes
+        
+   :param name: name prefix to match
+   :type name: string
+   :param newest_only: show only the newest match or every match.
+   :type newest_only: boolean
+   :param attrs: a list of packages attributes to return
+   :type attrs: list of strings   
+   :return: list of [pkg_id, attr1, attr2, ....]
    :rtype: array of strings (as)
 
 
