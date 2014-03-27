@@ -213,6 +213,23 @@ These methods is for getting packages and information about packages
    :return: list of pkg_id's for matches
    :rtype: array of stings (as)
 
+.. py:function:: SearchWithAttr(fields, keys, attrs, match_all, newest_only, tags )
+
+   Search for packages where keys is matched in fields and return extra attributes
+        
+   :param fields: yum po attributes to search in
+   :type fields: array of strings
+   :param keys: keys to search for
+   :type keys: array of strings
+   :param attrs: list of extra package attributes to get
+   :param match_all: match all keys or only one
+   :type match_all: boolean
+   :param newest_only: match all keys or only one
+   :type newest_only: boolean
+   :param tags: search in pkgtags
+   :type tags: boolean   
+   :return: list of [pkg_id, attr1, attr2, ..] **JSON** 
+   :rtype: string (s)
 
 High level methods
 -------------------
@@ -585,6 +602,23 @@ These methods is for getting packages and information about packages
    :return: list of pkg_id's for matches
    :rtype: array of stings (as)
 
+.. py:function:: SearchWithAttr(fields, keys, attrs, match_all, newest_only, tags )
+
+   Search for packages where keys is matched in fields and return extra attributes
+        
+   :param fields: yum po attributes to search in
+   :type fields: array of strings
+   :param keys: keys to search for
+   :type keys: array of strings
+   :param attrs: list of extra package attributes to get
+   :param match_all: match all keys or only one
+   :type match_all: boolean
+   :param newest_only: match all keys or only one
+   :type newest_only: boolean
+   :param tags: search in pkgtags
+   :type tags: boolean   
+   :return: list of [pkg_id, attr1, attr2, ..] **JSON** 
+   :rtype: string (s)
 
 Groups
 -------

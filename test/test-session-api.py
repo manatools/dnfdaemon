@@ -118,6 +118,20 @@ class TestAPIDevel(TestBaseReadonly):
             (n, e, v, r, a, repo_id) = self.to_pkg_tuple(pkg_id)
             self.assertEqual(n,"foo")
 
+    def test_SearchWithAttr(self):
+        '''
+        Session: SearchAttr
+        '''
+        fields = ['name','summary']
+        keys = ['yum','plugin']
+        attrs = ['summary','size','action']
+        pkgs = self.SearchWithAttr(fields, keys , attrs, True,True,False)
+        self.assertIsInstance(pkgs, list)
+        for p, summary, size, action in pkgs:
+            print( str(p),size, summary)
+            self.assertTrue(keys[0] in str(p) or keys[0] in summary)
+            self.assertTrue(keys[1] in str(p) or keys[1] in summary)
+
     def test_Repositories(self):
         '''
         Session: GetRepository and GetRepo

@@ -146,6 +146,24 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
         pkg_ids = self._to_package_id_list(result)
         return pkg_ids
 
+    def _search_with_attr(self, fields, keys, attrs, match_all, newest_only, tags):
+        '''
+        Search for for packages, where given fields contain given key words
+        (Helper for Search)
+
+        :param fields: list of fields to search in
+        :param keys: list of keywords to search for
+        :param attrs: list of extra attributes to get
+        :param match_all: match all flag, if True return only packages matching all keys
+        :param newest_only: return only the newest version of a package
+        :param tags: seach pkgtags
+        '''
+        # FIXME: Add support for search in pkgtags, when supported in dnf
+        showdups = not newest_only
+        pkgs = self.base.search(fields, keys, match_all, showdups)
+        values = [self._get_po_list(po,attrs) for po in pkgs]
+        return values
+
     def _expire_cache(self):
         try:
             self.base.expire_cache()
