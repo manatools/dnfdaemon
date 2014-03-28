@@ -512,26 +512,7 @@ class DnfDaemonBase:
         return json.loads(self._run_dbus_async('GetGroupPackages', '(ssas)', grp_id, grp_flt, fields))
 
 
-    def Search(self, fields, keys, match_all, newest_only, tags):
-        '''
-        Search for packages where keys is matched in fields
-
-        :param fields: yum po attributes to search in
-        :type fields: list of strings
-        :param keys: keys to search for
-        :type keys: list of strings
-        :param match_all: match all keys or only one
-        :type match_all: boolean
-        :param newest_only: return only the newest version of packages
-        :type newest_only: boolean
-        :param tags: search pkgtags
-        :type tags: boolean
-        :return: list of pkg_id's
-
-        '''
-        return self._run_dbus_async('Search','(asasbbb)',fields, keys, match_all, newest_only, tags)
-
-    def SearchWithAttr(self, fields, keys, attrs, match_all, newest_only,  tags):
+    def Search(self, fields, keys, attrs, match_all, newest_only,  tags):
         '''
         Search for packages where keys is matched in fields
 
@@ -549,7 +530,7 @@ class DnfDaemonBase:
         :return: list of pkg_id's
 
         '''
-        return json.loads(self._run_dbus_async('SearchWithAttr','(asasasbbb)',fields, keys, attrs,  match_all, newest_only, tags))
+        return json.loads(self._run_dbus_async('Search','(asasasbbb)',fields, keys, attrs,  match_all, newest_only, tags))
 
     def Exit(self):
         '''

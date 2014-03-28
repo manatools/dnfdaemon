@@ -170,40 +170,31 @@ class TestAPIDevel(TestBase):
         repo = self.GetRepo('XYZCYZ')
         self.assertIsNone(repo)
 
-    def test_SearchWithAttr(self):
-        '''
-        Session: SearchAttr
-        '''
-        fields = ['name','summary']
-        keys = ['yum','plugin']
-        attrs = ['summary','size','action']
-        pkgs = self.SearchWithAttr(fields, keys , attrs, True,True,False)
-        self.assertIsInstance(pkgs, list)
-        for p, summary, size, action in pkgs:
-            print( str(p),size, summary)
-            self.assertTrue(keys[0] in str(p) or keys[0] in summary)
-            self.assertTrue(keys[1] in str(p) or keys[1] in summary)
-
     def test_Search(self):
         '''
-        System: Search
+        Session: Search
         '''
+        attrs = ['summary']
         fields = ['name','summary']
         keys = ['yum','plugin']
-        pkgs = self.Search(fields, keys ,True,True,False)
+        pkgs = self.Search(fields, keys , attrs,True,True,False)
         self.assertIsInstance(pkgs, list)
-        for p in pkgs:
+        for elem in pkgs:
+            print(type(elem))
+            self.assertIsInstance(elem, list)
+            (p, summary) = elem
             summary = self.GetAttribute(p,'summary')
             print( str(p),summary)
             self.assertTrue(keys[0] in str(p) or keys[0] in summary)
             self.assertTrue(keys[1] in str(p) or keys[1] in summary)
+        attrs = []
         keys = ['yum','zzzzddddsss'] # second key should not be found
-        pkgs = self.Search(fields, keys ,True,True, False)
+        pkgs = self.Search(fields, keys,attrs ,True,True, False)
         self.assertIsInstance(pkgs, list)
         print( "found %i packages" % len(pkgs))
         self.assertEqual(len(pkgs), 0) # when should not find any matches
         keys = ['yum','zzzzddddsss'] # second key should not be found
-        pkgs = self.Search(fields, keys ,False, True, False)
+        pkgs = self.Search(fields, keys ,attrs,False, True, False)
         self.assertIsInstance(pkgs, list)
         print( "found %i packages" % len(pkgs))
         self.assertGreater(len(pkgs), 0) # we should find some matches

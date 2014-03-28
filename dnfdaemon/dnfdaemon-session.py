@@ -319,29 +319,10 @@ class DnfDaemon(DnfDaemonBase):
 
     @Logger
     @dbus.service.method(DAEMON_INTERFACE,
-                                          in_signature='asasbbb',
-                                          out_signature='as',
-                                          sender_keyword='sender')
-    def Search(self, fields, keys, match_all, newest_only, tags, sender=None ):
-        '''
-        Search for for packages, where given fields contain given key words
-        :param fields: list of fields to search in
-        :param keys: list of keywords to search for
-        :param match_all: match all flag, if True return only packages matching all keys
-        :param newest_only: return only the newest version of a package
-        :param tags: seach pkgtags
-        '''
-        self.working_start(sender)
-        result = self._search(fields, keys, match_all, newest_only, tags)
-        return self.working_ended(result)
-
-
-    @Logger
-    @dbus.service.method(DAEMON_INTERFACE,
                                           in_signature='asasasbbb',
                                           out_signature='s',
                                           sender_keyword='sender')
-    def SearchWithAttr(self, fields, keys, attrs, match_all, newest_only, tags, sender=None ):
+    def Search(self, fields, keys, attrs, match_all, newest_only, tags, sender=None ):
         '''
         Search for for packages, where given fields contain given key words
         :param fields: list of fields to search in

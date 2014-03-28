@@ -129,23 +129,6 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
 #===============================================================================
 
 
-    def _search(self, fields, keys, match_all, newest_only, tags):
-        '''
-        Search for for packages, where given fields contain given key words
-        (Helper for Search)
-
-        :param fields: list of fields to search in
-        :param keys: list of keywords to search for
-        :param match_all: match all flag, if True return only packages matching all keys
-        :param newest_only: return only the newest version of a package
-        :param tags: seach pkgtags
-        '''
-        # FIXME: Add support for search in pkgtags, when supported in dnf
-        showdups = not newest_only
-        result = self.base.search(fields, keys, match_all, showdups)
-        pkg_ids = self._to_package_id_list(result)
-        return pkg_ids
-
     def _search_with_attr(self, fields, keys, attrs, match_all, newest_only, tags):
         '''
         Search for for packages, where given fields contain given key words
@@ -388,6 +371,8 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
 #===============================================================================
 
     def _get_po_list(self, po, attrs):
+        if not attrs:
+            return self._get_id(po)
         po_list = [self._get_id(po)]
         for attr in attrs:
             if attr in FAKE_ATTR: # is this a fake attr:
