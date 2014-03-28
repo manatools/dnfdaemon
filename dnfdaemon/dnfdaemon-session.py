@@ -242,7 +242,7 @@ class DnfDaemon(DnfDaemonBase):
                                           in_signature='sasb',
                                           out_signature='s',
                                           sender_keyword='sender')
-    def GetPackagesByName(self, name,  attrs, newest_only,sender=None):
+    def GetPackagesByName(self, name, attrs, newest_only,sender=None):
         '''
         Get a list of packages from a name pattern
         :param name: name pattern
@@ -251,7 +251,7 @@ class DnfDaemon(DnfDaemonBase):
         :param sender:
         '''
         self.working_start(sender)
-        values = self._get_packages_by_name_with_attr(name, newest_only, attrs)
+        values = self._get_packages_by_name_with_attr(name, attrs, newest_only)
         return self.working_ended(json.dumps(values))
 
     @Logger

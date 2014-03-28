@@ -330,7 +330,7 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
             value = json.dumps(None)
         return value
 
-    def _get_packages_by_name_with_attr(self,name, newest_only, attrs):
+    def _get_packages_by_name_with_attr(self,name, attrs, newest_only):
         """
         get packages matching a name wildcard with extra attributes
         """
