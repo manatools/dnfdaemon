@@ -124,11 +124,11 @@ class TestAPIDevel(TestBase):
 
     def test_GetPackagesByNameWithAttr(self):
         '''
-        Session: GetPackagesByNameWithAttr
+        Session: GetPackagesByName ( with attr)
         '''
         print()
         print( "Get all available versions of foo")
-        pkgs = self.GetPackagesByNameWithAttr('foo', newest_only=False, attr = ['summary','size','action'])
+        pkgs = self.GetPackagesByName('foo',attr = ['summary','size','action'], newest_only=False )
         # pkgs should be a list instance
         self.assertIsInstance(pkgs, list)
         num1 = len(pkgs)

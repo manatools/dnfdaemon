@@ -468,32 +468,19 @@ class DnfDaemonBase:
         return self._run_dbus_async('GetPackages','(s)',pkg_filter)
 
 
-    def GetPackagesByName(self, name, newest_only=True):
+    def GetPackagesByName(self, name, attr = [], newest_only=True):
         '''
         Get a list of pkg ids for starts with name
 
         :param name: name prefix to match
         :type name: string
-        :param newest_only: show only the newest match or every match.
-        :type newest_only: boolean
-        :return: list of pkg_is's
-        '''
-        return self._run_dbus_async('GetPackagesByName','(sb)',name, newest_only)
-
-
-    def GetPackagesByNameWithAttr(self, name, newest_only=True, attr = []):
-        '''
-        Get a list of pkg ids for starts with name
-
-        :param name: name prefix to match
-        :type name: string
-        :param newest_only: show only the newest match or every match.
-        :type newest_only: boolean
-        :param attr: a list of packages attributes to return
+        :param attr: a list of packages attributes to return (optional)
         :type attr: list of strings
+        :param newest_only: show only the newest match or every match (optinal).
+        :type newest_only: boolean
         :return: list of [pkg_id, attr1, attr2, ...]
         '''
-        return json.loads(self._run_dbus_async('GetPackagesByNameWithAttr','(sbas)',name, newest_only, attr))
+        return json.loads(self._run_dbus_async('GetPackagesByName','(sasb)',name, attr, newest_only))
 
     def GetGroups(self):
         '''

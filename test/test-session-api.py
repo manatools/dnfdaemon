@@ -101,11 +101,11 @@ class TestAPIDevel(TestBaseReadonly):
 
     def test_GetPackagesByNameWithAttr(self):
         '''
-        Session: GetPackagesByNameWithAttr
+        Session: GetPackagesByName ( with attr)
         '''
         print()
         print( "Get all available versions of foo")
-        pkgs = self.GetPackagesByNameWithAttr('foo', newest_only=False, attr = ['summary','size','action'])
+        pkgs = self.GetPackagesByName('foo',attr = ['summary','size','action'], newest_only=False )
         # pkgs should be a list instance
         self.assertIsInstance(pkgs, list)
         num1 = len(pkgs)
@@ -120,7 +120,7 @@ class TestAPIDevel(TestBaseReadonly):
 
     def test_SearchWithAttr(self):
         '''
-        Session: SearchAttr
+        Session: Search (with attr)
         '''
         fields = ['name','summary']
         keys = ['yum','plugin']
@@ -277,24 +277,24 @@ class TestAPIDevel(TestBaseReadonly):
         print("not_found : %s" % not_found)
         self.assertIsNone(not_found)
 
-    def test_ExpireCache(self):
-        '''
-        Session: ExpireCache
-        '''
-        print()
-        print("Enable default system repositories")
-        self._enable_default_repos()
-        print("Expire the dnf cache")
-        self.reset_signals()
-        self.ExpireCache()
-        self.show_signals()
-        self.assertTrue(self.check_signal('RepoMetaDataProgress'))
-        print("Getting Updates")
-        pkgs = self.GetPackages('updates')
-        print("# of packages : %d" % len(pkgs))
-        print("Getting Installed")
-        pkgs = self.GetPackages('installed')
-        print("# of packages : %d" % len(pkgs))
+    #def test_ExpireCache(self):
+        #'''
+        #Session: ExpireCache
+        #'''
+        #print()
+        #print("Enable default system repositories")
+        #self._enable_default_repos()
+        #print("Expire the dnf cache")
+        #self.reset_signals()
+        #self.ExpireCache()
+        #self.show_signals()
+        #self.assertTrue(self.check_signal('RepoMetaDataProgress'))
+        #print("Getting Updates")
+        #pkgs = self.GetPackages('updates')
+        #print("# of packages : %d" % len(pkgs))
+        #print("Getting Installed")
+        #pkgs = self.GetPackages('installed')
+        #print("# of packages : %d" % len(pkgs))
 
 
 

@@ -239,27 +239,10 @@ class DnfDaemon(DnfDaemonBase):
 
     @Logger
     @dbus.service.method(DAEMON_INTERFACE,
-                                          in_signature='sb',
-                                          out_signature='as',
-                                          sender_keyword='sender')
-    def GetPackagesByName(self, name, newest_only, sender=None):
-        '''
-        Get a list of packages from a name pattern
-        :param name: name pattern
-        :param newest_only: True = get newest packages only
-        :param sender:
-        '''
-        self.working_start(sender)
-        pkg_ids = self._get_packages_by_name(name, newest_only)
-        return self.working_ended(pkg_ids)
-
-
-    @Logger
-    @dbus.service.method(DAEMON_INTERFACE,
-                                          in_signature='sbas',
+                                          in_signature='sasb',
                                           out_signature='s',
                                           sender_keyword='sender')
-    def GetPackagesByNameWithAttr(self, name, newest_only, attrs, sender=None):
+    def GetPackagesByName(self, name,  attrs, newest_only,sender=None):
         '''
         Get a list of packages from a name pattern
         :param name: name pattern

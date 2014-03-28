@@ -151,28 +151,17 @@ These methods is for getting packages and information about packages
    :return: list of (id, field1, field2...) **(JSON)**, each JSON Sting contains (id, field1, field2...)
    :rtype: array of strings (as) 
 
-.. py:function:: GetPackagesByName(name, newest_only)
-
-   Get a list of pkg ids for starts with name
-        
-   :param name: name prefix to match
-   :type name: string
-   :param newest_only: show only the newest match or every match.
-   :type newest_only: boolean
-   :return: list of pkg_id's
-   :rtype: array of strings (as)
-
-.. py:function:: GetPackagesByNameWithAttr(name, newest_only, attrs)
+.. py:function:: GetPackagesByName(name, attrs, newest_only)
 
    Get a list of pkg ids for starts with name and some user defined attributes
         
    :param name: name prefix to match
    :type name: string
-   :param newest_only: show only the newest match or every match.
-   :type newest_only: boolean
    :param attrs: a list of packages attributes to return
    :type attrs: list of strings   
-   :return: list of [pkg_id, attr1, attr2, ....]
+   :param newest_only: show only the newest match or every match.
+   :type newest_only: boolean
+   :return: list of pkg_id or [pkg_id, attr1, attr2, ....] if attrs is set
    :rtype: array of strings (as)
 
 
@@ -524,28 +513,17 @@ These methods is for getting packages and information about packages
    :return: list of (id, field1, field2...) **(JSON)**, each JSON Sting contains (id, field1, field2...)
    :rtype: array of strings (as) 
 
-.. py:function:: GetPackagesByName(name, newest_only)
-
-   Get a list of pkg ids for starts with name
-        
-   :param name: name prefix to match
-   :type name: string
-   :param newest_only: show only the newest match or every match.
-   :type newest_only: boolean
-   :return: list of pkg_id's
-   :rtype: array of strings (as)
-
-.. py:function:: GetPackagesByNameWithAttr(name, newest_only, attrs)
+.. py:function:: GetPackagesByName(name, attrs, newest_only)
 
    Get a list of pkg ids for starts with name and some user defined attributes
         
    :param name: name prefix to match
    :type name: string
-   :param newest_only: show only the newest match or every match.
-   :type newest_only: boolean
    :param attrs: a list of packages attributes to return
    :type attrs: list of strings   
-   :return: list of [pkg_id, attr1, attr2, ....]
+   :param newest_only: show only the newest match or every match.
+   :type newest_only: boolean
+   :return: list of pkg_id or [pkg_id, attr1, attr2, ....] if attrs is set
    :rtype: array of strings (as)
 
 
