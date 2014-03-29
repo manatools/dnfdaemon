@@ -14,7 +14,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-# (C) 2013 - Tim Lauridsen <timlau@fedoraproject.org>
+# (C) 2013 - 2014 - Tim Lauridsen <timlau@fedoraproject.org>
 
 #
 # dnf session bus dBus service (Readonly)
@@ -35,7 +35,7 @@ import argparse
 
 from common import DnfDaemonBase, doTextLoggerSetup, Logger, NONE
 
-version = 102 #  (00.01.02) must be integer
+version = 103 #  (00.01.03) must be integer
 DAEMON_ORG = 'org.baseurl.DnfSession'
 DAEMON_INTERFACE = DAEMON_ORG
 

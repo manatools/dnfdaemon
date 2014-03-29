@@ -13,7 +13,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-# (C) 2013 - Tim Lauridsen <timlau@fedoraproject.org>
+# (C) 2013 - 2014 - Tim Lauridsen <timlau@fedoraproject.org>
 
 """
 Common stuff for the dnfdaemon dbus services

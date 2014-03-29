@@ -13,7 +13,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-# (C) 2013 - Tim Lauridsen <timlau@fedoraproject.org>
+# (C) 2013 - 2014 - Tim Lauridsen <timlau@fedoraproject.org>
 
 """
 This is a Python 2.x & 3.x client API for the dnf-daemon Dbus Service
@@ -97,6 +97,8 @@ import sys
 import re
 import weakref
 import logging
+
+__VERSION__ = "0.1.3"
 
 logger = logging.getLogger("dnfdaemon.client")
 
