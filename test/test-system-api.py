@@ -124,7 +124,7 @@ class TestAPIDevel(TestBase):
 
     def test_GetPackagesByNameWithAttr(self):
         '''
-        Session: GetPackagesByName ( with attr)
+        System: GetPackagesByName ( with attr)
         '''
         print()
         print( "Get all available versions of foo")
@@ -172,7 +172,7 @@ class TestAPIDevel(TestBase):
 
     def test_Search(self):
         '''
-        Session: Search
+        System: Search
         '''
         attrs = ['summary']
         fields = ['name','summary']
@@ -596,6 +596,7 @@ class TestAPIDevel(TestBase):
             self.show_transaction_result(output)
             self.RunTransaction()
         pkgs = self.GetPackagesByName('bar', newest_only=False)
+        print(pkgs)
         # pkgs should be a list instance
         self.assertIsInstance(pkgs, list)
         self.assertEqual(len(pkgs),2) # bar should only be there twice

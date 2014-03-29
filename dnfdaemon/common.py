@@ -182,7 +182,7 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
         if newest_only:
             qa = qa.latest()
         pkgs = self.base.packages.filter_packages(qa)
-        return list(pkgs)
+        return pkgs
 
     def _get_groups(self):
         '''
@@ -560,16 +560,16 @@ class Packages:
         the installed ones with the installed object, instead
         of the available object
         '''
-        pkgs = []
+        pkgs = set()
         for pkg in pkg_list:
             key = (pkg.name, pkg.arch)
             inst_pkg = self._inst_na.get(key, [None])[0]
             if inst_pkg and inst_pkg.evr == pkg.evr:
                 if replace:
-                    pkgs.append(inst_pkg)
+                    pkgs.add(inst_pkg)
             else:
-                pkgs.append(pkg)
-        return pkgs
+                pkgs.add(pkg)
+        return list(pkgs)
 
 
     @property
