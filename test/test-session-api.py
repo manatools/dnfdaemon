@@ -240,6 +240,13 @@ class TestAPIDevel(TestBaseReadonly):
                 pkgs = self.GetGroupPackages(grp_id,'default',[])
                 self.assertIsInstance(pkgs, list) # cat is a list
                 print( "       # of Default Packages in group : ",len(pkgs))
+                elem = pkgs[0] # pkg_id
+                self.assertIsInstance(elem, str)
+                pkgs = self.GetGroupPackages(grp_id,'default',['size','summary'])
+                self.assertIsInstance(pkgs, list) # cat is a list
+                elem = pkgs[0] # [pkg_id, size, summary]
+                self.assertIsInstance(elem, list)
+                self.assertEqual(len(elem),3) #  has 3 elements
 
     def test_Downgrades(self):
         '''
