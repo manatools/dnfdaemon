@@ -6,7 +6,7 @@ Release:        1%{?dist}
 Summary:        DBus daemon for dnf package actions
 License:        GPLv2+
 URL:            https://github.com/timlau/dnf-daemon
-Source0:        https://fedorahosted.org/releases/y/u/yumex/%{name}-%{version}.tar.gz
+Source0:        https://github.com/timlau/dnf-daemon/archive/%{name}-%{version}.tar.gz
 BuildArch:      noarch
 BuildRequires:  python3-devel
 Requires:       python3-dbus
