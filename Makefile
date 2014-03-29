@@ -105,7 +105,6 @@ release:
 	@git tag -f -m "Added ${PKGNAME}-${VERSION} release tag" ${PKGNAME}-${VERSION}
 	@git push --tags origin
 	@$(MAKE) archive
-	@$(MAKE) upload
 
 test-cleanup:	
 	@rm -rf ${PKGNAME}-${VERSION}.test.tar.gz
