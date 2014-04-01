@@ -98,7 +98,7 @@ import re
 import weakref
 import logging
 
-__VERSION__ = "0.1.3"
+__VERSION__ = "0.1.4"
 
 logger = logging.getLogger("dnfdaemon.client")
 

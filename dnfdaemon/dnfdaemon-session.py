@@ -35,7 +35,7 @@ import argparse
 
 from common import DnfDaemonBase, doTextLoggerSetup, Logger, NONE
 
-version = 103 #  (00.01.03) must be integer
+version = 104 #  (00.01.03) must be integer
 DAEMON_ORG = 'org.baseurl.DnfSession'
 DAEMON_INTERFACE = DAEMON_ORG
 
