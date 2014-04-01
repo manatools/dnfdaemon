@@ -462,6 +462,49 @@ class DnfDaemon(DnfDaemonBase):
                                           in_signature='s',
                                           out_signature='s',
                                           sender_keyword='sender')
+    def GroupInstall(self, cmds, sender=None):
+        '''
+        Install groups based on command patterns separated by spaces
+        sinulate what 'dnf group install <arguments>' does
+        :param cmds: command patterns separated by spaces
+        :param sender:
+        '''
+        self.working_start(sender)
+        value = 0
+        for cmd in cmds.split(' '):
+            pkg_types = ["mandatory", "default"]
+            grp = self._find_group(cmd)
+            if grp:
+                self.base.group_install(grp, pkg_types )
+        value = self._build_transaction()
+        return self.working_ended(value)
+
+    @Logger
+    @dbus.service.method(DAEMON_INTERFACE,
+                                          in_signature='s',
+                                          out_signature='s',
+                                          sender_keyword='sender')
+    def GroupRemove(self, cmds, sender=None):
+        '''
+        Install groups based on command patterns separated by spaces
+        sinulate what 'dnf group install <arguments>' does
+        :param cmds: command patterns separated by spaces
+        :param sender:
+        '''
+        self.working_start(sender)
+        value = 0
+        for cmd in cmds.split(' '):
+            grp = self._find_group(cmd)
+            if grp:
+                self.base.group_remove(grp)
+        value = self._build_transaction()
+        return self.working_ended(value)
+
+    @Logger
+    @dbus.service.method(DAEMON_INTERFACE,
+                                          in_signature='s',
+                                          out_signature='s',
+                                          sender_keyword='sender')
     def Install(self, cmds, sender=None):
         '''
         Install packages based on command patterns separated by spaces

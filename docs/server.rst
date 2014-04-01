@@ -332,6 +332,19 @@ Methods to work with yum groups and categories
    :rtype: array of strings (as)
     
 
+.. py:function:: GroupInstall(patterns)
+
+   Install groups matching patterns
+   
+   :param patterns: patterns separated by ' ' (ex. "firefox xfce-desktop")
+   
+.. py:function:: GroupRemove(patterns)
+
+   Removing groups matching patterns
+   
+   :param patterns: patterns separated by ' ' (ex. "firefox xfce-desktop")
+   
+
 .. note:: Under Development
    
    More to come in the future, methods to install groups etc. has to be defined and implemented

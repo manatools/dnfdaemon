@@ -15,7 +15,8 @@ System API
     		  GetPackages, GetPackagesByName, GetPackageWithAttributes, GetAttribute, GetUpdateInfo, 
     		  GetGroups, GetGroupPackages,Search, SetEnabledRepos, GetPackagesByNameWithAttr, SearchWithAttr
               SetConfig, HistorySearch, GetHistoryPackages, ClearTransaction, GetTransaction, AddTransaction,
-              Install, Remove, Update, Reinstall, Downgrade, BuildTransaction, RunTransaction, ConfirmGPGImport
+              Install, Remove, Update, Reinstall, Downgrade, BuildTransaction, RunTransaction, ConfirmGPGImport,
+              GroupInstall, GroupRemove
     
 Session API
 ------------

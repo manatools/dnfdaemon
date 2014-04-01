@@ -635,6 +635,25 @@ class DnfDaemonClient(DnfDaemonBase):
         '''
         return json.loads(self._run_dbus_async('AddTransaction','(ss)',id, action))
 
+    def GroupInstall(self, pattern):
+        '''
+        Do a group install <pattern string>, same as dnf group install <pattern string>
+
+        :param pattern: group pattern to install
+        :type pattern: string
+       '''
+        return json.loads(self._run_dbus_async('GroupInstall','(s)',pattern))
+
+    def GroupRemove(self, pattern):
+        '''
+        Do a group remove <pattern string>, same as dnf group remove <pattern string>
+
+        :param pattern: group pattern to remove
+        :type pattern: string
+       '''
+        return json.loads(self._run_dbus_async('GroupRemove','(s)',pattern))
+
+
     def Install(self, pattern):
         '''
         Do a install <pattern string>, same as yum install <pattern string>

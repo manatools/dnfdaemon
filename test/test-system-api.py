@@ -611,3 +611,25 @@ class TestAPIDevel(TestBase):
             print( "  Package : %s" % pkg)
             (n, e, v, r, a, repo_id) = self.to_pkg_tuple(pkg)
             self.assertEqual(n,"bar")
+
+    def test_GroupInstall(self):
+        """
+        System: GroupInstall & GroupRemove
+        """
+        print()
+        self._enable_default_repos()
+        rc, output = self.GroupInstall("firefox")
+        print(rc, output)
+        is_inst = False
+        if rc:
+            is_inst = True
+            self.RunTransaction()
+        rc, output = self.GroupRemove("firefox")
+        print(rc, output)
+        self.assertTrue(rc)
+        if rc:
+            self.RunTransaction()
+        if is_inst: # back to original state
+            rc, output = self.GroupInstall("firefox")
+            if rc:
+                self.RunTransaction()

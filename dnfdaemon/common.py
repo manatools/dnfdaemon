@@ -184,6 +184,13 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
         pkgs = self.base.packages.filter_packages(qa)
         return pkgs
 
+    def _find_group(self, pattern):
+        """ Find comps.Group object by pattern"""
+        if not self.base.comps: # lazy load the comps metadata
+            self.base.read_comps()
+        grp = self.base.comps.group_by_pattern(pattern)
+        return grp
+
     def _get_groups(self):
         '''
         make a list with categoties and there groups
