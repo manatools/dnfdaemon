@@ -34,13 +34,9 @@ from dbus.mainloop.glib import DBusGMainLoop
 import argparse
 
 
-from common import DnfDaemonBase, doTextLoggerSetup, Logger, NONE
+from common import DnfDaemonBase, doTextLoggerSetup, Logger
 
-<<<<<<< HEAD
 version = 104  # (00.01.03) must be integer
-=======
-version = 104 #  (00.01.03) must be integer
->>>>>>> 3c0d99f0de80449e71f19df0e7bf0d804e80f78d
 DAEMON_ORG = 'org.baseurl.DnfSession'
 DAEMON_INTERFACE = DAEMON_ORG
 

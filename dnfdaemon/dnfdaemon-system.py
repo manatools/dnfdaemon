@@ -42,11 +42,7 @@ from dnf.yum.rpmtrans import TransactionDisplay
 
 from common import DnfDaemonBase, doTextLoggerSetup, Logger, NONE
 
-<<<<<<< HEAD
 version = 104  # (00.01.02) must be integer
-=======
-version = 104 #  (00.01.02) must be integer
->>>>>>> 3c0d99f0de80449e71f19df0e7bf0d804e80f78d
 DAEMON_ORG = 'org.baseurl.DnfSystem'
 DAEMON_INTERFACE = DAEMON_ORG
 
