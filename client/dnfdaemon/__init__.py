@@ -19,19 +19,22 @@
 """
 This is a Python 2.x & 3.x client API for the dnf-daemon Dbus Service
 
-This module gives a simple pythonic interface to doing Yum package action using the
-yum-daemon Dbus service.
+This module gives a simple pythonic interface to doing  package action
+using the dnf-daemon Dbus service.
 
-It use async call to the dnf-daemon, so signal can be catched and a Gtk gui dont get unresonsive
+It use async call to the dnf-daemon, so signal can be catched and a Gtk gui do
+nt get unresonsive
 
 There is 2 classes :class:`DnfDaemonClient` & :class:`DnfDaemonReadOnlyClient`
 
-:class:`DnfDaemonClient` uses a system DBus service running as root and can make chages to the system.
+:class:`DnfDaemonClient` uses a system DBus service running as root and
+can make chages to the system.
 
-:class:`DnfDaemonReadOnlyClient` uses a session DBus service running as current user and can only do readonly
-actions.
+:class:`DnfDaemonReadOnlyClient` uses a session DBus service running as
+current user and can only do readonly actions.
 
-Usage: (Make your own subclass based on :class:`dnfdaemon.DnfDaemonClient` and overload the signal handlers)::
+Usage: (Make your own subclass based on :class:`dnfdaemon.DnfDaemonClient`
+and overload the signal handlers)::
 
 
     from dnfdaemon import DnfDaemonClient
@@ -46,7 +49,8 @@ Usage: (Make your own subclass based on :class:`dnfdaemon.DnfDaemonClient` and o
             # Do your stuff here
             pass
 
-        def on_RPMProgress(self, package, action, te_current, te_total, ts_current, ts_total):
+        def on_RPMProgress(self, package, action, te_current, te_total,
+                           ts_current, ts_total):
             # Do your stuff here
             pass
 
@@ -75,7 +79,8 @@ Usage: (Make your own subclass based on :class:`dnfdaemon.DnfDaemonClient` and o
            pass
 
 
-Usage: (Make your own subclass based on :class:`dnfdaemon.DnfDaemonReadOnlyClient` and overload the signal handlers)::
+Usage: (Make your own subclass based on
+:class:`dnfdaemon.DnfDaemonReadOnlyClient` and overload the signal handlers)::
 
 
     from dnfdaemon import DnfDaemonReadOnlyClient
@@ -313,7 +318,8 @@ class DnfDaemonBase:
         if data:
             print("Data :\n", data)
 
-    def on_RPMProgress(self, package, action, te_current, te_total, ts_current, ts_total):
+    def on_RPMProgress(
+            self, package, action, te_current, te_total, ts_current, ts_total):
         print("RPMProgress : %s %s" % (action, package))
 
     def on_GPGImport(self, pkg_id, userid, hexkeyid, keyurl, timestamp):
@@ -382,10 +388,12 @@ class DnfDaemonBase:
     def GetPackageWithAttributes(self, pkg_filter, fields):
         '''
         Get a list of pkg list for a given package filter
-        each pkg list contains [pkg_id, field,....] where field is a atrribute of the package object
+        each pkg list contains [pkg_id, field,....] where field is a
+        atrribute of the package object
         Ex. summary, size etc.
 
-        :param pkg_filter: package filter ('installed','available','updates','obsoletes','recent','extras')
+        :param pkg_filter: package filter ('installed','available',
+                           'updates','obsoletes','recent','extras')
         :type pkg_filter: string
         :param fields: yum package objects attributes to get.
         :type fields: list of strings
@@ -469,7 +477,8 @@ class DnfDaemonBase:
         '''
         Get a list of pkg ids for a given filter (installed, updates ..)
 
-        :param pkg_filter: package filter ('installed','available','updates','obsoletes','recent','extras')
+        :param pkg_filter: package filter ('installed','available','updates',
+                          'obsoletes','recent','extras')
         :type pkg_filter: string
         :return: list of pkg_id's
         :rtype: list of strings
@@ -484,11 +493,13 @@ class DnfDaemonBase:
         :type name: string
         :param attr: a list of packages attributes to return (optional)
         :type attr: list of strings
-        :param newest_only: show only the newest match or every match (optinal).
+        :param newest_only: show only the newest match or every
+                            match (optinal).
         :type newest_only: boolean
         :return: list of [pkg_id, attr1, attr2, ...]
         '''
-        return json.loads(self._run_dbus_async('GetPackagesByName', '(sasb)', name, attr, newest_only))
+        return json.loads(self._run_dbus_async('GetPackagesByName', '(sasb)',
+                          name, attr, newest_only))
 
     def GetGroups(self):
         '''
@@ -501,10 +512,13 @@ class DnfDaemonBase:
         Get packages in a group
 
         :param grp_id: the group id to get packages for
-        :param grp_flt: the filter ('all' = all packages ,'default' = packages to be installed, before the group is installed)
+        :param grp_flt: the filter ('all' = all packages ,
+                       'default' = packages to be installed, before
+                        the group is installed)
         :param fields: extra package attributes to include in result
         '''
-        return json.loads(self._run_dbus_async('GetGroupPackages', '(ssas)', grp_id, grp_flt, fields))
+        return json.loads(self._run_dbus_async('GetGroupPackages', '(ssas)',
+                          grp_id, grp_flt, fields))
 
     def Search(self, fields, keys, attrs, match_all, newest_only, tags):
         '''
@@ -524,7 +538,8 @@ class DnfDaemonBase:
         :return: list of pkg_id's
 
         '''
-        return json.loads(self._run_dbus_async('Search', '(asasasbbb)', fields, keys, attrs, match_all, newest_only, tags))
+        return json.loads(self._run_dbus_async('Search', '(asasasbbb)',
+                          fields, keys, attrs, match_all, newest_only, tags))
 
     def Exit(self):
         '''
@@ -631,14 +646,17 @@ class DnfDaemonClient(DnfDaemonBase):
 
         :param id: package id for the package to add
         :type id: string
-        :param action: the action to perform ( install, update, remove, obsolete, reinstall, downgrade, localinstall )
+        :param action: the action to perform ( install, update, remove,
+                       obsolete, reinstall, downgrade, localinstall )
         :type action: string
         '''
-        return json.loads(self._run_dbus_async('AddTransaction', '(ss)', id, action))
+        return json.loads(self._run_dbus_async('AddTransaction', '(ss)',
+                          id, action))
 
     def GroupInstall(self, pattern):
         '''
-        Do a group install <pattern string>, same as dnf group install <pattern string>
+        Do a group install <pattern string>,
+        same as dnf group install <pattern string>
 
         :param pattern: group pattern to install
         :type pattern: string
@@ -647,7 +665,8 @@ class DnfDaemonClient(DnfDaemonBase):
 
     def GroupRemove(self, pattern):
         '''
-        Do a group remove <pattern string>, same as dnf group remove <pattern string>
+        Do a group remove <pattern string>,
+        same as dnf group remove <pattern string>
 
         :param pattern: group pattern to remove
         :type pattern: string
@@ -656,7 +675,8 @@ class DnfDaemonClient(DnfDaemonBase):
 
     def Install(self, pattern):
         '''
-        Do a install <pattern string>, same as yum install <pattern string>
+        Do a install <pattern string>,
+        same as dnf install <pattern string>
 
         :param pattern: package pattern to install
         :type pattern: string
@@ -665,7 +685,8 @@ class DnfDaemonClient(DnfDaemonBase):
 
     def Remove(self, pattern):
         '''
-        Do a install <pattern string>, same as yum remove <pattern string>
+        Do a install <pattern string>,
+        same as dnf remove <pattern string>
 
         :param pattern: package pattern to remove
         :type pattern: string
@@ -674,7 +695,8 @@ class DnfDaemonClient(DnfDaemonBase):
 
     def Update(self, pattern):
         '''
-        Do a update <pattern string>, same as yum update <pattern string>
+        Do a update <pattern string>,
+        same as dnf update <pattern string>
 
         :param pattern: package pattern to update
         :type pattern: string
@@ -684,7 +706,8 @@ class DnfDaemonClient(DnfDaemonBase):
 
     def Reinstall(self, pattern):
         '''
-        Do a reinstall <pattern string>, same as yum reinstall <pattern string>
+        Do a reinstall <pattern string>,
+        same as dnf reinstall <pattern string>
 
         :param pattern: package pattern to reinstall
         :type pattern: string
@@ -712,7 +735,8 @@ class DnfDaemonClient(DnfDaemonBase):
         Get a list of pkg ids for the current availabe updates
         :param max_err: maximun number of download error before we bail out
         '''
-        return json.loads(self._run_dbus_async('RunTransaction', '(i)', max_err))
+        return json.loads(self._run_dbus_async('RunTransaction', '(i)',
+                          max_err))
 
     def GetHistoryByDays(self, start_days, end_days):
         '''

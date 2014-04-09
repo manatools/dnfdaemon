@@ -46,7 +46,7 @@ FAKE_ATTR = ['downgrades', 'action', 'pkgtags', 'changelog']
 NONE = json.dumps(None)
 
 
-#------------------------------------------------------------------------------ Callback handlers
+#------------------------------------------------------------ Callback handlers
 
 logger = logging.getLogger('dnfdaemon.service')
 
@@ -133,7 +133,8 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
 # Search -> _search etc
 #=========================================================================
 
-    def _search_with_attr(self, fields, keys, attrs, match_all, newest_only, tags):
+    def _search_with_attr(self, fields, keys, attrs, match_all, newest_only,
+                          tags):
         '''
         Search for for packages, where given fields contain given key words
         (Helper for Search)
@@ -141,7 +142,8 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
         :param fields: list of fields to search in
         :param keys: list of keywords to search for
         :param attrs: list of extra attributes to get
-        :param match_all: match all flag, if True return only packages matching all keys
+        :param match_all: match all flag, if True return only packages
+                          matching all keys
         :param newest_only: return only the newest version of a package
         :param tags: seach pkgtags
         '''
@@ -198,8 +200,9 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
     def _get_groups(self):
         '''
         make a list with categoties and there groups
-        This is the old way of yum groups, where a group is a collection of mandatory, default and optional pacakges
-        and the group is installed when all mandatory & default packages is installed.
+        This is the old way of yum groups, where a group is a collection of
+        mandatory, default and optional pacakges and the group
+        is installed when all mandatory & default packages is installed.
         '''
         all_groups = []
         if not self.base.comps:  # lazy load the comps metadata
@@ -280,7 +283,8 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
         Get a list of package ids, based on a package pkg_filterer
         :param pkg_filter: pkg pkg_filter string ('installed','updates' etc)
         '''
-        if pkg_filter in ['installed', 'available', 'updates', 'obsoletes', 'recent', 'extras']:
+        if pkg_filter in ['installed', 'available', 'updates', 'obsoletes',
+                          'recent', 'extras']:
             pkgs = getattr(self.base.packages, pkg_filter)
             value = self._to_package_id_list(pkgs)
         else:
@@ -293,7 +297,8 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
         :param pkg_filter: pkg pkg_filter string ('installed','updates' etc)
         '''
         value = []
-        if pkg_filter in ['installed', 'available', 'updates', 'obsoletes', 'recent', 'extras']:
+        if pkg_filter in ['installed', 'available', 'updates', 'obsoletes',
+                          'recent', 'extras']:
             pkgs = getattr(self.base.packages, pkg_filter)
             value = [self._get_po_list(po, fields) for po in pkgs]
         return value
@@ -303,7 +308,8 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
         Get an attribute from a yum package id
         it will return a python repr string of the attribute
         :param id: yum package id
-        :param attr: name of attribute (summary, size, description, changelog etc..)
+        :param attr: name of attribute (summary, size, description,
+                     changelog etc..)
         '''
         po = self._get_po(id)
         if po:
@@ -401,7 +407,8 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
 
     def _get_id_time_list(self, hist_trans):
         '''
-        return a list of (tid, isodate) pairs from a list of yum history transactions
+        return a list of (tid, isodate) pairs from a list of
+        yum history transactions
         '''
         result = []
         for ht in hist_trans:
@@ -411,8 +418,8 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
 
     def _get_fake_attributes(self, po, attr):
         '''
-        Get Fake Attributes, a whey to useful stuff for a package there is not real
-        attritbutes to the yum package object.
+        Get Fake Attributes, a whey to useful stuff for a package
+        there is not real attritbutes to the yum package object.
         :param attr: Fake attribute
         :type attr: string
         '''
@@ -476,11 +483,13 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
 
     def _get_id(self, pkg):
         '''
-        convert a yum package obejct to an id string containing (n,e,v,r,a,repo)
+        convert a yum package obejct to an id string containing
+        (n,e,v,r,a,repo)
         :param pkg:
         '''
         values = [
-            pkg.name, str(pkg.epoch), pkg.version, pkg.release, pkg.arch, pkg.ui_from_repo]
+            pkg.name, str(pkg.epoch), pkg.version, pkg.release,
+            pkg.arch, pkg.ui_from_repo]
         return ",".join(values)
 
     def _get_action(self, po):
@@ -620,9 +629,11 @@ class Packages:
         available packages there is not installed yet
         '''
         if showdups:
-            return self.filter_packages(self.query.available().run(), replace=False)
+            return self.filter_packages(self.query.available().run(),
+                                        replace=False)
         else:
-            return self.filter_packages(self.query.available().latest().run(), replace=False)
+            return self.filter_packages(self.query.available().latest().run(),
+                                        replace=False)
 
     @property
     def extras(self):
@@ -791,7 +802,8 @@ class Progress(dnf.callback.DownloadProgress):
 
     def end(self, payload, status, msg):
         # payload download complete
-        if status in [dnf.callback.STATUS_OK, dnf.callback.STATUS_ALREADY_EXISTS]:
+        if status in [dnf.callback.STATUS_OK,
+                      dnf.callback.STATUS_ALREADY_EXISTS]:
             self.download_files += 1
         else:
             pload = str(payload)
@@ -833,10 +845,13 @@ class Progress(dnf.callback.DownloadProgress):
         """ Output the current progress"""
 
         sys.stdout.write("Progress : %-3d %% (%d/%d)\r" %
-                         (self.last_pct, self.download_files, self.total_files))
+                         (self.last_pct,
+                          self.download_files,
+                          self.total_files))
 
 
-def doTextLoggerSetup(logroot='dnfdaemon', logfmt='%(asctime)s: %(message)s', loglvl=logging.INFO):
+def doTextLoggerSetup(logroot='dnfdaemon', logfmt='%(asctime)s: %(message)s',
+                      loglvl=logging.INFO):
     ''' Setup Python logging  '''
     logger = logging.getLogger(logroot)
     logger.setLevel(loglvl)

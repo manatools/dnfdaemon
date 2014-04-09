@@ -37,7 +37,8 @@ from dbus.mainloop.glib import DBusGMainLoop
 import argparse
 
 import dnf.transaction
-from dnf.exceptions import PackagesNotInstalledError, DownloadError, MarkingError
+from dnf.exceptions import PackagesNotInstalledError, DownloadError,\
+    MarkingError
 from dnf.yum.rpmtrans import TransactionDisplay
 
 from common import DnfDaemonBase, doTextLoggerSetup, Logger, NONE
@@ -60,7 +61,8 @@ _ACTIVE_DCT = {
 
 
 def _active_pkg(tsi):
-    """Return the package from tsi that takes the active role in the transaction.
+    """Return the package from tsi that takes the active role
+    in the transaction.
     """
     return _ACTIVE_DCT[tsi.op_type](tsi)
 
@@ -80,7 +82,8 @@ class RPMTransactionDisplay(TransactionDisplay):
         super(TransactionDisplay, self).__init__()
         self.base = base
 
-    def event(self, package, action, te_current, te_total, ts_current, ts_total):
+    def event(self, package, action, te_current, te_total, ts_current,
+              ts_total):
         """
         @param package: A yum package object or simple string of a package name
         @param action: A constant transaction set state
@@ -107,7 +110,7 @@ class RPMTransactionDisplay(TransactionDisplay):
         pass
 
 
-#------------------------------------------------------------------------------ DBus Exception
+#--------------------------------------------------------------- DBus Exception
 class AccessDeniedError(dbus.DBusException):
     _dbus_error_name = DAEMON_ORG + '.AccessDeniedError'
 
@@ -124,7 +127,7 @@ class NotImplementedError(dbus.DBusException):
     _dbus_error_name = DAEMON_ORG + '.NotImplementedError'
 
 
-#------------------------------------------------------------------------------ Callback handlers
+#------------------------------------------------------------ Callback handlers
 
 
 class DaemonBase():
@@ -139,7 +142,7 @@ class DaemonBase():
 
 logger = logging.getLogger('dnfdaemon')
 
-#------------------------------------------------------------------------------ Main class
+#------------------------------------------------------------------- Main class
 
 
 class DnfDaemon(DnfDaemonBase):
@@ -366,7 +369,8 @@ class DnfDaemon(DnfDaemonBase):
         Get an attribute from a yum package pkg_id
         it will return a python repr string of the attribute
         :param pkg_id: yum package pkg_id
-        :param attr: name of attribute (summary, size, description, changelog etc..)
+        :param attr: name of attribute (summary, size, description,
+                     changelog etc..)
         :param sender:
         '''
         self.working_start(sender)
@@ -629,7 +633,8 @@ class DnfDaemon(DnfDaemonBase):
         Add an package to the current transaction
 
         :param pkg_id: package pkg_id for the package to add
-        :param action: the action to perform ( install, update, remove, obsolete, reinstall, downgrade, localinstall )
+        :param action: the action to perform ( install, update, remove,
+                       obsolete, reinstall, downgrade, localinstall )
         '''
         self.working_start(sender)
         value = json.dumps((0, []))
@@ -783,13 +788,15 @@ class DnfDaemon(DnfDaemonBase):
                          in_signature='asasasbbb',
                          out_signature='s',
                          sender_keyword='sender')
-    def Search(self, fields, keys, attrs, match_all, newest_only, tags, sender=None):
+    def Search(self, fields, keys, attrs, match_all, newest_only,
+               tags, sender=None):
         '''
         Search for for packages, where given fields contain given key words
         :param fields: list of fields to search in
         :param keys: list of keywords to search for
         :param attrs: list of extra attributes to get
-        :param match_all: match all flag, if True return only packages matching all keys
+        :param match_all: match all flag, if True return only packages
+                          matching all keys
         :param newest_only: return only the newest version of a package
         :param tags: seach pkgtags
         '''
@@ -892,10 +899,12 @@ class DnfDaemon(DnfDaemonBase):
     @dbus.service.signal(DAEMON_INTERFACE)
     def TransactionEvent(self, event, data):
         '''
-        DBus signal with Transaction event information, telling the current step in the processing of
-        the current transaction.
+        DBus signal with Transaction event information, telling the current
+        step in the processing of the current transaction.
 
-        Steps are : start-run, download, pkg-to-download, signature-check, run-test-transaction, run-transaction, fail, end-run
+        Steps are : start-run, download, pkg-to-download, signature-check,
+                    run-test-transaction,
+        run-transaction, fail, end-run
 
         :param event: current step
         '''
@@ -903,7 +912,8 @@ class DnfDaemon(DnfDaemonBase):
         pass
 
     @dbus.service.signal(DAEMON_INTERFACE)
-    def RPMProgress(self, package, action, te_current, te_total, ts_current, ts_total):
+    def RPMProgress(self, package, action, te_current, te_total, ts_current,
+                    ts_total):
         """
         RPM Progress DBus signal
         :param package: A yum package object or simple string of a package name
@@ -923,7 +933,8 @@ class DnfDaemon(DnfDaemonBase):
         '''
         GPG Key Import DBus signal
 
-        :param pkg_id: pkg_id for the package needing the GPG Key to be verified
+        :param pkg_id: pkg_id for the package needing the GPG Key
+                       to be verified
         :param userid: GPG key name
         :param hexkeyid: GPG key hex id
         :param keyurl: Url to the GPG Key
@@ -948,7 +959,9 @@ class DnfDaemon(DnfDaemonBase):
         '''
         Callback for handling af user confirmation of gpg key import
 
-        :param gpg_info: dict with info about gpg key {"po": ..,  "userid": .., "hexkeyid": .., "keyurl": ..,  "fingerprint": .., "timestamp": ..)
+        :param gpg_info: dict with info about gpg key
+        {"po": ..,  "userid": .., "hexkeyid": .., "keyurl": ..,
+          "fingerprint": .., "timestamp": ..)
 
         '''
         print(gpg_info)
@@ -980,7 +993,8 @@ class DnfDaemon(DnfDaemonBase):
 
     def _get_history_by_days(self, start, end):
         '''
-        Get the yum history transaction member located in a date interval from today
+        Get the yum history transaction member located in a date interval
+        from today
         :param start: start days from today
         :param end: end days from today
         '''
@@ -1140,10 +1154,12 @@ class DnfDaemon(DnfDaemonBase):
             raise ValueError('sender == None')
 
         obj = dbus.SystemBus().get_object(
-            'org.freedesktop.PolicyKit1', '/org/freedesktop/PolicyKit1/Authority')
+            'org.freedesktop.PolicyKit1',
+            '/org/freedesktop/PolicyKit1/Authority')
         obj = dbus.Interface(obj, 'org.freedesktop.PolicyKit1.Authority')
         (granted, _, details) = obj.CheckAuthorization(
-            ('system-bus-name', {'name': sender}), DAEMON_ORG, {}, dbus.UInt32(1), '', timeout=600)
+            ('system-bus-name', {'name': sender}), DAEMON_ORG, {},
+            dbus.UInt32(1), '', timeout=600)
         if not granted:
             raise AccessDeniedError('Session is not authorized')
 

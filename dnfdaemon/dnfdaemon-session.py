@@ -44,7 +44,7 @@ DAEMON_INTERFACE = DAEMON_ORG
 def _(msg):
     return msg
 
-#------------------------------------------------------------------------------ DBus Exception
+#--------------------------------------------------------------- DBus Exception
 
 
 class AccessDeniedError(dbus.DBusException):
@@ -61,7 +61,7 @@ class NotImplementedError(dbus.DBusException):
 
 logger = logging.getLogger('dnfdaemon.session')
 
-#------------------------------------------------------------------------------ Main class
+#------------------------------------------------------------------- Main class
 
 
 class DnfDaemon(DnfDaemonBase):
@@ -266,7 +266,8 @@ class DnfDaemon(DnfDaemonBase):
         Get an attribute from a yum package id
         it will return a python repr string of the attribute
         :param id: yum package id
-        :param attr: name of attribute (summary, size, description, changelog etc..)
+        :param attr: name of attribute (summary, size,
+                              description, changelog etc..)
         :param sender:
         '''
         self.working_start(sender)
@@ -307,13 +308,15 @@ class DnfDaemon(DnfDaemonBase):
                          in_signature='asasasbbb',
                          out_signature='s',
                          sender_keyword='sender')
-    def Search(self, fields, keys, attrs, match_all, newest_only, tags, sender=None):
+    def Search(self, fields, keys, attrs, match_all, newest_only,
+               tags, sender=None):
         '''
         Search for for packages, where given fields contain given key words
         :param fields: list of fields to search in
         :param keys: list of keywords to search for
         :param attrs: list of extra attributes to get
-        :param match_all: match all flag, if True return only packages matching all keys
+        :param match_all: match all flag, if True return only packages
+                          matching all keys
         :param newest_only: return only the newest version of a package
         :param tags: seach pkgtags
         '''
