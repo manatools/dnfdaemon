@@ -1,5 +1,5 @@
 #!/usr/bin/python3 -tt
-#coding: utf-8
+# coding: utf-8
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
 # as published by the Free Software Foundation; either version 2
@@ -12,7 +12,8 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+# 02110-1301, USA.
 
 # (C) 2013 - 2014 - Tim Lauridsen <timlau@fedoraproject.org>
 
@@ -35,43 +36,54 @@ import argparse
 
 from common import DnfDaemonBase, doTextLoggerSetup, Logger, NONE
 
+<<<<<<< HEAD
+version = 104  # (00.01.03) must be integer
+=======
 version = 104 #  (00.01.03) must be integer
+>>>>>>> 3c0d99f0de80449e71f19df0e7bf0d804e80f78d
 DAEMON_ORG = 'org.baseurl.DnfSession'
 DAEMON_INTERFACE = DAEMON_ORG
+
 
 def _(msg):
     return msg
 
 #------------------------------------------------------------------------------ DBus Exception
+
+
 class AccessDeniedError(dbus.DBusException):
-    _dbus_error_name = DAEMON_ORG+'.AccessDeniedError'
+    _dbus_error_name = DAEMON_ORG + '.AccessDeniedError'
+
 
 class LockedError(dbus.DBusException):
-    _dbus_error_name = DAEMON_ORG+'.LockedError'
+    _dbus_error_name = DAEMON_ORG + '.LockedError'
+
 
 class NotImplementedError(dbus.DBusException):
-    _dbus_error_name = DAEMON_ORG+'.NotImplementedError'
+    _dbus_error_name = DAEMON_ORG + '.NotImplementedError'
 
 
 logger = logging.getLogger('dnfdaemon.session')
 
 #------------------------------------------------------------------------------ Main class
+
+
 class DnfDaemon(DnfDaemonBase):
 
     def __init__(self):
         DnfDaemonBase.__init__(self)
         self.logger = logging.getLogger('dnfdaemon-session')
-        bus_name = dbus.service.BusName(DAEMON_ORG, bus = dbus.SessionBus())
+        bus_name = dbus.service.BusName(DAEMON_ORG, bus=dbus.SessionBus())
         dbus.service.Object.__init__(self, bus_name, '/')
 
-#===============================================================================
+#=========================================================================
 # DBus Methods
-#===============================================================================
+#=========================================================================
 
     @Logger
     @dbus.service.method(DAEMON_INTERFACE,
-                                          in_signature='',
-                                          out_signature='i')
+                         in_signature='',
+                         out_signature='i')
     def GetVersion(self):
         '''
         Get the daemon version
@@ -80,9 +92,9 @@ class DnfDaemon(DnfDaemonBase):
 
     @Logger
     @dbus.service.method(DAEMON_INTERFACE,
-                                          in_signature='',
-                                          out_signature='b',
-                                          sender_keyword='sender')
+                         in_signature='',
+                         out_signature='b',
+                         sender_keyword='sender')
     def Exit(self, sender=None):
         '''
         Exit the daemon
@@ -96,9 +108,9 @@ class DnfDaemon(DnfDaemonBase):
 
     @Logger
     @dbus.service.method(DAEMON_INTERFACE,
-                                          in_signature='',
-                                          out_signature='b',
-                                          sender_keyword='sender')
+                         in_signature='',
+                         out_signature='b',
+                         sender_keyword='sender')
     def Lock(self, sender=None):
         '''
         Get the yum lock
@@ -112,11 +124,10 @@ class DnfDaemon(DnfDaemonBase):
 
     @Logger
     @dbus.service.method(DAEMON_INTERFACE,
-                                          in_signature='b',
-                                          out_signature='b',
-                                          sender_keyword='sender')
-
-    def SetWatchdogState(self,state, sender=None):
+                         in_signature='b',
+                         out_signature='b',
+                         sender_keyword='sender')
+    def SetWatchdogState(self, state, sender=None):
         '''
         Set the Watchdog state
         :param state: True = Watchdog active, False = Watchdog disabled
@@ -127,10 +138,9 @@ class DnfDaemon(DnfDaemonBase):
 
     @Logger
     @dbus.service.method(DAEMON_INTERFACE,
-                                          in_signature='',
-                                          out_signature='b',
-                                          sender_keyword='sender')
-
+                         in_signature='',
+                         out_signature='b',
+                         sender_keyword='sender')
     def ExpireCache(self, sender=None):
         '''
         Enabled a list of repositories, disabled all other repos
@@ -141,13 +151,11 @@ class DnfDaemon(DnfDaemonBase):
         rc = self._expire_cache()
         return self.working_ended(rc)
 
-
     @Logger
     @dbus.service.method(DAEMON_INTERFACE,
-                                          in_signature='s',
-                                          out_signature='as',
-                                          sender_keyword='sender')
-
+                         in_signature='s',
+                         out_signature='as',
+                         sender_keyword='sender')
     def GetRepositories(self, filter, sender=None):
         '''
         Get the value a list of repo ids
@@ -160,10 +168,9 @@ class DnfDaemon(DnfDaemonBase):
 
     @Logger
     @dbus.service.method(DAEMON_INTERFACE,
-                                          in_signature='as',
-                                          out_signature='',
-                                          sender_keyword='sender')
-
+                         in_signature='as',
+                         out_signature='',
+                         sender_keyword='sender')
     def SetEnabledRepos(self, repo_ids, sender=None):
         '''
         Enabled a list of repositories, disabled all other repos
@@ -174,13 +181,12 @@ class DnfDaemon(DnfDaemonBase):
         self._set_enabled_repos(repo_ids)
         return self.working_ended()
 
-
     @Logger
     @dbus.service.method(DAEMON_INTERFACE,
-                                          in_signature='s',
-                                          out_signature='s',
-                                          sender_keyword='sender')
-    def GetConfig(self, setting ,sender=None):
+                         in_signature='s',
+                         out_signature='s',
+                         sender_keyword='sender')
+    def GetConfig(self, setting, sender=None):
         '''
         Get the value of a yum config setting
         it will return a JSON string of the config
@@ -193,10 +199,10 @@ class DnfDaemon(DnfDaemonBase):
 
     @Logger
     @dbus.service.method(DAEMON_INTERFACE,
-                                          in_signature='s',
-                                          out_signature='s',
-                                          sender_keyword='sender')
-    def GetRepo(self, repo_id ,sender=None):
+                         in_signature='s',
+                         out_signature='s',
+                         sender_keyword='sender')
+    def GetRepo(self, repo_id, sender=None):
         '''
         Get information about a give repo_id
         the repo setting will be returned as dictionary in JSON format
@@ -209,9 +215,9 @@ class DnfDaemon(DnfDaemonBase):
 
     @Logger
     @dbus.service.method(DAEMON_INTERFACE,
-                                          in_signature='s',
-                                          out_signature='as',
-                                          sender_keyword='sender')
+                         in_signature='s',
+                         out_signature='as',
+                         sender_keyword='sender')
     def GetPackages(self, pkg_filter, sender=None):
         '''
         Get a list of package ids, based on a package pkg_filterer
@@ -224,9 +230,9 @@ class DnfDaemon(DnfDaemonBase):
 
     @Logger
     @dbus.service.method(DAEMON_INTERFACE,
-                                          in_signature='sas',
-                                          out_signature='s',
-                                          sender_keyword='sender')
+                         in_signature='sas',
+                         out_signature='s',
+                         sender_keyword='sender')
     def GetPackageWithAttributes(self, pkg_filter, fields, sender=None):
         '''
         Get a list of package ids, based on a package pkg_filterer
@@ -239,10 +245,10 @@ class DnfDaemon(DnfDaemonBase):
 
     @Logger
     @dbus.service.method(DAEMON_INTERFACE,
-                                          in_signature='sasb',
-                                          out_signature='s',
-                                          sender_keyword='sender')
-    def GetPackagesByName(self, name, attrs, newest_only,sender=None):
+                         in_signature='sasb',
+                         out_signature='s',
+                         sender_keyword='sender')
+    def GetPackagesByName(self, name, attrs, newest_only, sender=None):
         '''
         Get a list of packages from a name pattern
         :param name: name pattern
@@ -256,10 +262,10 @@ class DnfDaemon(DnfDaemonBase):
 
     @Logger
     @dbus.service.method(DAEMON_INTERFACE,
-                                          in_signature='ss',
-                                          out_signature='s',
-                                          sender_keyword='sender')
-    def GetAttribute(self, id, attr,sender=None):
+                         in_signature='ss',
+                         out_signature='s',
+                         sender_keyword='sender')
+    def GetAttribute(self, id, attr, sender=None):
         '''
         Get an attribute from a yum package id
         it will return a python repr string of the attribute
@@ -268,15 +274,15 @@ class DnfDaemon(DnfDaemonBase):
         :param sender:
         '''
         self.working_start(sender)
-        value = self._get_attribute( id, attr)
+        value = self._get_attribute(id, attr)
         return self.working_ended(value)
 
     @Logger
     @dbus.service.method(DAEMON_INTERFACE,
-                                          in_signature='s',
-                                          out_signature='s',
-                                          sender_keyword='sender')
-    def GetUpdateInfo(self, id,sender=None):
+                         in_signature='s',
+                         out_signature='s',
+                         sender_keyword='sender')
+    def GetUpdateInfo(self, id, sender=None):
         '''
         Get an Update Infomation e from a yum package id
         it will return a python repr string of the attribute
@@ -289,9 +295,9 @@ class DnfDaemon(DnfDaemonBase):
 
     @Logger
     @dbus.service.method(DAEMON_INTERFACE,
-                                          in_signature='',
-                                          out_signature='b',
-                                          sender_keyword='sender')
+                         in_signature='',
+                         out_signature='b',
+                         sender_keyword='sender')
     def Unlock(self, sender=None):
         ''' release the lock'''
         if self.check_lock(sender):
@@ -302,10 +308,10 @@ class DnfDaemon(DnfDaemonBase):
 
     @Logger
     @dbus.service.method(DAEMON_INTERFACE,
-                                          in_signature='asasasbbb',
-                                          out_signature='s',
-                                          sender_keyword='sender')
-    def Search(self, fields, keys, attrs, match_all, newest_only, tags, sender=None ):
+                         in_signature='asasasbbb',
+                         out_signature='s',
+                         sender_keyword='sender')
+    def Search(self, fields, keys, attrs, match_all, newest_only, tags, sender=None):
         '''
         Search for for packages, where given fields contain given key words
         :param fields: list of fields to search in
@@ -316,15 +322,16 @@ class DnfDaemon(DnfDaemonBase):
         :param tags: seach pkgtags
         '''
         self.working_start(sender)
-        result = self._search_with_attr(fields, keys, attrs, match_all, newest_only, tags)
+        result = self._search_with_attr(
+            fields, keys, attrs, match_all, newest_only, tags)
         return self.working_ended(json.dumps(result))
 
     @Logger
     @dbus.service.method(DAEMON_INTERFACE,
-                                          in_signature='',
-                                          out_signature='s',
-                                          sender_keyword='sender')
-    def GetGroups(self, sender=None ):
+                         in_signature='',
+                         out_signature='s',
+                         sender_keyword='sender')
+    def GetGroups(self, sender=None):
         '''
         Return a category/group tree
         '''
@@ -334,10 +341,10 @@ class DnfDaemon(DnfDaemonBase):
 
     @Logger
     @dbus.service.method(DAEMON_INTERFACE,
-                                          in_signature='ssas',
-                                          out_signature='s',
-                                          sender_keyword='sender')
-    def GetGroupPackages(self, grp_id, grp_flt,fields, sender=None ):
+                         in_signature='ssas',
+                         out_signature='s',
+                         sender_keyword='sender')
+    def GetGroupPackages(self, grp_id, grp_flt, fields, sender=None):
         '''
         Get packages in a group by grp_id and grp_flt
         :param grp_id: The Group id
@@ -348,8 +355,6 @@ class DnfDaemon(DnfDaemonBase):
         self.working_start(sender)
         value = self._get_group_pkgs(grp_id, grp_flt, fields)
         return self.working_ended(json.dumps(value))
-
-
 
 #
 #  Template for new method
@@ -366,13 +371,10 @@ class DnfDaemon(DnfDaemonBase):
 #        value = True
 #        return self.working_ended(value)
 #
-
-
-#===============================================================================
+#=========================================================================
 # DBus signals
-#===============================================================================
+#=========================================================================
 # Parallel Download Progress signals
-
     @dbus.service.signal(DAEMON_INTERFACE)
     def ErrorMessage(self, error_msg):
         ''' Send an error message '''
@@ -397,11 +399,10 @@ class DnfDaemon(DnfDaemonBase):
     def RepoMetaDataProgress(self, name, frac):
         ''' Repository Metadata Download progress '''
 
-
-#===============================================================================
+#=========================================================================
 # Helper methods
-#===============================================================================
-    def working_start(self,sender):
+#=========================================================================
+    def working_start(self, sender):
         self.check_lock(sender)
         self._is_working = True
         self._watchdog_count = 0
@@ -421,7 +422,6 @@ class DnfDaemon(DnfDaemonBase):
             raise LockedError('dnf is locked by another application')
 
 
-
 def main():
     parser = argparse.ArgumentParser(description='Yum D-Bus Session Daemon')
     parser.add_argument('-v', '--verbose', action='store_true')
@@ -430,7 +430,7 @@ def main():
     args = parser.parse_args()
     if args.verbose:
         if args.debug:
-            doTextLoggerSetup(logroot='dnfdaemon',loglvl=logging.DEBUG)
+            doTextLoggerSetup(logroot='dnfdaemon', loglvl=logging.DEBUG)
         else:
             doTextLoggerSetup(logroot='dnfdaemon')
 

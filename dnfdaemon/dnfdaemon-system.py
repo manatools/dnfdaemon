@@ -1,5 +1,5 @@
 #!/usr/bin/python3 -tt
-#coding: utf-8
+# coding: utf-8
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
 # as published by the Free Software Foundation; either version 2
@@ -12,7 +12,8 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+# 02110-1301, USA.
 
 # (C) 2013 -2014 - Tim Lauridsen <timlau@fedoraproject.org>
 
@@ -41,36 +42,44 @@ from dnf.yum.rpmtrans import TransactionDisplay
 
 from common import DnfDaemonBase, doTextLoggerSetup, Logger, NONE
 
+<<<<<<< HEAD
+version = 104  # (00.01.02) must be integer
+=======
 version = 104 #  (00.01.02) must be integer
+>>>>>>> 3c0d99f0de80449e71f19df0e7bf0d804e80f78d
 DAEMON_ORG = 'org.baseurl.DnfSystem'
 DAEMON_INTERFACE = DAEMON_ORG
+
 
 def _(msg):
     return msg
 
 _ACTIVE_DCT = {
-    dnf.transaction.DOWNGRADE : operator.attrgetter('installed'),
-    dnf.transaction.ERASE : operator.attrgetter('erased'),
-    dnf.transaction.INSTALL : operator.attrgetter('installed'),
-    dnf.transaction.REINSTALL : operator.attrgetter('installed'),
-    dnf.transaction.UPGRADE : operator.attrgetter('installed'),
-    }
+    dnf.transaction.DOWNGRADE: operator.attrgetter('installed'),
+    dnf.transaction.ERASE: operator.attrgetter('erased'),
+    dnf.transaction.INSTALL: operator.attrgetter('installed'),
+    dnf.transaction.REINSTALL: operator.attrgetter('installed'),
+    dnf.transaction.UPGRADE: operator.attrgetter('installed'),
+}
+
+
 def _active_pkg(tsi):
     """Return the package from tsi that takes the active role in the transaction.
     """
     return _ACTIVE_DCT[tsi.op_type](tsi)
 
 
-class RPMTransactionDisplay(TransactionDisplay): # FIXME: TransactionDisplay is not public API
+# FIXME: TransactionDisplay is not public API
+class RPMTransactionDisplay(TransactionDisplay):
 
-    def __init__(self,base):
-        self.actions  = {self.PKG_CLEANUP   : 'cleanup',
-                        self.PKG_DOWNGRADE : 'downgrade',
-                        self.PKG_ERASE     : 'erase',
-                        self.PKG_INSTALL   : 'install',
-                        self.PKG_OBSOLETE  : 'obsolete',
-                        self.PKG_REINSTALL : 'reinstall',
-                        self.PKG_UPGRADE   : 'update'}
+    def __init__(self, base):
+        self.actions = {self.PKG_CLEANUP: 'cleanup',
+                        self.PKG_DOWNGRADE: 'downgrade',
+                        self.PKG_ERASE: 'erase',
+                        self.PKG_INSTALL: 'install',
+                        self.PKG_OBSOLETE: 'obsolete',
+                        self.PKG_REINSTALL: 'reinstall',
+                        self.PKG_UPGRADE: 'update'}
 
         super(TransactionDisplay, self).__init__()
         self.base = base
@@ -87,13 +96,15 @@ class RPMTransactionDisplay(TransactionDisplay): # FIXME: TransactionDisplay is 
         @param ts_total: total number of processes in the transaction.
         """
         if package:
-            if not isinstance(package, str): # package can be both str or dnf package object
+            # package can be both str or dnf package object
+            if not isinstance(package, str):
                 pkg_id = self.base._get_id(package)
             else:
                 pkg_id = package
             if action in self.actions:
                 action = self.actions[action]
-            self.base.RPMProgress(pkg_id, action, te_current, te_total, ts_current, ts_total)
+            self.base.RPMProgress(
+                pkg_id, action, te_current, te_total, ts_current, ts_total)
 
     def scriptout(self, msgs):
         """msgs is the messages that were output (if any)."""
@@ -102,16 +113,19 @@ class RPMTransactionDisplay(TransactionDisplay): # FIXME: TransactionDisplay is 
 
 #------------------------------------------------------------------------------ DBus Exception
 class AccessDeniedError(dbus.DBusException):
-    _dbus_error_name = DAEMON_ORG+'.AccessDeniedError'
+    _dbus_error_name = DAEMON_ORG + '.AccessDeniedError'
+
 
 class LockedError(dbus.DBusException):
-    _dbus_error_name = DAEMON_ORG+'.LockedError'
+    _dbus_error_name = DAEMON_ORG + '.LockedError'
+
 
 class TransactionError(dbus.DBusException):
-    _dbus_error_name = DAEMON_ORG+'.TransactionError'
+    _dbus_error_name = DAEMON_ORG + '.TransactionError'
+
 
 class NotImplementedError(dbus.DBusException):
-    _dbus_error_name = DAEMON_ORG+'.NotImplementedError'
+    _dbus_error_name = DAEMON_ORG + '.NotImplementedError'
 
 
 #------------------------------------------------------------------------------ Callback handlers
@@ -122,7 +136,7 @@ class DaemonBase():
     def __init__(self, daemon):
         self._daemon = daemon
 
-    def _checkSignatures(self,pkgs,callback):
+    def _checkSignatures(self, pkgs, callback):
         ''' The the signatures of the downloaded packages '''
         return 0
 
@@ -130,23 +144,25 @@ class DaemonBase():
 logger = logging.getLogger('dnfdaemon')
 
 #------------------------------------------------------------------------------ Main class
+
+
 class DnfDaemon(DnfDaemonBase):
 
     def __init__(self):
         DnfDaemonBase.__init__(self)
         self.logger = logging.getLogger('dnfdaemon.system')
-        bus_name = dbus.service.BusName(DAEMON_ORG, bus = dbus.SystemBus())
+        bus_name = dbus.service.BusName(DAEMON_ORG, bus=dbus.SystemBus())
         dbus.service.Object.__init__(self, bus_name, '/')
         self._gpg_confirm = {}
 
-#===============================================================================
+#=========================================================================
 # DBus Methods
-#===============================================================================
+#=========================================================================
 
     @Logger
     @dbus.service.method(DAEMON_INTERFACE,
-                                          in_signature='',
-                                          out_signature='i')
+                         in_signature='',
+                         out_signature='i')
     def GetVersion(self):
         '''
         Get the daemon version
@@ -155,9 +171,9 @@ class DnfDaemon(DnfDaemonBase):
 
     @Logger
     @dbus.service.method(DAEMON_INTERFACE,
-                                          in_signature='',
-                                          out_signature='b',
-                                          sender_keyword='sender')
+                         in_signature='',
+                         out_signature='b',
+                         sender_keyword='sender')
     def Exit(self, sender=None):
         '''
         Exit the daemon
@@ -173,9 +189,9 @@ class DnfDaemon(DnfDaemonBase):
 
     @Logger
     @dbus.service.method(DAEMON_INTERFACE,
-                                          in_signature='',
-                                          out_signature='b',
-                                          sender_keyword='sender')
+                         in_signature='',
+                         out_signature='b',
+                         sender_keyword='sender')
     def Lock(self, sender=None):
         '''
         Get the yum lock
@@ -190,10 +206,10 @@ class DnfDaemon(DnfDaemonBase):
 
     @Logger
     @dbus.service.method(DAEMON_INTERFACE,
-                                          in_signature='b',
-                                          out_signature='b',
-                                          sender_keyword='sender')
-    def SetWatchdogState(self,state, sender=None):
+                         in_signature='b',
+                         out_signature='b',
+                         sender_keyword='sender')
+    def SetWatchdogState(self, state, sender=None):
         '''
         Set the Watchdog state
         :param state: True = Watchdog active, False = Watchdog disabled
@@ -203,13 +219,11 @@ class DnfDaemon(DnfDaemonBase):
         self._watchdog_disabled = not state
         return state
 
-
     @Logger
     @dbus.service.method(DAEMON_INTERFACE,
-                                          in_signature='s',
-                                          out_signature='as',
-                                          sender_keyword='sender')
-
+                         in_signature='s',
+                         out_signature='as',
+                         sender_keyword='sender')
     def GetRepositories(self, filter, sender=None):
         '''
         Get the value a list of repo ids
@@ -220,13 +234,11 @@ class DnfDaemon(DnfDaemonBase):
         repos = self._get_repositories(filter)
         return self.working_ended(repos)
 
-
     @Logger
     @dbus.service.method(DAEMON_INTERFACE,
-                                          in_signature='as',
-                                          out_signature='',
-                                          sender_keyword='sender')
-
+                         in_signature='as',
+                         out_signature='',
+                         sender_keyword='sender')
     def SetEnabledRepos(self, repo_ids, sender=None):
         '''
         Enabled a list of repositories, disabled all other repos
@@ -239,10 +251,9 @@ class DnfDaemon(DnfDaemonBase):
 
     @Logger
     @dbus.service.method(DAEMON_INTERFACE,
-                                          in_signature='',
-                                          out_signature='b',
-                                          sender_keyword='sender')
-
+                         in_signature='',
+                         out_signature='b',
+                         sender_keyword='sender')
     def ExpireCache(self, sender=None):
         '''
         Enabled a list of repositories, disabled all other repos
@@ -254,13 +265,12 @@ class DnfDaemon(DnfDaemonBase):
         rc = self._expire_cache()
         return self.working_ended(rc)
 
-
     @Logger
     @dbus.service.method(DAEMON_INTERFACE,
-                                          in_signature='s',
-                                          out_signature='s',
-                                          sender_keyword='sender')
-    def GetConfig(self, setting ,sender=None):
+                         in_signature='s',
+                         out_signature='s',
+                         sender_keyword='sender')
+    def GetConfig(self, setting, sender=None):
         '''
         Get the value of a yum config setting
         it will return a JSON string of the config
@@ -273,10 +283,10 @@ class DnfDaemon(DnfDaemonBase):
 
     @Logger
     @dbus.service.method(DAEMON_INTERFACE,
-                                          in_signature='ss',
-                                          out_signature='b',
-                                          sender_keyword='sender')
-    def SetConfig(self, setting, value ,sender=None):
+                         in_signature='ss',
+                         out_signature='b',
+                         sender_keyword='sender')
+    def SetConfig(self, setting, value, sender=None):
         '''
         Set yum config setting for the running session
         :param setting: yum conf setting to set
@@ -289,10 +299,10 @@ class DnfDaemon(DnfDaemonBase):
 
     @Logger
     @dbus.service.method(DAEMON_INTERFACE,
-                                          in_signature='s',
-                                          out_signature='s',
-                                          sender_keyword='sender')
-    def GetRepo(self, repo_id ,sender=None):
+                         in_signature='s',
+                         out_signature='s',
+                         sender_keyword='sender')
+    def GetRepo(self, repo_id, sender=None):
         '''
         Get information about a give repo_id
         the repo setting will be returned as dictionary in JSON format
@@ -305,9 +315,9 @@ class DnfDaemon(DnfDaemonBase):
 
     @Logger
     @dbus.service.method(DAEMON_INTERFACE,
-                                          in_signature='s',
-                                          out_signature='as',
-                                          sender_keyword='sender')
+                         in_signature='s',
+                         out_signature='as',
+                         sender_keyword='sender')
     def GetPackages(self, pkg_filter, sender=None):
         '''
         Get a list of package ids, based on a package pkg_filterer
@@ -320,9 +330,9 @@ class DnfDaemon(DnfDaemonBase):
 
     @Logger
     @dbus.service.method(DAEMON_INTERFACE,
-                                          in_signature='sas',
-                                          out_signature='s',
-                                          sender_keyword='sender')
+                         in_signature='sas',
+                         out_signature='s',
+                         sender_keyword='sender')
     def GetPackageWithAttributes(self, pkg_filter, fields, sender=None):
         '''
         Get a list of package ids, based on a package pkg_filterer
@@ -335,10 +345,10 @@ class DnfDaemon(DnfDaemonBase):
 
     @Logger
     @dbus.service.method(DAEMON_INTERFACE,
-                                          in_signature='sasb',
-                                          out_signature='s',
-                                          sender_keyword='sender')
-    def GetPackagesByName(self, name, attrs, newest_only,sender=None):
+                         in_signature='sasb',
+                         out_signature='s',
+                         sender_keyword='sender')
+    def GetPackagesByName(self, name, attrs, newest_only, sender=None):
         '''
         Get a list of packages from a name pattern
         :param name: name pattern
@@ -350,13 +360,12 @@ class DnfDaemon(DnfDaemonBase):
         values = self._get_packages_by_name_with_attr(name, attrs, newest_only)
         return self.working_ended(json.dumps(values))
 
-
     @Logger
     @dbus.service.method(DAEMON_INTERFACE,
-                                          in_signature='ss',
-                                          out_signature='s',
-                                          sender_keyword='sender')
-    def GetAttribute(self, pkg_id, attr,sender=None):
+                         in_signature='ss',
+                         out_signature='s',
+                         sender_keyword='sender')
+    def GetAttribute(self, pkg_id, attr, sender=None):
         '''
         Get an attribute from a yum package pkg_id
         it will return a python repr string of the attribute
@@ -365,15 +374,15 @@ class DnfDaemon(DnfDaemonBase):
         :param sender:
         '''
         self.working_start(sender)
-        value = self._get_attribute( pkg_id, attr)
+        value = self._get_attribute(pkg_id, attr)
         return self.working_ended(value)
 
     @Logger
     @dbus.service.method(DAEMON_INTERFACE,
-                                          in_signature='s',
-                                          out_signature='s',
-                                          sender_keyword='sender')
-    def GetUpdateInfo(self, pkg_id,sender=None):
+                         in_signature='s',
+                         out_signature='s',
+                         sender_keyword='sender')
+    def GetUpdateInfo(self, pkg_id, sender=None):
         '''
         Get an Update Infomation e from a yum package pkg_id
         it will return a python repr string of the attribute
@@ -384,13 +393,12 @@ class DnfDaemon(DnfDaemonBase):
         value = self._get_updateInfo(pkg_id)
         return self.working_ended(value)
 
-
     @Logger
     @dbus.service.method(DAEMON_INTERFACE,
-                                          in_signature='i',
-                                          out_signature='s',
-                                          sender_keyword='sender')
-    def GetHistoryPackages(self, tid,sender=None):
+                         in_signature='i',
+                         out_signature='s',
+                         sender_keyword='sender')
+    def GetHistoryPackages(self, tid, sender=None):
         '''
         Get packages from a given yum history transaction id
 
@@ -403,13 +411,12 @@ class DnfDaemon(DnfDaemonBase):
         value = json.dumps(self._get_history_transaction_pkgs(tid))
         return self.working_ended(value)
 
-
     @Logger
     @dbus.service.method(DAEMON_INTERFACE,
-                                          in_signature='ii',
-                                          out_signature='s',
-                                          sender_keyword='sender')
-    def GetHistoryByDays(self, start_days, end_days ,sender=None):
+                         in_signature='ii',
+                         out_signature='s',
+                         sender_keyword='sender')
+    def GetHistoryByDays(self, start_days, end_days, sender=None):
         '''
         Get History transaction in a interval of days from today
 
@@ -426,10 +433,10 @@ class DnfDaemon(DnfDaemonBase):
 
     @Logger
     @dbus.service.method(DAEMON_INTERFACE,
-                                          in_signature='as',
-                                          out_signature='s',
-                                          sender_keyword='sender')
-    def HistorySearch(self, pattern ,sender=None):
+                         in_signature='as',
+                         out_signature='s',
+                         sender_keyword='sender')
+    def HistorySearch(self, pattern, sender=None):
         '''
         Search the history for transaction matching a pattern
         :param pattern: patterne to match
@@ -441,12 +448,11 @@ class DnfDaemon(DnfDaemonBase):
         value = json.dumps(self._history_search(pattern))
         return self.working_ended(value)
 
-
     @Logger
     @dbus.service.method(DAEMON_INTERFACE,
-                                          in_signature='',
-                                          out_signature='b',
-                                          sender_keyword='sender')
+                         in_signature='',
+                         out_signature='b',
+                         sender_keyword='sender')
     def Unlock(self, sender=None):
         ''' release the lock'''
         self.check_permission(sender)
@@ -459,9 +465,9 @@ class DnfDaemon(DnfDaemonBase):
 
     @Logger
     @dbus.service.method(DAEMON_INTERFACE,
-                                          in_signature='s',
-                                          out_signature='s',
-                                          sender_keyword='sender')
+                         in_signature='s',
+                         out_signature='s',
+                         sender_keyword='sender')
     def GroupInstall(self, cmds, sender=None):
         '''
         Install groups based on command patterns separated by spaces
@@ -475,15 +481,15 @@ class DnfDaemon(DnfDaemonBase):
             pkg_types = ["mandatory", "default"]
             grp = self._find_group(cmd)
             if grp:
-                self.base.group_install(grp, pkg_types )
+                self.base.group_install(grp, pkg_types)
         value = self._build_transaction()
         return self.working_ended(value)
 
     @Logger
     @dbus.service.method(DAEMON_INTERFACE,
-                                          in_signature='s',
-                                          out_signature='s',
-                                          sender_keyword='sender')
+                         in_signature='s',
+                         out_signature='s',
+                         sender_keyword='sender')
     def GroupRemove(self, cmds, sender=None):
         '''
         Install groups based on command patterns separated by spaces
@@ -502,9 +508,9 @@ class DnfDaemon(DnfDaemonBase):
 
     @Logger
     @dbus.service.method(DAEMON_INTERFACE,
-                                          in_signature='s',
-                                          out_signature='s',
-                                          sender_keyword='sender')
+                         in_signature='s',
+                         out_signature='s',
+                         sender_keyword='sender')
     def Install(self, cmds, sender=None):
         '''
         Install packages based on command patterns separated by spaces
@@ -527,9 +533,9 @@ class DnfDaemon(DnfDaemonBase):
 
     @Logger
     @dbus.service.method(DAEMON_INTERFACE,
-                                          in_signature='s',
-                                          out_signature='s',
-                                          sender_keyword='sender')
+                         in_signature='s',
+                         out_signature='s',
+                         sender_keyword='sender')
     def Remove(self, cmds, sender=None):
         '''
         Remove packages based on command patterns separated by spaces
@@ -542,16 +548,17 @@ class DnfDaemon(DnfDaemonBase):
         try:
             for cmd in cmds.split(' '):
                 self.base.remove(cmd)
-        except PackagesNotInstalledError: # ignore if the package is not installed
+        # ignore if the package is not installed
+        except PackagesNotInstalledError:
             pass
         value = self._build_transaction()
         return self.working_ended(value)
 
     @Logger
     @dbus.service.method(DAEMON_INTERFACE,
-                                          in_signature='s',
-                                          out_signature='s',
-                                          sender_keyword='sender')
+                         in_signature='s',
+                         out_signature='s',
+                         sender_keyword='sender')
     def Update(self, cmds, sender=None):
         '''
         Update packages based on command patterns separated by spaces
@@ -564,16 +571,17 @@ class DnfDaemon(DnfDaemonBase):
         try:
             for cmd in cmds.split(' '):
                 self.base.upgrade(cmd)
-        except PackagesNotInstalledError: # ignore if the package is not installed
+        # ignore if the package is not installed
+        except PackagesNotInstalledError:
             pass
         value = self._build_transaction()
         return self.working_ended(value)
 
     @Logger
     @dbus.service.method(DAEMON_INTERFACE,
-                                          in_signature='s',
-                                          out_signature='s',
-                                          sender_keyword='sender')
+                         in_signature='s',
+                         out_signature='s',
+                         sender_keyword='sender')
     def Reinstall(self, cmds, sender=None):
         '''
         Reinstall packages based on command patterns separated by spaces
@@ -586,16 +594,17 @@ class DnfDaemon(DnfDaemonBase):
         try:
             for cmd in cmds.split(' '):
                 self.base.reinstall(cmd)
-        except PackagesNotInstalledError: # ignore if the package is not installed
+        # ignore if the package is not installed
+        except PackagesNotInstalledError:
             pass
         value = self._build_transaction()
         return self.working_ended(value)
 
     @Logger
     @dbus.service.method(DAEMON_INTERFACE,
-                                          in_signature='s',
-                                          out_signature='s',
-                                          sender_keyword='sender')
+                         in_signature='s',
+                         out_signature='s',
+                         sender_keyword='sender')
     def Downgrade(self, cmds, sender=None):
         '''
         Downgrade packages based on command patterns separated by spaces
@@ -608,18 +617,17 @@ class DnfDaemon(DnfDaemonBase):
         try:
             for cmd in cmds.split(' '):
                 self.base.downgrade(cmd)
-        except PackagesNotInstalledError: # ignore if the package is not installed
+        # ignore if the package is not installed
+        except PackagesNotInstalledError:
             pass
         value = self._build_transaction()
         return self.working_ended(value)
 
-
     @Logger
     @dbus.service.method(DAEMON_INTERFACE,
-                                          in_signature='ss',
-                                          out_signature='s',
-                                          sender_keyword='sender')
-
+                         in_signature='ss',
+                         out_signature='s',
+                         sender_keyword='sender')
     def AddTransaction(self, pkg_id, action, sender=None):
         '''
         Add an package to the current transaction
@@ -629,7 +637,8 @@ class DnfDaemon(DnfDaemonBase):
         '''
         self.working_start(sender)
         value = json.dumps((0, []))
-        if action != "localinstall": # localinstall has the path to the local rpm, not pkg_id
+        # localinstall has the path to the local rpm, not pkg_id
+        if action != "localinstall":
             po = self._get_po(pkg_id)
             if not po:
                 msg = "Cant find package object for : %s" % pkg_id
@@ -639,26 +648,32 @@ class DnfDaemon(DnfDaemonBase):
         rc = 0
         try:
             if action == 'install':
-                rc = self.base.install(str(po),reponame=po.reponame) # FIXME: reponame is not public api
+                # FIXME: reponame is not public api
+                rc = self.base.install(str(po), reponame=po.reponame)
             elif action == 'remove':
                 rc = self.base.remove(str(po))
             elif action == 'update':
-                rc = self.base.upgrade(str(po),reponame=po.reponame) # FIXME: reponame is not public api
+                # FIXME: reponame is not public api
+                rc = self.base.upgrade(str(po), reponame=po.reponame)
             elif action == 'obsolete':
-                rc = self.base.upgrade(str(po),reponame=po.reponame) # FIXME: reponame is not public api
+                # FIXME: reponame is not public api
+                rc = self.base.upgrade(str(po), reponame=po.reponame)
             elif action == 'reinstall':
-                rc = self.base.reinstall(str(po),reponame=po.reponame) # FIXME: reponame is not public api
+                # FIXME: reponame is not public api
+                rc = self.base.reinstall(str(po), reponame=po.reponame)
             elif action == 'downgrade':
-                rc = self.base.downgrade(str(po),reponame=po.reponame) # FIXME: reponame is not public api
+                # FIXME: reponame is not public api
+                rc = self.base.downgrade(str(po), reponame=po.reponame)
             elif action == 'localinstall':
                 # FIXME: install_local is not public api
                 # https://bugzilla.redhat.com/show_bug.cgi?id=1079519
                 rc = self.base.install_local(pkg_id)
             else:
                 self.logger.error("unknown action :", action)
-        except PackagesNotInstalledError: # ignore if the package is not installed
-            self.logger.warning("package not installed : ",str(po))
-            self.ErrorMessage("package not installed : ",str(po))
+        # ignore if the package is not installed
+        except PackagesNotInstalledError:
+            self.logger.warning("package not installed : ", str(po))
+            self.ErrorMessage("package not installed : ", str(po))
         if rc:
             value = json.dumps(self._get_transaction_list())
             #value = json.dumps(self._get_goal_list())
@@ -666,24 +681,22 @@ class DnfDaemon(DnfDaemonBase):
 
     @Logger
     @dbus.service.method(DAEMON_INTERFACE,
-                                          in_signature='',
-                                          out_signature='',
-                                          sender_keyword='sender')
+                         in_signature='',
+                         out_signature='',
+                         sender_keyword='sender')
     def ClearTransaction(self, sender):
         '''
         Clear the transactopm
         '''
         self.working_start(sender)
-        self.base.reset(goal = True) # reset the current goal
+        self.base.reset(goal=True)  # reset the current goal
         return self.working_ended()
-
 
     @Logger
     @dbus.service.method(DAEMON_INTERFACE,
-                                          in_signature='',
-                                          out_signature='s',
-                                          sender_keyword='sender')
-
+                         in_signature='',
+                         out_signature='s',
+                         sender_keyword='sender')
     def GetTransaction(self, sender=None):
         '''
         Return the members of the current transaction
@@ -692,12 +705,11 @@ class DnfDaemon(DnfDaemonBase):
         value = json.dumps(self._get_transaction_list())
         return self.working_ended(value)
 
-
     @Logger
     @dbus.service.method(DAEMON_INTERFACE,
-                                          in_signature='',
-                                          out_signature='s',
-                                          sender_keyword='sender')
+                         in_signature='',
+                         out_signature='s',
+                         sender_keyword='sender')
     def BuildTransaction(self, sender):
         '''
         Resolve dependencies of current transaction
@@ -706,23 +718,22 @@ class DnfDaemon(DnfDaemonBase):
         value = self._build_transaction()
         return self.working_ended(value)
 
-
     def _build_transaction(self):
         '''
         Resolve dependencies of current transaction
         '''
         output = []
-        self.TransactionEvent('start-build',NONE)
+        self.TransactionEvent('start-build', NONE)
         rc, output = self._get_transaction_list()
-        self.TransactionEvent('end-build',NONE)
-        return json.dumps((rc,output))
+        self.TransactionEvent('end-build', NONE)
+        return json.dumps((rc, output))
 
     @Logger
     @dbus.service.method(DAEMON_INTERFACE,
-                                          in_signature='i',
-                                          out_signature='s',
-                                          sender_keyword='sender')
-    def RunTransaction(self, max_err, sender = None):
+                         in_signature='i',
+                         out_signature='s',
+                         sender_keyword='sender')
+    def RunTransaction(self, max_err, sender=None):
         '''
         Run the current yum transaction
         :param max_err: maximum download errors before bail out
@@ -730,7 +741,7 @@ class DnfDaemon(DnfDaemonBase):
         self.working_start(sender)
         self.check_permission(sender)
         self.check_lock(sender)
-        self.TransactionEvent('start-run',NONE)
+        self.TransactionEvent('start-run', NONE)
         self.base.set_max_error(max_err)
         rc = 0
         msgs = []
@@ -738,29 +749,29 @@ class DnfDaemon(DnfDaemonBase):
         try:
             if to_dnl:
                 data = [self._get_id(po) for po in to_dnl]
-                self.TransactionEvent('pkg-to-download',data)
-                self.TransactionEvent('download',NONE)
+                self.TransactionEvent('pkg-to-download', data)
+                self.TransactionEvent('download', NONE)
                 self.base.download_packages(to_dnl, self.base.progress)
-            self.TransactionEvent('run-transaction',NONE)
-            display= RPMTransactionDisplay(self) # RPM Display callback
+            self.TransactionEvent('run-transaction', NONE)
+            display = RPMTransactionDisplay(self)  # RPM Display callback
             self._can_quit = False
             rc, msgs = self.base.do_transaction(display=display)
         except DownloadError as e:
-            rc = 4 # Download errors
+            rc = 4  # Download errors
             if isinstance(e.errmap, dict):
                 msgs = e.errmap
                 error_msgs = []
                 for fn in msgs:
                     for msg in msgs[fn]:
-                        error_msgs.append("%s : %s" % (fn,msg))
-                        self.logger.debug("  %s : %s" % (fn,msg))
+                        error_msgs.append("%s : %s" % (fn, msg))
+                        self.logger.debug("  %s : %s" % (fn, msg))
                 msgs = error_msgs
             else:
                 msgs = [str(e)]
                 print("DEBUG:", msgs)
         self._can_quit = True
         self._reset_base()
-        self.TransactionEvent('end-run',NONE)
+        self.TransactionEvent('end-run', NONE)
         result = json.dumps((rc, msgs))
         return self.working_ended(result)
 
@@ -773,10 +784,10 @@ class DnfDaemon(DnfDaemonBase):
 
     @Logger
     @dbus.service.method(DAEMON_INTERFACE,
-                                          in_signature='asasasbbb',
-                                          out_signature='s',
-                                          sender_keyword='sender')
-    def Search(self, fields, keys, attrs, match_all, newest_only, tags, sender=None ):
+                         in_signature='asasasbbb',
+                         out_signature='s',
+                         sender_keyword='sender')
+    def Search(self, fields, keys, attrs, match_all, newest_only, tags, sender=None):
         '''
         Search for for packages, where given fields contain given key words
         :param fields: list of fields to search in
@@ -787,15 +798,16 @@ class DnfDaemon(DnfDaemonBase):
         :param tags: seach pkgtags
         '''
         self.working_start(sender)
-        result = self._search_with_attr(fields, keys, attrs, match_all, newest_only, tags)
+        result = self._search_with_attr(
+            fields, keys, attrs, match_all, newest_only, tags)
         return self.working_ended(json.dumps(result))
 
     @Logger
     @dbus.service.method(DAEMON_INTERFACE,
-                                          in_signature='',
-                                          out_signature='s',
-                                          sender_keyword='sender')
-    def GetGroups(self, sender=None ):
+                         in_signature='',
+                         out_signature='s',
+                         sender_keyword='sender')
+    def GetGroups(self, sender=None):
         '''
         Return a category/group tree
         '''
@@ -803,13 +815,12 @@ class DnfDaemon(DnfDaemonBase):
         value = self._get_groups()
         return self.working_ended(value)
 
-
     @Logger
     @dbus.service.method(DAEMON_INTERFACE,
-                                          in_signature='ssas',
-                                          out_signature='s',
-                                          sender_keyword='sender')
-    def GetGroupPackages(self, grp_id, grp_flt,fields, sender=None ):
+                         in_signature='ssas',
+                         out_signature='s',
+                         sender_keyword='sender')
+    def GetGroupPackages(self, grp_id, grp_flt, fields, sender=None):
         '''
         Get packages in a group by grp_id and grp_flt
         :param grp_id: The Group id
@@ -821,13 +832,12 @@ class DnfDaemon(DnfDaemonBase):
         value = self._get_group_pkgs(grp_id, grp_flt, fields)
         return self.working_ended(json.dumps(value))
 
-
     @Logger
     @dbus.service.method(DAEMON_INTERFACE,
-                                          in_signature='sb',
-                                          out_signature='',
-                                          sender_keyword='sender')
-    def ConfirmGPGImport(self, hexkeyid, confirmed, sender=None ):
+                         in_signature='sb',
+                         out_signature='',
+                         sender_keyword='sender')
+    def ConfirmGPGImport(self, hexkeyid, confirmed, sender=None):
         '''
         Confirm import of at GPG Key by yum
         :param hexkeyid: hex keyid for GPG key
@@ -836,9 +846,9 @@ class DnfDaemon(DnfDaemonBase):
         '''
 
         self.working_start(sender)
-        self._gpg_confirm[hexkeyid] = confirmed # store confirmation of GPG import
+        # store confirmation of GPG import
+        self._gpg_confirm[hexkeyid] = confirmed
         return self.working_ended()
-
 
 #
 #  Template for new method
@@ -855,18 +865,14 @@ class DnfDaemon(DnfDaemonBase):
 #        value = True
 #        return self.working_ended(value)
 #
-
-
-#===============================================================================
+#=========================================================================
 # DBus signals
-#===============================================================================
+#=========================================================================
 # Parallel Download Progress signals
-
     @dbus.service.signal(DAEMON_INTERFACE)
     def ErrorMessage(self, error_msg):
         ''' Send an error message '''
         pass
-
 
     @dbus.service.signal(DAEMON_INTERFACE)
     def DownloadStart(self, num_files, num_bytes):
@@ -887,9 +893,8 @@ class DnfDaemon(DnfDaemonBase):
     def RepoMetaDataProgress(self, name, frac):
         ''' Repository Metadata Download progress '''
 
-
     @dbus.service.signal(DAEMON_INTERFACE)
-    def TransactionEvent(self,event,data):
+    def TransactionEvent(self, event, data):
         '''
         DBus signal with Transaction event information, telling the current step in the processing of
         the current transaction.
@@ -898,9 +903,8 @@ class DnfDaemon(DnfDaemonBase):
 
         :param event: current step
         '''
-        #print "event: %s" % event
+        # print "event: %s" % event
         pass
-
 
     @dbus.service.signal(DAEMON_INTERFACE)
     def RPMProgress(self, package, action, te_current, te_total, ts_current, ts_total):
@@ -918,9 +922,8 @@ class DnfDaemon(DnfDaemonBase):
         """
         pass
 
-
     @dbus.service.signal(DAEMON_INTERFACE)
-    def GPGImport(self, pkg_id, userid, hexkeyid, keyurl, timestamp ):
+    def GPGImport(self, pkg_id, userid, hexkeyid, keyurl, timestamp):
         '''
         GPG Key Import DBus signal
 
@@ -932,10 +935,10 @@ class DnfDaemon(DnfDaemonBase):
         '''
         pass
 
-#===============================================================================
+#=========================================================================
 # Helper methods
-#===============================================================================
-    def working_start(self,sender):
+#=========================================================================
+    def working_start(self, sender):
         self.check_permission(sender)
         self.check_lock(sender)
         self._is_working = True
@@ -959,11 +962,11 @@ class DnfDaemon(DnfDaemonBase):
         keyurl = gpg_info['keyurl']
         #fingerprint = gpg_info['fingerprint']
         timestamp = gpg_info['timestamp']
-        if not hexkeyid in self._gpg_confirm: # the gpg key has not been confirmed by the user
+        # the gpg key has not been confirmed by the user
+        if not hexkeyid in self._gpg_confirm:
             self._gpg_confirm[hexkeyid] = False
-            self.GPGImport( pkg_id, userid, hexkeyid, keyurl, timestamp )
+            self.GPGImport(pkg_id, userid, hexkeyid, keyurl, timestamp)
         return self._gpg_confirm[hexkeyid]
-
 
     def _set_option(self, option, value):
         if hasattr(self.base.conf, option):
@@ -972,12 +975,12 @@ class DnfDaemon(DnfDaemonBase):
             for repo in self.base.repos.iter_enabled():
                 if hasattr(repo, option):
                     setattr(repo, option, value)
-                    self.logger.debug("Setting Option %s = %s (%s)",option, value, repo.id)
+                    self.logger.debug(
+                        "Setting Option %s = %s (%s)", option, value, repo.id)
             return True
         else:
             return False
         pass
-
 
     def _get_history_by_days(self, start, end):
         '''
@@ -995,14 +998,14 @@ class DnfDaemon(DnfDaemonBase):
         while i < len(history):
             ht = history[i]
             i += 1
-            print("DBG: ", ht,ht.end_timestamp )
+            print("DBG: ", ht, ht.end_timestamp)
             if not ht.end_timestamp:
                 continue
             tm = datetime.fromtimestamp(ht.end_timestamp)
-            delta = now-tm
-            if delta.days < start: # before start days
+            delta = now - tm
+            if delta.days < start:  # before start days
                 continue
-            elif delta.days > end: # after end days
+            elif delta.days > end:  # after end days
                 break
             result.append(ht)
         return self._get_id_time_list(result)
@@ -1017,7 +1020,7 @@ class DnfDaemon(DnfDaemonBase):
         # https://bugzilla.redhat.com/show_bug.cgi?id=1079526
         result = []
         tids = self.base.history.search(pattern)
-        if len(tids) >0 :
+        if len(tids) > 0:
             result = self.base.history.old(tids)
         else:
             result = []
@@ -1031,10 +1034,11 @@ class DnfDaemon(DnfDaemonBase):
         # FIXME: Base.history is not public api
         # https://bugzilla.redhat.com/show_bug.cgi?id=1079526
         result = []
-        tx = self.base.history.old([tid],complete_transactions_only=False)
+        tx = self.base.history.old([tid], complete_transactions_only=False)
         result = []
         for pkg in tx[0].trans_data:
-            values = [pkg.name, pkg.epoch, pkg.version, pkg.release, pkg.arch, pkg.ui_from_repo]
+            values = [pkg.name, pkg.epoch, pkg.version,
+                      pkg.release, pkg.arch, pkg.ui_from_repo]
             pkg_id = ",".join(values)
             elem = (pkg_id, pkg.state, pkg.state_installed)
             result.append(elem)
@@ -1049,10 +1053,10 @@ class DnfDaemon(DnfDaemonBase):
         rc, tx_list = self._make_trans_dict()
         if rc:
             for (action, pkglist) in [('install', tx_list['install']),
-                                ('update', tx_list['update']),
-                                ('remove', tx_list['remove']),
-                                ('reinstall', tx_list['reinstall']),
-                                ('downgrade', tx_list['downgrade'])]:
+                ('update', tx_list['update']),
+                ('remove', tx_list['remove']),
+                ('reinstall', tx_list['reinstall']),
+                    ('downgrade', tx_list['downgrade'])]:
 
                 for tsi in pkglist:
                     po = _active_pkg(tsi)
@@ -1070,9 +1074,8 @@ class DnfDaemon(DnfDaemonBase):
                     out_list.append([action, sublist])
                     sublist = []
             return rc, out_list
-        else: # Error in depsolve, return error msgs
+        else:  # Error in depsolve, return error msgs
             return rc, tx_list
-
 
     def _make_trans_dict(self):
         b = {}
@@ -1110,7 +1113,8 @@ class DnfDaemon(DnfDaemonBase):
         result = []
         for tsi in self.base.transaction:
             po = tsi.active
-            result.append("%s,%s" % (self._get_id(po), tsi.active_history_state ))
+            result.append("%s,%s" %
+                          (self._get_id(po), tsi.active_history_state))
         return result
 
     def check_lock(self, sender):
@@ -1123,7 +1127,6 @@ class DnfDaemon(DnfDaemonBase):
         else:
             raise LockedError('dnf is locked by another application')
 
-
     def check_permission(self, sender):
         ''' Check for senders permission to run root stuff'''
         if sender in self.authorized_sender:
@@ -1132,18 +1135,19 @@ class DnfDaemon(DnfDaemonBase):
             self._check_permission(sender)
             self.authorized_sender.add(sender)
 
-
     def _check_permission(self, sender):
         '''
         check senders permissions using PolicyKit1
         :param sender:
         '''
-        if not sender: raise ValueError('sender == None')
+        if not sender:
+            raise ValueError('sender == None')
 
-        obj = dbus.SystemBus().get_object('org.freedesktop.PolicyKit1', '/org/freedesktop/PolicyKit1/Authority')
+        obj = dbus.SystemBus().get_object(
+            'org.freedesktop.PolicyKit1', '/org/freedesktop/PolicyKit1/Authority')
         obj = dbus.Interface(obj, 'org.freedesktop.PolicyKit1.Authority')
         (granted, _, details) = obj.CheckAuthorization(
-                ('system-bus-name', {'name': sender}), DAEMON_ORG, {}, dbus.UInt32(1), '', timeout=600)
+            ('system-bus-name', {'name': sender}), DAEMON_ORG, {}, dbus.UInt32(1), '', timeout=600)
         if not granted:
             raise AccessDeniedError('Session is not authorized')
 
@@ -1156,7 +1160,7 @@ def main():
     args = parser.parse_args()
     if args.verbose:
         if args.debug:
-            doTextLoggerSetup(logroot='dnfdaemon',loglvl=logging.DEBUG)
+            doTextLoggerSetup(logroot='dnfdaemon', loglvl=logging.DEBUG)
         else:
             doTextLoggerSetup(logroot='dnfdaemon')
 

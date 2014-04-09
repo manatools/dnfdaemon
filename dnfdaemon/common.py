@@ -11,7 +11,8 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+# 02110-1301, USA.
 
 # (C) 2013 - 2014 - Tim Lauridsen <timlau@fedoraproject.org>
 
@@ -41,13 +42,14 @@ import dnf.callback
 import hawkey
 from dnf.exceptions import DownloadError
 
-FAKE_ATTR = ['downgrades','action','pkgtags','changelog']
+FAKE_ATTR = ['downgrades', 'action', 'pkgtags', 'changelog']
 NONE = json.dumps(None)
 
 
 #------------------------------------------------------------------------------ Callback handlers
 
 logger = logging.getLogger('dnfdaemon.service')
+
 
 def Logger(func):
     """
@@ -64,6 +66,7 @@ def Logger(func):
     newFunc.__dict__.update(func.__dict__)
     return newFunc
 
+
 class DownloadCallback:
     '''
     Dnf Download callback handler class
@@ -73,11 +76,12 @@ class DownloadCallback:
 
     def downloadStart(self, num_files, num_bytes):
         ''' Starting a new parallel download batch '''
-        self.DownloadStart(num_files, num_bytes) # send a signal
+        self.DownloadStart(num_files, num_bytes)  # send a signal
 
     def downloadProgress(self, name, frac, total_frac, total_files):
         ''' Progress for a single instance in the batch '''
-        self.DownloadProgress(name, frac, total_frac, total_files) # send a signal
+        # send a signal
+        self.DownloadProgress(name, frac, total_frac, total_files)
 
     def downloadEnd(self, name, status, msg):
         ''' Download of af single instace ended '''
@@ -85,12 +89,11 @@ class DownloadCallback:
             status = -1
         if not msg:
             msg = ""
-        self.DownloadEnd(name, status, msg) # send a signal
+        self.DownloadEnd(name, status, msg)  # send a signal
 
     def repoMetaDataProgress(self, name, frac):
         ''' Repository Metadata Download progress '''
-        self.RepoMetaDataProgress( name, frac)
-
+        self.RepoMetaDataProgress(name, frac)
 
 
 class DnfDaemonBase(dbus.service.Object, DownloadCallback):
@@ -104,8 +107,10 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
         self._is_working = False
         self._watchdog_count = 0
         self._watchdog_disabled = False
-        self._timeout_idle = 20         # time to daemon is closed when unlocked
-        self._timeout_locked = 600      # time to daemon is closed when locked and not working
+        # time to daemon is closed when unlocked
+        self._timeout_idle = 20
+        # time to daemon is closed when locked and not working
+        self._timeout_locked = 600
         self._obsoletes_list = None     # Cache for obsoletes
 
     def _get_obsoletes(self):
@@ -123,11 +128,10 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
             self._get_base()
         return self._base
 
-#===============================================================================
+#=========================================================================
 # Helper methods for api methods both in system & session
 # Search -> _search etc
-#===============================================================================
-
+#=========================================================================
 
     def _search_with_attr(self, fields, keys, attrs, match_all, newest_only, tags):
         '''
@@ -144,7 +148,7 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
         # FIXME: Add support for search in pkgtags, when supported in dnf
         showdups = not newest_only
         pkgs = self.base.search(fields, keys, match_all, showdups)
-        values = [self._get_po_list(po,attrs) for po in pkgs]
+        values = [self._get_po_list(po, attrs) for po in pkgs]
         return values
 
     def _expire_cache(self):
@@ -186,7 +190,7 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
 
     def _find_group(self, pattern):
         """ Find comps.Group object by pattern"""
-        if not self.base.comps: # lazy load the comps metadata
+        if not self.base.comps:  # lazy load the comps metadata
             self.base.read_comps()
         grp = self.base.comps.group_by_pattern(pattern)
         return grp
@@ -198,16 +202,18 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
         and the group is installed when all mandatory & default packages is installed.
         '''
         all_groups = []
-        if not self.base.comps: # lazy load the comps metadata
+        if not self.base.comps:  # lazy load the comps metadata
             self.base.read_comps()
         cats = self.base.comps.categories
         for category in cats:
             cat = (category.name, category.ui_name, category.ui_description)
             cat_grps = []
             for obj in category.group_ids:
-                grp = self.base.comps.group_by_pattern(obj.name) # get the dnf group obj
+                # get the dnf group obj
+                grp = self.base.comps.group_by_pattern(obj.name)
                 if grp:
-                    elem = (grp.id, grp.ui_name, grp.ui_description, grp.installed)
+                    elem = (
+                        grp.id, grp.ui_name, grp.ui_description, grp.installed)
                     cat_grps.append(elem)
             cat_grps.sort()
             all_groups.append((cat, cat_grps))
@@ -222,9 +228,8 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
         if filter == '' or filter == 'enabled':
             repos = [repo.id for repo in self.base.repos.iter_enabled()]
         else:
-            repos = [repo.id for repo in  self.base.repos.get_matching(filter)]
+            repos = [repo.id for repo in self.base.repos.get_matching(filter)]
         return repos
-
 
     def _get_config(self, setting):
         '''
@@ -232,10 +237,10 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
         it will return a JSON string of the config
         :param setting: name of setting (debuglevel etc..)
         '''
-        if setting == '*': # Return all config
+        if setting == '*':  # Return all config
             cfg = self.base.conf
-            all_conf = dict([(c,getattr(cfg,c)) for c in cfg.iterkeys()])
-            value =  json.dumps(all_conf)
+            all_conf = dict([(c, getattr(cfg, c)) for c in cfg.iterkeys()])
+            value = json.dumps(all_conf)
         elif hasattr(self.base.conf, setting):
             value = json.dumps(getattr(self.base.conf, setting))
         else:
@@ -243,16 +248,16 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
         return value
         return value
 
-    def _get_repo(self, repo_id ):
+    def _get_repo(self, repo_id):
         '''
         Get information about a give repo_id
         the repo setting will be returned as dictionary in JSON format
         :param repo_id:
         '''
         value = json.dumps(None)
-        repo = self.base.repos.get(repo_id, None) # get the repo object
+        repo = self.base.repos.get(repo_id, None)  # get the repo object
         if repo:
-            repo_conf = dict([(c,getattr(repo,c)) for c in repo.iterkeys()])
+            repo_conf = dict([(c, getattr(repo, c)) for c in repo.iterkeys()])
             value = json.dumps(repo_conf)
         return value
 
@@ -264,20 +269,19 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
         self._get_base(reset=True, load_sack=False)
         for repo in self.base.repos.all():
             if repo.id in repo_ids:
-                logger.debug("  enabled : %s ",repo.id)
+                logger.debug("  enabled : %s ", repo.id)
                 repo.enable()
             else:
                 repo.disable()
-        self._base.setup_base() # load the sack with the current enabled repos
-
+        self._base.setup_base()  # load the sack with the current enabled repos
 
     def _get_packages(self, pkg_filter):
         '''
         Get a list of package ids, based on a package pkg_filterer
         :param pkg_filter: pkg pkg_filter string ('installed','updates' etc)
         '''
-        if pkg_filter in ['installed','available','updates','obsoletes','recent','extras']:
-            pkgs = getattr(self.base.packages,pkg_filter)
+        if pkg_filter in ['installed', 'available', 'updates', 'obsoletes', 'recent', 'extras']:
+            pkgs = getattr(self.base.packages, pkg_filter)
             value = self._to_package_id_list(pkgs)
         else:
             value = []
@@ -289,9 +293,9 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
         :param pkg_filter: pkg pkg_filter string ('installed','updates' etc)
         '''
         value = []
-        if pkg_filter in ['installed','available','updates','obsoletes','recent','extras']:
-            pkgs = getattr(self.base.packages,pkg_filter)
-            value = [self._get_po_list(po,fields) for po in pkgs]
+        if pkg_filter in ['installed', 'available', 'updates', 'obsoletes', 'recent', 'extras']:
+            pkgs = getattr(self.base.packages, pkg_filter)
+            value = [self._get_po_list(po, fields) for po in pkgs]
         return value
 
     def _get_attribute(self, id, attr):
@@ -303,24 +307,23 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
         '''
         po = self._get_po(id)
         if po:
-            if attr in FAKE_ATTR: # is this a fake attr:
+            if attr in FAKE_ATTR:  # is this a fake attr:
                 value = json.dumps(self._get_fake_attributes(po, attr))
             elif hasattr(po, attr):
-                value = json.dumps(getattr(po,attr))
+                value = json.dumps(getattr(po, attr))
             else:
                 value = json.dumps(None)
         else:
             value = json.dumps(None)
         return value
 
-    def _get_installed_na(self,name,arch):
+    def _get_installed_na(self, name, arch):
         q = self.base.sack.query()
         inst = q.installed().filter(name=name, arch=arch).run()
         if inst:
             return inst[0]
         else:
             return None
-
 
     def _get_updateInfo(self, id):
         '''
@@ -337,12 +340,12 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
             value = json.dumps(None)
         return value
 
-    def _get_packages_by_name_with_attr(self,name, attrs, newest_only):
+    def _get_packages_by_name_with_attr(self, name, attrs, newest_only):
         """
         get packages matching a name wildcard with extra attributes
         """
         pkgs = self._get_po_by_name(name, newest_only)
-        values = [self._get_po_list(po,attrs) for po in pkgs]
+        values = [self._get_po_list(po, attrs) for po in pkgs]
         return values
 
     def _get_group_pkgs(self, grp_id, grp_flt, fields):
@@ -354,38 +357,43 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
         if grp:
             if grp_flt == 'all':
                 pkg_names = []
-                pkg_names.extend([p.name for p in grp.mandatory_packages ])# FIXME: mandatory_packages is not public API
-                pkg_names.extend([p.name for p in grp.default_packages ]) # FIXME: default_packages is not public API
-                pkg_names.extend([p.name for p in grp.optional_packages ])# FIXME: optional_packages is not public API
+                # FIXME: mandatory_packages is not public API
+                pkg_names.extend([p.name for p in grp.mandatory_packages])
+                # FIXME: default_packages is not public API
+                pkg_names.extend([p.name for p in grp.default_packages])
+                # FIXME: optional_packages is not public API
+                pkg_names.extend([p.name for p in grp.optional_packages])
                 best_pkgs = []
                 for name in pkg_names:
-                    best_pkgs.extend(self._get_po_by_name(name,True))
+                    best_pkgs.extend(self._get_po_by_name(name, True))
             else:
                 pkg_names = []
-                pkg_names.extend([p.name for p in grp.mandatory_packages ]) # FIXME: mandatory_packages is not public API
-                pkg_names.extend([p.name for p in grp.default_packages ]) # FIXME: default_packages is not public API
+                # FIXME: mandatory_packages is not public API
+                pkg_names.extend([p.name for p in grp.mandatory_packages])
+                # FIXME: default_packages is not public API
+                pkg_names.extend([p.name for p in grp.default_packages])
                 best_pkgs = []
                 for name in pkg_names:
-                    best_pkgs.extend(self._get_po_by_name(name,True))
+                    best_pkgs.extend(self._get_po_by_name(name, True))
             pkgs = self.base.packages.filter_packages(best_pkgs)
         else:
             pass
-        value = [self._get_po_list(po,fields) for po in pkgs]
+        value = [self._get_po_list(po, fields) for po in pkgs]
         return value
 
-#===============================================================================
+#=========================================================================
 # Helper methods
-#===============================================================================
+#=========================================================================
 
     def _get_po_list(self, po, attrs):
         if not attrs:
             return self._get_id(po)
         po_list = [self._get_id(po)]
         for attr in attrs:
-            if attr in FAKE_ATTR: # is this a fake attr:
+            if attr in FAKE_ATTR:  # is this a fake attr:
                 value = self._get_fake_attributes(po, attr)
             elif hasattr(po, attr):
-                value = getattr(po,attr)
+                value = getattr(po, attr)
             else:
                 value = None
             po_list.append(value)
@@ -401,7 +409,7 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
             result.append((ht.tid, tm.isoformat()))
         return result
 
-    def _get_fake_attributes(self,po, attr):
+    def _get_fake_attributes(self, po, attr):
         '''
         Get Fake Attributes, a whey to useful stuff for a package there is not real
         attritbutes to the yum package object.
@@ -419,7 +427,7 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
             # https://bugzilla.redhat.com/show_bug.cgi?id=1066867
             return None
 
-    def _get_downgrades(self,pkg):
+    def _get_downgrades(self, pkg):
         pkg_ids = []
         ''' Find available downgrades for a given name.arch'''
         q = self.base.sack.query()
@@ -447,11 +455,11 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
             result.add(self._get_id(po))
         return result
 
-    def _get_po(self,id):
+    def _get_po(self, id):
         ''' find the real package from an package id'''
         n, e, v, r, a, repo_id = id.split(',')
         q = self.base.sack.query()
-        if repo_id.startswith('@'): # installed package
+        if repo_id.startswith('@'):  # installed package
             f = q.installed()
             f = f.filter(name=n, version=v, release=r, arch=a)
             if len(f) > 0:
@@ -466,14 +474,14 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
             else:
                 return None
 
-    def _get_id(self,pkg):
+    def _get_id(self, pkg):
         '''
         convert a yum package obejct to an id string containing (n,e,v,r,a,repo)
         :param pkg:
         '''
-        values = [pkg.name, str(pkg.epoch), pkg.version, pkg.release, pkg.arch, pkg.ui_from_repo]
+        values = [
+            pkg.name, str(pkg.epoch), pkg.version, pkg.release, pkg.arch, pkg.ui_from_repo]
         return ",".join(values)
-
 
     def _get_action(self, po):
         '''
@@ -509,7 +517,7 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
                             action = 'downgrade'
         return action
 
-    def _get_base(self, reset = False, load_sack=True):
+    def _get_base(self, reset=False, load_sack=True):
         '''
         Get a Dnf Base object to work with
         '''
@@ -519,7 +527,6 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
                 self._base.setup_base()
         return self._base
 
-
     def _reset_base(self):
         '''
         destroy the current DnfBase object
@@ -527,7 +534,6 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
         if self._base:
             self._base.close()
             self._base = None
-
 
     def _setup_watchdog(self):
         '''
@@ -537,22 +543,23 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
 
     def _watchdog(self):
         terminate = False
-        if self._watchdog_disabled or self._is_working: # is working
+        if self._watchdog_disabled or self._is_working:  # is working
             return True
-        if not self._lock: # is locked
+        if not self._lock:  # is locked
             if self._watchdog_count > self._timeout_idle:
                 terminate = True
         else:
             if self._watchdog_count > self._timeout_locked:
                 terminate = True
-        if terminate: # shall we quit
+        if terminate:  # shall we quit
             if self._can_quit:
                 self._reset_base()
                 Gtk.main_quit()
         else:
             self._watchdog_count += 1
-            self.logger.debug("Watchdog : %i" % self._watchdog_count )
+            self.logger.debug("Watchdog : %i" % self._watchdog_count)
             return True
+
 
 class Packages:
 
@@ -578,7 +585,6 @@ class Packages:
                 pkgs.add(pkg)
         return list(pkgs)
 
-
     @property
     def query(self):
         return self._sack.query()
@@ -597,9 +603,8 @@ class Packages:
         '''
         return self.query.upgrades().run()
 
-
     @property
-    def all(self,showdups = False):
+    def all(self, showdups=False):
         '''
         all packages in the repositories
         installed ones are replace with the install package objects
@@ -610,7 +615,7 @@ class Packages:
             return self.filter_packages(self.query.latest().run())
 
     @property
-    def available(self, showdups = False):
+    def available(self, showdups=False):
         '''
         available packages there is not installed yet
         '''
@@ -645,7 +650,7 @@ class Packages:
     def recent(self, showdups=False):
         recent = []
         now = time()
-        recentlimit = now-(self._base.conf.recent*86400)
+        recentlimit = now - (self._base.conf.recent * 86400)
         if showdups:
             avail = self.query.available()
         else:
@@ -667,12 +672,12 @@ class DnfBase(dnf.Base):
         self.md_progress = MDProgress(parent)
         self.setup_cache()
         self.read_all_repos()
-        self.progress = Progress(parent, max_err = 100)
-        self.repos.all().set_progress_bar( self.md_progress)
+        self.progress = Progress(parent, max_err=100)
+        self.repos.all().set_progress_bar(self.md_progress)
         self._packages = None
 
     def expire_cache(self):
-        self.cleanExpireCache() # FIXME : cleanExpireCache() is not public API
+        self.cleanExpireCache()  # FIXME : cleanExpireCache() is not public API
 
     def setup_base(self):
         self.fill_sack()
@@ -685,9 +690,10 @@ class DnfBase(dnf.Base):
     def setup_cache(self):
         # perform the CLI-specific cachedir tricks
         conf = self.conf
-        conf.releasever = None # This will take the current release
+        conf.releasever = None  # This will take the current release
         # FIXME: This is not public API, but we want the same cache as dnf cli
-        suffix = dnf.yum.parser.varReplace(dnf.const.CACHEDIR_SUFFIX, conf.yumvar)
+        suffix = dnf.yum.parser.varReplace(
+            dnf.const.CACHEDIR_SUFFIX, conf.yumvar)
         cli_cache = dnf.conf.CliCache(conf.cachedir, suffix)
         conf.cachedir = cli_cache.cachedir
         self._system_cachedir = cli_cache.system_cachedir
@@ -697,7 +703,7 @@ class DnfBase(dnf.Base):
         """
         Setup a new progress object with a new max number of download errors
         """
-        self.progress = Progress(self.parent, max_err = max_err)
+        self.progress = Progress(self.parent, max_err=max_err)
 
     def search(self, fields, values, match_all=True, showdups=False):
         '''
@@ -712,7 +718,7 @@ class DnfBase(dnf.Base):
         for key in values:
             key_set = set()
             for attr in fields:
-                pkgs = set(self.contains(attr,key).run())
+                pkgs = set(self.contains(attr, key).run())
                 key_set |= pkgs
             if len(matches) == 0:
                 matches = key_set
@@ -727,7 +733,7 @@ class DnfBase(dnf.Base):
         return result
 
     def contains(self, attr, needle, ignore_case=True):
-        fdict = {'%s__substr' % attr : needle}
+        fdict = {'%s__substr' % attr: needle}
         if ignore_case:
             return self.sack.query().filter(hawkey.ICASE, **fdict)
         else:
@@ -744,19 +750,19 @@ class MDProgress(dnf.callback.DownloadProgress):
     def start(self, total_files, total_size):
         self._last = -1.0
 
-    def end(self,payload, status, msg):
-        name  = str(payload)
+    def end(self, payload, status, msg):
+        name = str(payload)
         if status == dnf.callback.STATUS_OK:
             self.parent.repoMetaDataProgress(name, 1.0)
 
     def progress(self, payload, done):
-        name  = str(payload)
+        name = str(payload)
         cur_total_bytes = payload.download_size
         if cur_total_bytes:
-            frac = done/float(cur_total_bytes)
+            frac = done / float(cur_total_bytes)
         else:
             frac = 0.0
-        if frac > self._last+0.01:
+        if frac > self._last + 0.01:
             self._last = frac
             self.parent.repoMetaDataProgress(name, frac)
 
@@ -783,9 +789,9 @@ class Progress(dnf.callback.DownloadProgress):
         self.download_size = 0.0
         self.parent.downloadStart(total_files, total_size)
 
-
-    def end(self,payload, status, msg):
-        if status in [dnf.callback.STATUS_OK, dnf.callback.STATUS_ALREADY_EXISTS] : # payload download complete
+    def end(self, payload, status, msg):
+        # payload download complete
+        if status in [dnf.callback.STATUS_OK, dnf.callback.STATUS_ALREADY_EXISTS]:
             self.download_files += 1
         else:
             pload = str(payload)
@@ -812,7 +818,8 @@ class Progress(dnf.callback.DownloadProgress):
                 frac = done / cur_total_bytes
             else:
                 frac = 0.0
-            self.parent.downloadProgress(pload, frac, total_frac, self.download_files)
+            self.parent.downloadProgress(
+                pload, frac, total_frac, self.download_files)
 
     def get_total(self):
         """ Get the total downloaded percentage"""
@@ -825,7 +832,8 @@ class Progress(dnf.callback.DownloadProgress):
     def update(self):
         """ Output the current progress"""
 
-        sys.stdout.write("Progress : %-3d %% (%d/%d)\r" % (self.last_pct,self.download_files, self.total_files))
+        sys.stdout.write("Progress : %-3d %% (%d/%d)\r" %
+                         (self.last_pct, self.download_files, self.total_files))
 
 
 def doTextLoggerSetup(logroot='dnfdaemon', logfmt='%(asctime)s: %(message)s', loglvl=logging.INFO):
@@ -837,5 +845,3 @@ def doTextLoggerSetup(logroot='dnfdaemon', logfmt='%(asctime)s: %(message)s', lo
     handler.setFormatter(formatter)
     handler.propagate = False
     logger.addHandler(handler)
-
-
