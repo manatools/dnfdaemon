@@ -144,8 +144,7 @@ class TransactionError(DaemonError):
 
 
 class DBus:
-    '''
-    Helper class to work with GDBus in a easier way
+    '''Helper class to work with GDBus in a easier way
     '''
     def __init__(self, conn):
         self.conn = conn
@@ -166,9 +165,7 @@ class DBus:
 
 
 class WeakMethod:
-    '''
-    helper class to work with a weakref class method
-    '''
+    ''' Helper class to work with a weakref class method '''
     def __init__(self, inst, method):
         self.proxy = weakref.proxy(inst)
         self.method = method
@@ -187,6 +184,7 @@ session = DBus(Gio.bus_get_sync(Gio.BusType.SESSION, None))
 
 
 class DnfDaemonBase:
+
     def __init__(self, bus, org, interface):
         self.bus = bus
         self.dbus_org = org
@@ -207,8 +205,8 @@ class DnfDaemonBase:
             self._handle_dbus_error(err)
 
     def _on_g_signal(self, proxy, sender, signal, params):
-        '''
-        DBUS signal Handler
+        '''DBUS signal Handler
+
         :param proxy: DBus proxy
         :param sender: DBus Sender
         :param signal: DBus signal
@@ -218,14 +216,12 @@ class DnfDaemonBase:
         self.handle_dbus_signals(proxy, sender, signal, args)
 
     def handle_dbus_signals(self, proxy, sender, signal, args):
-        """
-        Overload in child class
-        """
+        """ Overload in child class """
         pass
 
     def _handle_dbus_error(self, err):
-        '''
-        Parse error from service and raise python Exceptions
+        '''Parse error from service and raise python Exceptions
+
         :param err:
         :type err:
         '''
@@ -245,9 +241,7 @@ class DnfDaemonBase:
             raise DaemonError(str(err))
 
     def _parse_error(self):
-        '''
-        parse values from a DBus releated exception
-        '''
+        '''parse values from a DBus releated exception '''
         (type, value, traceback) = sys.exc_info()
         res = DBUS_ERR_RE.match(str(value))
         if res:
@@ -255,8 +249,8 @@ class DnfDaemonBase:
         return "", ""
 
     def _return_handler(self, obj, result, user_data):
-        '''
-        Async DBus call, return handler
+        '''Async DBus call, return handler
+
         :param obj:
         :type obj:
         :param result:
@@ -274,8 +268,8 @@ class DnfDaemonBase:
         user_data['main_loop'].quit()
 
     def _get_result(self, user_data):
-        '''
-        Get return data from async call or handle error
+        '''Get return data from async call or handle error
+
         :param user_data:
         :type user_data:
         '''
@@ -285,8 +279,8 @@ class DnfDaemonBase:
             return user_data['result']
 
     def _run_dbus_async(self, cmd, *args):
-        '''
-        Make an async call to a DBus method in the yumdaemon service
+        '''Make an async call to a DBus method in the yumdaemon service
+
         :param cmd: method to run
         :type cmd: string
         '''
@@ -301,8 +295,7 @@ class DnfDaemonBase:
         return result
 
     def _run_dbus_sync(self, cmd, *args):
-        '''
-        Make a sync call to a DBus method in the yumdaemon service
+        '''Make a sync call to a DBus method in the yumdaemon service
         :param cmd:
         :type cmd:
         '''
@@ -355,8 +348,7 @@ class DnfDaemonBase:
 #
 
     def Lock(self):
-        '''
-        Get the yum lock, this give exclusive access to the daemon and yum
+        '''Get the yum lock, this give exclusive access to the daemon and yum
         this must always be called before doing other actions
         '''
         try:
@@ -365,17 +357,14 @@ class DnfDaemonBase:
             self._handle_dbus_error(err)
 
     def Unlock(self):
-        '''
-        Release the yum lock
-        '''
+        '''Release the yum lock '''
         try:
             self.daemon.Unlock()
         except Exception as err:
             self._handle_dbus_error(err)
 
     def SetWatchdogState(self, state):
-        '''
-        Set the Watchdog state
+        '''Set the Watchdog state
 
         :param state: True = Watchdog active, False = Watchdog disabled
         :type state: boolean (b)
@@ -386,8 +375,7 @@ class DnfDaemonBase:
             self._handle_dbus_error(err)
 
     def GetPackageWithAttributes(self, pkg_filter, fields):
-        '''
-        Get a list of pkg list for a given package filter
+        '''Get a list of pkg list for a given package filter
         each pkg list contains [pkg_id, field,....] where field is a
         atrribute of the package object
         Ex. summary, size etc.
@@ -403,15 +391,12 @@ class DnfDaemonBase:
         return json.loads(result)
 
     def ExpireCache(self):
-        '''
-        Expire the dnf metadata, so they will be refresed
-        '''
+        '''Expire the dnf metadata, so they will be refresed'''
         rc = self._run_dbus_async('ExpireCache', '()')
         return rc
 
     def GetRepositories(self, repo_filter):
-        '''
-        Get a list of repository ids where name matches a filter
+        '''Get a list of repository ids where name matches a filter
 
         :param repo_filter: filter to match
         :return: list of repo id's
@@ -420,8 +405,7 @@ class DnfDaemonBase:
         return [str(r) for r in result]
 
     def GetRepo(self, repo_id):
-        '''
-        Get a dictionary of information about a given repo id.
+        '''Get a dictionary of information about a given repo id.
 
         :param repo_id: repo id to get information from
         :return: dictionary with repo info
@@ -430,8 +414,7 @@ class DnfDaemonBase:
         return result
 
     def SetEnabledRepos(self, repo_ids):
-        '''
-        Enabled a list of repositories, disabled all other repos
+        '''Enabled a list of repositories, disabled all other repos
 
         :param repo_ids: list of repo ids to enable
         :param sender:
@@ -439,8 +422,7 @@ class DnfDaemonBase:
         self._run_dbus_async('SetEnabledRepos', '(as)', repo_ids)
 
     def GetConfig(self, setting):
-        '''
-        Read a config setting from yum.conf
+        '''Read a config setting from yum.conf
 
         :param setting: setting to read
         :type setting: string
@@ -449,8 +431,7 @@ class DnfDaemonBase:
         return result
 
     def GetAttribute(self, pkg_id, attr):
-        '''
-        Get yum package attribute (description, filelist, changelog etc)
+        '''Get yum package attribute (description, filelist, changelog etc)
 
         :param pkg_id: pkg_id to get attribute from
         :param attr: name of attribute to get
@@ -465,8 +446,7 @@ class DnfDaemonBase:
         return result
 
     def GetUpdateInfo(self, pkg_id):
-        '''
-        Get Updateinfo for a package
+        '''Get Updateinfo for a package
 
         :param pkg_id: pkg_id to get update info from
         '''
@@ -474,8 +454,7 @@ class DnfDaemonBase:
         return json.loads(result)
 
     def GetPackages(self, pkg_filter):
-        '''
-        Get a list of pkg ids for a given filter (installed, updates ..)
+        '''Get a list of pkg ids for a given filter (installed, updates ..)
 
         :param pkg_filter: package filter ('installed','available','updates',
                           'obsoletes','recent','extras')
@@ -486,8 +465,7 @@ class DnfDaemonBase:
         return self._run_dbus_async('GetPackages', '(s)', pkg_filter)
 
     def GetPackagesByName(self, name, attr=[], newest_only=True):
-        '''
-        Get a list of pkg ids for starts with name
+        '''Get a list of pkg ids for starts with name
 
         :param name: name prefix to match
         :type name: string
@@ -502,14 +480,11 @@ class DnfDaemonBase:
                           name, attr, newest_only))
 
     def GetGroups(self):
-        '''
-        Get list of Groups
-        '''
+        '''Get list of Groups. '''
         return json.loads(self._run_dbus_async('GetGroups'))
 
     def GetGroupPackages(self, grp_id, grp_flt, fields):
-        '''
-        Get packages in a group
+        '''Get packages in a group
 
         :param grp_id: the group id to get packages for
         :param grp_flt: the filter ('all' = all packages ,
@@ -521,8 +496,7 @@ class DnfDaemonBase:
                           grp_id, grp_flt, fields))
 
     def Search(self, fields, keys, attrs, match_all, newest_only, tags):
-        '''
-        Search for packages where keys is matched in fields
+        '''Search for packages where keys is matched in fields
 
         :param fields: yum po attributes to search in
         :type fields: list of strings
@@ -536,15 +510,12 @@ class DnfDaemonBase:
         :param tags: search pkgtags
         :type tags: boolean
         :return: list of pkg_id's
-
         '''
         return json.loads(self._run_dbus_async('Search', '(asasasbbb)',
                           fields, keys, attrs, match_all, newest_only, tags))
 
     def Exit(self):
-        '''
-        End the daemon
-        '''
+        '''End the daemon'''
         self._run_dbus_async('Exit')
 
 #
@@ -563,8 +534,7 @@ class DnfDaemonBase:
 
 
 class DnfDaemonReadOnlyClient(DnfDaemonBase):
-    '''
-    A class to communicate with the yumdaemon DBus services in a easy way
+    '''A class to communicate with the yumdaemon DBus services in a easy way
     '''
 
     def __init__(self):
@@ -581,8 +551,7 @@ class DnfDaemonReadOnlyClient(DnfDaemonBase):
 
 
 class DnfDaemonClient(DnfDaemonBase):
-    '''
-    A class to communicate with the yumdaemon DBus services in a easy way
+    '''A class to communicate with the yumdaemon DBus services in a easy way
     '''
 
     def __init__(self):
@@ -616,8 +585,7 @@ class DnfDaemonClient(DnfDaemonBase):
 #
 
     def SetConfig(self, setting, value):
-        '''
-        set a yum config setting
+        '''Set a dnf config setting
 
         :param setting: yum conf setting to set
         :param value: value to set
@@ -627,22 +595,18 @@ class DnfDaemonClient(DnfDaemonBase):
         return result
 
     def ClearTransaction(self):
-        '''
-        Clear the current transaction
-        '''
+        '''Clear the current transaction. '''
         return self._run_dbus_async('ClearTransaction')
 
     def GetTransaction(self):
-        '''
-        Get the current transaction
+        '''Get the current transaction
 
         :return: the current transaction
         '''
         return json.loads(self._run_dbus_async('GetTransaction'))
 
     def AddTransaction(self, id, action):
-        '''
-        Add an package to the current transaction
+        '''Add an package to the current transaction
 
         :param id: package id for the package to add
         :type id: string
@@ -654,8 +618,7 @@ class DnfDaemonClient(DnfDaemonBase):
                           id, action))
 
     def GroupInstall(self, pattern):
-        '''
-        Do a group install <pattern string>,
+        '''Do a group install <pattern string>,
         same as dnf group install <pattern string>
 
         :param pattern: group pattern to install
@@ -674,8 +637,7 @@ class DnfDaemonClient(DnfDaemonBase):
         return json.loads(self._run_dbus_async('GroupRemove', '(s)', pattern))
 
     def Install(self, pattern):
-        '''
-        Do a install <pattern string>,
+        '''Do a install <pattern string>,
         same as dnf install <pattern string>
 
         :param pattern: package pattern to install
@@ -684,8 +646,7 @@ class DnfDaemonClient(DnfDaemonBase):
         return json.loads(self._run_dbus_async('Install', '(s)', pattern))
 
     def Remove(self, pattern):
-        '''
-        Do a install <pattern string>,
+        '''Do a install <pattern string>,
         same as dnf remove <pattern string>
 
         :param pattern: package pattern to remove
@@ -694,8 +655,7 @@ class DnfDaemonClient(DnfDaemonBase):
         return json.loads(self._run_dbus_async('Remove', '(s)', pattern))
 
     def Update(self, pattern):
-        '''
-        Do a update <pattern string>,
+        '''Do a update <pattern string>,
         same as dnf update <pattern string>
 
         :param pattern: package pattern to update
@@ -705,8 +665,7 @@ class DnfDaemonClient(DnfDaemonBase):
         return json.loads(self._run_dbus_async('Update', '(s)', pattern))
 
     def Reinstall(self, pattern):
-        '''
-        Do a reinstall <pattern string>,
+        '''Do a reinstall <pattern string>,
         same as dnf reinstall <pattern string>
 
         :param pattern: package pattern to reinstall
@@ -716,8 +675,7 @@ class DnfDaemonClient(DnfDaemonBase):
         return json.loads(self._run_dbus_async('Reinstall', '(s)', pattern))
 
     def Downgrade(self, pattern):
-        '''
-        Do a install <pattern string>, same as yum remove <pattern string>
+        '''Do a install <pattern string>, same as yum remove <pattern string>
 
         :param pattern: package pattern to downgrade
         :type pattern: string
@@ -725,8 +683,7 @@ class DnfDaemonClient(DnfDaemonBase):
         return json.loads(self._run_dbus_async('Downgrade', '(s)', pattern))
 
     def BuildTransaction(self):
-        '''
-        Get a list of pkg ids for the current availabe updates
+        '''Get a list of pkg ids for the current availabe updates
         '''
         return json.loads(self._run_dbus_async('BuildTransaction'))
 
@@ -739,8 +696,7 @@ class DnfDaemonClient(DnfDaemonBase):
                           max_err))
 
     def GetHistoryByDays(self, start_days, end_days):
-        '''
-        Get History transaction in a interval of days from today
+        '''Get History transaction in a interval of days from today
 
         :param start_days: start of interval in days from now (0 = today)
         :type start_days: integer
@@ -754,8 +710,7 @@ class DnfDaemonClient(DnfDaemonBase):
         return json.loads(value)
 
     def HistorySearch(self, pattern):
-        '''
-        Search the history for transaction matching a pattern
+        '''Search the history for transaction matching a pattern
 
         :param pattern: patterne to match
         :type pattern: list (strings)
@@ -766,8 +721,7 @@ class DnfDaemonClient(DnfDaemonBase):
         return json.loads(value)
 
     def GetHistoryPackages(self, tid):
-        '''
-        Get packages from a given yum history transaction id
+        '''Get packages from a given yum history transaction id
 
         :param tid: history transaction id
         :type tid: integer
@@ -778,8 +732,7 @@ class DnfDaemonClient(DnfDaemonBase):
         return json.loads(value)
 
     def ConfirmGPGImport(self, hexkeyid, confirmed):
-        '''
-        Confirm import of at GPG Key by yum
+        '''Confirm import of at GPG Key by yum
 
         :param hexkeyid: hex keyid for GPG key
         :param confirmed: confirm import of key (True/False)
