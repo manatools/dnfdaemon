@@ -83,57 +83,23 @@ instdeps:
 	sudo yum install python-nose python3-gobject pygobject3	python3-nose
 
 get-builddeps:
-	yum install perl-TimeDate gettext intltool rpmdevtools python-devel python3-devel python-sphinx python3-nose
-
-archive:
-	@rm -rf ${PKGNAME}-${VERSION}.tar.gz
-	@git archive --format=tar --prefix=$(PKGNAME)-$(VERSION)/ HEAD | gzip -9v >${PKGNAME}-$(VERSION).tar.gz
-	@cp ${PKGNAME}-$(VERSION).tar.gz $(shell rpm -E '%_sourcedir')
-	@rm -rf ${PKGNAME}-${VERSION}.tar.gz
-	@echo "The archive is in ${PKGNAME}-$(VERSION).tar.gz"
+	yum install perl-TimeDate gettext intltool rpmdevtools python-devel python3-devel python-sphinx python3-nose tito
 	
 # needs perl-TimeDate for git2cl
 changelog:
 	@git log --pretty --numstat --summary --after=2008-10-22 | tools/git2cl > ChangeLog
 	
-upload: FORCE
-	@scp ~/rpmbuild/SOURCES/${PKGNAME}-${VERSION}.tar.gz fedorahosted.org:yumex
 	
 release:
-	@git commit -a -m "bumped version to $(VERSION)"
+	$(MAKE) changelog
+	@tito tag 
 	@git push
-	@git tag -f -m "Added ${PKGNAME}-${VERSION} release tag" ${PKGNAME}-${VERSION}
 	@git push --tags origin
-	@$(MAKE) archive
+	@tito build -rpm
 
-test-cleanup:	
-	@rm -rf ${PKGNAME}-${VERSION}.test.tar.gz
-	@echo "Cleanup the git release-test local branch"
-	@git checkout -f
-	@git checkout master
-	@git branch -D release-test
-
-show-vars:
-	@echo ${GITDATE}
-	@echo ${BUMPED_MINOR}
-	@echo ${NEW_VER}-${NEW_REL}
-	
 test-release:
-	@git checkout -b release-test
-	# +1 Minors version and add 0.1-gitYYYYMMDD release
-	@cat ${PKGNAME}.spec | sed  -e 's/${VER_REGEX}/\1${BUMPED_MINOR}/' -e 's/\(^Release:\s*\)\([0-9]*\)\(.*\)./\10.1.${GITDATE}%{?dist}/' > ${PKGNAME}-test.spec ; mv ${PKGNAME}-test.spec ${PKGNAME}.spec
-	@git commit -a -m "bumped ${PKGNAME} version ${NEW_VER}-${NEW_REL}"
-	# Make Changelog
-	@git log --pretty --numstat --summary | ./tools/git2cl > ChangeLog
-	@git commit -a -m "updated ChangeLog"
-	# Make archive
-	@rm -rf ${PKGNAME}-${NEW_VER}.tar.gz
-	@git archive --format=tar --prefix=$(PKGNAME)-$(NEW_VER)/ HEAD | gzip -9v >${PKGNAME}-$(NEW_VER).tar.gz
-	@cp ${PKGNAME}-$(NEW_VER).tar.gz $(shell rpm -E '%_sourcedir')
-	@rm -rf ${PKGNAME}-$(NEW_VER).tar.gz
-	# Build RPMS
-	@rpmbuild -ba ${PKGNAME}.spec
-	@$(MAKE) test-cleanup
+	@sudo rm -rf /var/tito
+	tito build --rpm --test
 	
 test-repo-build:
 	@cd test/pkgs/ && ./build-rpms.sh
@@ -143,29 +109,12 @@ test-repo-build:
 	
 
 test-inst:
-	@$(MAKE) test-release
-	@sudo dnf install ${RPM_DIR}/${PKGNAME}-${NEW_VER}-${NEW_REL}*.rpm \
-	                 ${RPM_DIR}/python-${PKGNAME}-${NEW_VER}-${NEW_REL}*.rpm \
-	                 ${RPM_DIR}/python3-${PKGNAME}-${NEW_VER}-${NEW_REL}*.rpm
+	$(MAKE) test-release
+	@sudo dnf install /tmp/tito/noarch/*.rpm
 	
-rpm:
-	@$(MAKE) archive
-	@rpmbuild -ba ${PKGNAME}.spec
+rpms:
+	tito build --rpm 
 	
-test-builds:
-	@$(MAKE) test-release
-	@ssh timlau.fedorapeople.org rm -f public_html/files/${PKGNAME}/*
-	@scp ~/rpmbuild/SOURCES/${PKGNAME}-${NEW_VER}.tar.gz timlau.fedorapeople.org:public_html/files/${PKGNAME}/${PKGNAME}-${NEW_VER}-${GITDATE}.tar.gz
-	@scp ~/rpmbuild/RPMS/noarch/${PKGNAME}-${NEW_VER}*.rpm timlau.fedorapeople.org:public_html/files/${PKGNAME}/.
-	@scp ~/rpmbuild/RPMS/noarch/python-${PKGNAME}-${NEW_VER}*.rpm timlau.fedorapeople.org:public_html/files/${PKGNAME}/.
-	@scp ~/rpmbuild/RPMS/noarch/python3-${PKGNAME}-${NEW_VER}*.rpm timlau.fedorapeople.org:public_html/files/${PKGNAME}/.
-	@scp ~/rpmbuild/SRPMS/${PKGNAME}-${NEW_VER}*.rpm timlau.fedorapeople.org:public_html/files/${PKGNAME}/.
-	
-review:	
-	@ssh timlau.fedorapeople.org rm -f public_html/files/${PKGNAME}/*
-	@scp ~/rpmbuild/SRPMS/${PKGNAME}-${VERSION}*.src.rpm  timlau.fedorapeople.org:public_html/files/${PKGNAME}/.
-	@scp ${PKGNAME}.spec timlau.fedorapeople.org:public_html/files/${PKGNAME}/.
-
 
 exit-session:
 	@/usr/bin/dbus-send --session --print-reply --dest="org.baseurl.DnfSession" / org.baseurl.DnfSession.Exit
