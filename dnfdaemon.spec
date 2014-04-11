@@ -76,6 +76,9 @@ fi
 
 
 %changelog
+* Fri Apr 11 2014 Tim Lauridsen <timlau@fedoraproject.org> 0.1.4-1
+- new package built with tito
+
 * Tue Apr 01 2014 Tim Lauridsen <timlau@fedoraproject.org> 0.1.4-1
 - bumped release to 0.1.4
 
