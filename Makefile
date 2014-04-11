@@ -6,14 +6,6 @@ ORG_NAME = org.baseurl.DnfSystem
 ORG_RO_NAME = org.baseurl.DnfSession
 SUBDIRS = client/dnfdaemon
 VERSION=$(shell awk '/Version:/ { print $$2 }' ${PKGNAME}.spec)
-PYTHON=python
-GITDATE=git$(shell date +%Y%m%d)
-VER_REGEX=\(^Version:\s*[0-9]*\.[0-9]*\.\)\(.*\)
-BUMPED_MINOR=${shell VN=`cat ${PKGNAME}.spec | grep Version| sed  's/${VER_REGEX}/\2/'`; echo $$(($$VN + 1))}
-NEW_VER=${shell cat ${PKGNAME}.spec | grep Version| sed  's/\(^Version:\s*\)\([0-9]*\.[0-9]*\.\)\(.*\)/\2${BUMPED_MINOR}/'}
-NEW_REL=0.1.${GITDATE}
-DIST=${shell rpm --eval "%{dist}"}
-RPM_DIR=~/rpmbuild/RPMS/noarch/
 
 all: subdirs
 	
@@ -106,7 +98,6 @@ test-repo-build:
 	@# Dnf cant clean a local repo
 	@sudo rm -rf /var/cache/dnf/*/20/dnf-daemon-test
 	@sudo rm -f /var/cache/dnf/*/20/dnf-daemon-test*
-	
 
 test-inst:
 	$(MAKE) test-release
