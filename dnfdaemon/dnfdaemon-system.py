@@ -1093,7 +1093,7 @@ class DnfDaemon(DnfDaemonBase):
             b[t] = []
         # Resolve to get the Transaction object popolated
         try:
-            rc = self.base.resolve()
+            rc = self.base.resolve(allow_erasing=True)
             output = []
         except dnf.exceptions.DepsolveError as e:
             rc = False
