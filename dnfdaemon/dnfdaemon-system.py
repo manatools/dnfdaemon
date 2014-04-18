@@ -649,26 +649,21 @@ class DnfDaemon(DnfDaemonBase):
         rc = 0
         try:
             if action == 'install':
-                # FIXME: reponame is not public api
-                rc = self.base.install(str(po), reponame=po.reponame)
+                rc = self.base.package_install(po)
             elif action == 'remove':
                 rc = self.base.remove(str(po))
             elif action == 'update':
-                # FIXME: reponame is not public api
-                rc = self.base.upgrade(str(po), reponame=po.reponame)
+                rc = self.base.package_upgrade(po)
             elif action == 'obsolete':
-                # FIXME: reponame is not public api
-                rc = self.base.upgrade(str(po), reponame=po.reponame)
+                rc = self.base.package_upgrade(po)
             elif action == 'reinstall':
                 # FIXME: reponame is not public api
                 rc = self.base.reinstall(str(po), reponame=po.reponame)
             elif action == 'downgrade':
-                # FIXME: reponame is not public api
-                rc = self.base.downgrade(str(po), reponame=po.reponame)
+                rc = self.base.package_downgrade(po)
             elif action == 'localinstall':
-                # FIXME: install_local is not public api
-                # https://bugzilla.redhat.com/show_bug.cgi?id=1079519
-                rc = self.base.install_local(pkg_id)
+                po = add_remote_rpm(pkg_id)
+                rc = self.base.package_install(po)
             else:
                 self.logger.error("unknown action :", action)
         # ignore if the package is not installed
