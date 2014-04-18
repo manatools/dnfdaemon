@@ -632,23 +632,28 @@ class TestAPIDevel(TestBase):
             self.assertEqual(n, "bar")
 
     def test_GroupInstall(self):
-        """
-        System: GroupInstall & GroupRemove
+        """ System: GroupInstall & GroupRemove
         """
         print()
         self._enable_default_repos()
+        # make sure firefox group is not installed
         rc, output = self.GroupInstall("firefox")
+        if not rc:
+            rc, output = self.GroupRemove("firefox")
+            print(rc, output)
+            self.assertTrue(rc)
+            if rc:
+                self.RunTransaction()
+
+        # install firefox group
+        rc, output = self.GroupInstall("firefox")
+        print("installing firefox group")
         print(rc, output)
-        is_inst = False
-        if rc:
-            is_inst = True
-            self.RunTransaction()
+        self.assertTrue(rc)
+        self.RunTransaction()
+        print("removing firefox group")
+        # remove firefox group
         rc, output = self.GroupRemove("firefox")
         print(rc, output)
         self.assertTrue(rc)
-        if rc:
-            self.RunTransaction()
-        if is_inst:  # back to original state
-            rc, output = self.GroupInstall("firefox")
-            if rc:
-                self.RunTransaction()
+        self.RunTransaction()
