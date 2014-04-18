@@ -657,12 +657,11 @@ class DnfDaemon(DnfDaemonBase):
             elif action == 'obsolete':
                 rc = self.base.package_upgrade(po)
             elif action == 'reinstall':
-                # FIXME: reponame is not public api
-                rc = self.base.reinstall(str(po), reponame=po.reponame)
+                rc = self.base.package_install(po)
             elif action == 'downgrade':
                 rc = self.base.package_downgrade(po)
             elif action == 'localinstall':
-                po = add_remote_rpm(pkg_id)
+                po = self.base.add_remote_rpm(pkg_id)
                 rc = self.base.package_install(po)
             else:
                 self.logger.error("unknown action :", action)
@@ -769,6 +768,9 @@ class DnfDaemon(DnfDaemonBase):
         self._reset_base()
         self.TransactionEvent('end-run', NONE)
         result = json.dumps((rc, msgs))
+        # FIXME: It should not be needed to call .success_finish()
+        if rc:
+            self.base.success_finish()
         return self.working_ended(result)
 
     def _get_packages_to_download(self):
