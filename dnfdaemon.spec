@@ -1,4 +1,5 @@
 %global dnf_org org.baseurl.Dnf
+%global dnf_version 0.5.0
 
 Name:           dnfdaemon
 Version:        0.1.4
@@ -10,7 +11,7 @@ Source0:        https://github.com/timlau/dnf-daemon/archive/%{name}-%{version}.
 BuildArch:      noarch
 BuildRequires:  python3-devel
 Requires:       python3-dbus
-Requires:       python3-dnf >= 0.4.19
+Requires:       python3-dnf >= %{dnf_version}
 Requires:       polkit
 Requires(post):     policycoreutils-python
 Requires(postun):   policycoreutils-python
