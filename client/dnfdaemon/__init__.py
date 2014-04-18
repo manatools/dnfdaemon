@@ -23,7 +23,7 @@ This module gives a simple pythonic interface to doing  package action
 using the dnf-daemon Dbus service.
 
 It use async call to the dnf-daemon, so signal can be catched and a Gtk gui do
-nt get unresonsive
+not get unresonsive
 
 There is 2 classes :class:`DnfDaemonClient` & :class:`DnfDaemonReadOnlyClient`
 
@@ -478,8 +478,8 @@ class DnfDaemonBase:
         Args:
             grp_id: the group id to get packages for
             grp_flt: the filter ('all' = all packages ,
-                           'default' = packages to be installed, before
-                            the group is installed)
+                     'default' = packages to be installed, before
+                     the group is installed)
             fields: extra package attributes to include in result
         '''
         return json.loads(self._run_dbus_async('GetGroupPackages', '(ssas)',
