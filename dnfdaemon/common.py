@@ -39,6 +39,7 @@ import dnf.const
 import dnf.conf
 import dnf.subject
 import dnf.callback
+import dnf.comps
 import hawkey
 from dnf.exceptions import DownloadError
 
@@ -207,16 +208,15 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
         all_groups = []
         if not self.base.comps:  # lazy load the comps metadata
             self.base.read_comps()
-        cats = self.base.comps.categories
-        for category in cats:
+        for category in self.base.comps.categories_iter():
             cat = (category.name, category.ui_name, category.ui_description)
             cat_grps = []
             for obj in category.group_ids:
                 # get the dnf group obj
                 grp = self.base.comps.group_by_pattern(obj.name)
                 if grp:
-                    elem = (
-                        grp.id, grp.ui_name, grp.ui_description, grp.installed)
+                    elem = (grp.id, grp.ui_name,
+                            grp.ui_description, grp.installed)
                     cat_grps.append(elem)
             cat_grps.sort()
             all_groups.append((cat, cat_grps))
@@ -362,25 +362,16 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
         grp = self.base.comps.group_by_pattern(grp_id)
         if grp:
             if grp_flt == 'all':
-                pkg_names = []
-                # FIXME: mandatory_packages is not public API
-                pkg_names.extend([p.name for p in grp.mandatory_packages])
-                # FIXME: default_packages is not public API
-                pkg_names.extend([p.name for p in grp.default_packages])
-                # FIXME: optional_packages is not public API
-                pkg_names.extend([p.name for p in grp.optional_packages])
-                best_pkgs = []
-                for name in pkg_names:
-                    best_pkgs.extend(self._get_po_by_name(name, True))
+                pkg_filters = [dnf.comps.MANDATORY,
+                               dnf.comps.DEFAULT,
+                               dnf.comps.OPTIONAL]
             else:
-                pkg_names = []
-                # FIXME: mandatory_packages is not public API
-                pkg_names.extend([p.name for p in grp.mandatory_packages])
-                # FIXME: default_packages is not public API
-                pkg_names.extend([p.name for p in grp.default_packages])
-                best_pkgs = []
-                for name in pkg_names:
-                    best_pkgs.extend(self._get_po_by_name(name, True))
+                pkg_filters = [dnf.comps.MANDATORY,
+                               dnf.comps.DEFAULT]
+            best_pkgs = []
+            for pkg in grp.packages_iter():
+                if pkg.option_type in pkg_filters:
+                    best_pkgs.extend(self._get_po_by_name(pkg.name, True))
             pkgs = self.base.packages.filter_packages(best_pkgs)
         else:
             pass

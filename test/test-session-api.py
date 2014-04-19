@@ -234,21 +234,30 @@ class TestAPIDevel(TestBaseReadonly):
         """
         Session: Groups (GetGroups & GetGroupPackages)
         """
-
+        print()
+        self._enable_default_repos()
         result = self.GetGroups()
+        i = 0
         for cat, grps in result:
+            i += 1
+            if i == 3:
+                break
             # cat: [category_id, category_name, category_desc]
             self.assertIsInstance(cat, list)  # cat is a list
             self.assertIsInstance(grps, list)  # grps is a list
             self.assertEqual(len(cat), 3)  # cat has 3 elements
             print(" --> %s" % cat[0])
+            j = 0
             for grp in grps:
+                j += 1
+                if j == 3:
+                    break
                 # [group_id, group_name, group_desc, group_is_installed]
                 self.assertIsInstance(grp, list)  # grp is a list
                 self.assertEqual(len(grp), 4)  # grp has 4 elements
                 print(
-                    "   tag: %s name: %s \n       desc: %s \n       installed : %s " %
-                    tuple(grp))
+                    "   tag: %s name: %s \n       desc: %s \n"
+                    "       installed : %s " % tuple(grp))
                 # Test GetGroupPackages
                 grp_id = grp[0]
                 pkgs = self.GetGroupPackages(grp_id, 'all', [])
@@ -257,14 +266,15 @@ class TestAPIDevel(TestBaseReadonly):
                 pkgs = self.GetGroupPackages(grp_id, 'default', [])
                 self.assertIsInstance(pkgs, list)  # cat is a list
                 print("       # of Default Packages in group : ", len(pkgs))
-                elem = pkgs[0]  # pkg_id
-                self.assertIsInstance(elem, str)
-                pkgs = self.GetGroupPackages(
-                    grp_id, 'default', ['size', 'summary'])
-                self.assertIsInstance(pkgs, list)  # cat is a list
-                elem = pkgs[0]  # [pkg_id, size, summary]
-                self.assertIsInstance(elem, list)
-                self.assertEqual(len(elem), 3)  # has 3 elements
+                if len(pkgs) > 0:  # some packages has no default pkgs
+                    elem = pkgs[0]  # pkg_id
+                    self.assertIsInstance(elem, str)
+                    pkgs = self.GetGroupPackages(
+                        grp_id, 'default', ['size', 'summary'])
+                    self.assertIsInstance(pkgs, list)  # cat is a list
+                    elem = pkgs[0]  # [pkg_id, size, summary]
+                    self.assertIsInstance(elem, list)
+                    self.assertEqual(len(elem), 3)  # has 3 elements
 
     def test_Downgrades(self):
         '''
