@@ -50,21 +50,28 @@ test-verbose: FORCE
 
 
 # Run as root or you will get a password prompt
-test: FORCE
+run-tests: FORCE
 	@sudo nosetests-3.3 -v test/
 
 # Run as root or you will get a password prompt 
-test-system: FORCE
-	@sudo nosetests-3.3 -v test/test-system-api.py
+run-tests-system: FORCE
+	@sudo nosetests-3.3 -v test/test-system-*.py
 
 # Run as root or you will get a password prompt 
-test-system-verbose: FORCE
-	@sudo nosetests-3.3 -v -s test/test-system-api.py
+run-tests-system-verbose: FORCE
+	@sudo nosetests-3.3 -v -s test/test-system-*.py
 
-test-session: FORCE
+# Run as root or you will get a password prompt 
+run-tests-system-rw: FORCE
+	@sudo nosetests-3.3 -v test/test-system-rw.py
+
+run-tests-system-ro: FORCE
+	@sudo nosetests-3.3 -v test/test-system-ro.py
+
+run-tests-session: FORCE
 	@nosetests-3.3 -v test/test-session-api.py
 
-test-session-verbose: FORCE
+run-tests-session-verbose: FORCE
 	@nosetests-3.3 -v -s test/test-session-api.py
 
 # Run as root or you will get a password prompt for each test method :)

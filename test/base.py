@@ -25,6 +25,7 @@ class TestBase(unittest.TestCase, DnfDaemonClient):
 
     def tearDown(self):
         self.Unlock()
+        time.sleep(2)
 
     def reset_signals(self):
         self._signals = {}
@@ -103,18 +104,6 @@ class TestBase(unittest.TestCase, DnfDaemonClient):
             action = 'install'
         rc, trans = self.AddTransaction(pkg, action)
         return (rc, trans)
-
-    def _run_transaction(self, build=True):
-        '''
-        Desolve deps and run the current transaction
-        '''
-        print('************** Running the current transaction *********************')
-        if build:
-            rc, output = self.BuildTransaction()
-            self.assertEqual(rc, 2)
-            self.show_transaction_result(output)
-            self.assertGreater(len(output), 0)
-        self.RunTransaction()
 
     def _remove_if_installed(self, name):
         rc, output = self.Remove(name)
