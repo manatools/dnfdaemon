@@ -21,6 +21,11 @@ Common stuff for the dnfdaemon dbus services
 """
 from __future__ import print_function
 from __future__ import absolute_import
+
+import sys
+sys.path.insert(0, '/home/tim/udv/tmp/dnf/dnf')
+
+
 import dbus
 import dbus.service
 import dbus.glib
@@ -215,8 +220,9 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
                 # get the dnf group obj
                 grp = self.base.comps.group_by_pattern(obj.name)
                 if grp:
+                    # FIXME: no dnf API to get if group is installed
                     elem = (grp.id, grp.ui_name,
-                            grp.ui_description, grp.installed)
+                            grp.ui_description, False)
                     cat_grps.append(elem)
             cat_grps.sort()
             all_groups.append((cat, cat_grps))

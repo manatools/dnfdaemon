@@ -24,24 +24,26 @@
 from __future__ import print_function
 from __future__ import absolute_import
 
-import json
-import logging
-import operator
+import sys
+sys.path.insert(0, '/home/tim/udv/tmp/dnf/dnf')
+
 from datetime import datetime
-from gi.repository import Gtk
-import dbus
-import dbus.service
 from dbus.mainloop.glib import DBusGMainLoop
-
-
-import argparse
-
-import dnf.transaction
+from gi.repository import Gtk
 from dnf.exceptions import PackagesNotInstalledError, DownloadError,\
-    MarkingError
+                           MarkingError
 from dnf.yum.rpmtrans import TransactionDisplay
 
 from common import DnfDaemonBase, doTextLoggerSetup, Logger, NONE
+
+import argparse
+import dnf.transaction
+import dnf.exceptions
+import dbus
+import dbus.service
+import json
+import logging
+import operator
 
 version = 104  # (00.01.02) must be integer
 DAEMON_ORG = 'org.baseurl.DnfSystem'
@@ -481,7 +483,10 @@ class DnfDaemon(DnfDaemonBase):
             pkg_types = ["mandatory", "default"]
             grp = self._find_group(cmd)
             if grp:
-                self.base.group_install(grp, pkg_types)
+                try:
+                    self.base.group_install(grp, pkg_types)
+                except dnf.exceptions.CompsError as e:
+                    return json.dumps((False, str(e)))
         value = self._build_transaction()
         return self.working_ended(value)
 
@@ -502,7 +507,10 @@ class DnfDaemon(DnfDaemonBase):
         for cmd in cmds.split(' '):
             grp = self._find_group(cmd)
             if grp:
-                self.base.group_remove(grp)
+                try:
+                    self.base.group_remove(grp)
+                except dnf.exceptions.CompsError as e:
+                    return json.dumps((False, str(e)))
         value = self._build_transaction()
         return self.working_ended(value)
 
@@ -751,6 +759,8 @@ class DnfDaemon(DnfDaemonBase):
             display = RPMTransactionDisplay(self)  # RPM Display callback
             self._can_quit = False
             rc, msgs = self.base.do_transaction(display=display)
+            if rc == 0:
+                self.base.success_finish()
         except DownloadError as e:
             rc = 4  # Download errors
             if isinstance(e.errmap, dict):
@@ -769,8 +779,6 @@ class DnfDaemon(DnfDaemonBase):
         self.TransactionEvent('end-run', NONE)
         result = json.dumps((rc, msgs))
         # FIXME: It should not be needed to call .success_finish()
-        if rc:
-            self.base.success_finish()
         return self.working_ended(result)
 
     def _get_packages_to_download(self):

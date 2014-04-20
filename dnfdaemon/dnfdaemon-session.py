@@ -24,6 +24,9 @@
 from __future__ import print_function
 from __future__ import absolute_import
 
+import sys
+sys.path.insert(0, '/home/tim/udv/tmp/dnf/dnf')
+
 import json
 import logging
 from gi.repository import Gtk
