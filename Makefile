@@ -94,7 +94,7 @@ release:
 	@tito tag 
 	@git push
 	@git push --tags origin
-	@tito build -rpm
+	@tito build --rpm
 
 test-release:
 	@sudo rm -rf /var/tito

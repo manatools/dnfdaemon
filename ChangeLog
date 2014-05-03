@@ -1,0 +1,647 @@
+2014-04-20  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* Makefile, dnfdaemon/dnfdaemon-system.py, test/base.py,
+	test/test-system-api.py, test/test-system-ro.py,
+	test/test-system-rw.py, test/unit-devel.py: tests: split up system
+	tests in ro & rw renamed Makefile test targets with run-test prefix
+
+
+2014-04-20  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* test/test-system-api.py: tests: make GroupInstall more error prone
+
+
+2014-04-20  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* dnfdaemon/common.py, dnfdaemon/dnfdaemon-session.py,
+	dnfdaemon/dnfdaemon-system.py: Run with local dnf checkout build
+	save the groups if do_transaction return rc == 0
+
+2014-04-19  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* dnfdaemon/common.py, test/test-session-api.py,
+	test/test-system-api.py: use the dnf 0.5.0 group API fix group
+	tests, so they enable all repos and runs faster
+
+2014-04-18  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* test/test-system-api.py: tests: make GroupInstall test work even
+	if firefox group is already installed
+
+2014-04-18  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* dnfdaemon/dnfdaemon-system.py: more use of package_* api call
+	succes_finish() if RunTransaction is completted without errors
+
+2014-04-18  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* dnfdaemon.spec: build: req. dnf >= 0.5.0
+
+2014-04-18  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* dnfdaemon/dnfdaemon-system.py: Use new package_* api from dnf
+	0.5.0
+
+2014-04-18  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* dnfdaemon/common.py, dnfdaemon/dnfdaemon-system.py: use
+	resolve(allow_erasing=True), new API in Dnf 0.5.0
+
+2014-04-18  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* client/dnfdaemon/__init__.py, docs/Makefile,
+	docs/client-python.rst, docs/conf.py: misc cleanup
+
+2014-04-11  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* Makefile: build: removed Makefile leftovers
+
+2014-04-11  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* Makefile: build: cleanup Makefile and use tito to do the actions
+
+2014-04-11  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* dnfdaemon.spec, rel-eng/packages/dnfdaemon: Automatic commit of
+	package [dnfdaemon] release [0.1.4-1].
+
+2014-04-11  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* rel-eng/packages/.readme, rel-eng/tito.props: Initialized to use
+	tito.
+
+2014-04-09  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* docs/conf.py: doc: setup autodoc extension
+
+2014-04-09  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* client/dnfdaemon/__init__.py, docs/conf.py: docs: use Google style
+	docstrings
+
+2014-04-09  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* test/base.py, test/test-session-api.py, test/test-system-api.py,
+	test/unit-devel.py: cleanup: more PEP8 fixes in test/
+
+2014-04-09  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* client/dnfdaemon/__init__.py: cleanup: docs strings
+
+2014-04-09  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* client/dnfdaemon/__init__.py, dnfdaemon/common.py,
+	dnfdaemon/dnfdaemon-session.py, dnfdaemon/dnfdaemon-system.py: 
+	cleanup: PEP8 fixes
+
+2014-04-09  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* dnfdaemon/dnfdaemon-session.py, dnfdaemon/dnfdaemon-system.py: 
+	cleanup: fix merge leftovers
+
+2014-04-09  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* client/dnfdaemon/__init__.py, dnfdaemon/common.py,
+	dnfdaemon/dnfdaemon-session.py, dnfdaemon/dnfdaemon-system.py: 
+	cleanup: PEP8 fixes
+
+2014-04-01  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* client/dnfdaemon/__init__.py, dnfdaemon.spec,
+	dnfdaemon/dnfdaemon-session.py, dnfdaemon/dnfdaemon-system.py,
+	docs/conf.py: bumped version to 0.1.4
+
+2014-04-01  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* client/dnfdaemon/__init__.py, dnfdaemon/common.py,
+	dnfdaemon/dnfdaemon-system.py, docs/client-python.rst,
+	docs/server.rst, test/test-system-api.py, test/unit-devel.py: api:
+	add GroupInstall & GroupRemove to install/remove groups
+
+2014-03-29  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* dnfdaemon/dnfdaemon-system.py: fix: GetGroupPackages dont support
+	attrs in System Daemon
+
+2014-03-29  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* test/test-session-api.py, test/test-system-api.py: test: better
+	group test cases
+
+2014-03-29  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* dnfdaemon/common.py, test/test-system-api.py, test/unit-devel.py: 
+	fix. GetPackages should only return each package once
+
+2014-03-29  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* dnfdaemon.spec: build: update source url
+
+2014-03-29  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* client/dnfdaemon/__init__.py, dnfdaemon.spec,
+	dnfdaemon/common.py, dnfdaemon/dnfdaemon-session.py,
+	dnfdaemon/dnfdaemon-system.py, docs/conf.py: bumped version to 0.1.3
+
+
+2014-03-29  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* Makefile: build: dont auto upload on release
+
+2014-03-28  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* dnfdaemon/common.py, dnfdaemon/dnfdaemon-session.py,
+	dnfdaemon/dnfdaemon-system.py: refactor: swapped args
+
+2014-03-28  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* client/dnfdaemon/__init__.py, dnfdaemon/dnfdaemon-session.py,
+	dnfdaemon/dnfdaemon-system.py, docs/server.rst,
+	test/test-session-api.py, test/test-system-api.py,
+	test/unit-devel.py: api: merged GetPackagesByName &
+	GetPackagesByNameWithAttr into GetPackagesByName
+
+2014-03-28  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* client/dnfdaemon/__init__.py, dnfdaemon/common.py,
+	dnfdaemon/dnfdaemon-session.py, dnfdaemon/dnfdaemon-system.py,
+	docs/server.rst, test/test-session-api.py, test/test-system-api.py: 
+	api: merged Search & SearchWithAttr into Search()
+
+2014-03-27  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* client/dnfdaemon/__init__.py, dnfdaemon/common.py,
+	dnfdaemon/dnfdaemon-session.py, dnfdaemon/dnfdaemon-system.py,
+	docs/client-python.rst, docs/server.rst, test/test-session-api.py,
+	test/test-system-api.py, test/unit-devel.py: add: new SearchWithAttr
+	API
+
+2014-03-27  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* client/dnfdaemon/__init__.py, dnfdaemon/common.py,
+	dnfdaemon/dnfdaemon-session.py, dnfdaemon/dnfdaemon-system.py,
+	docs/client-python.rst, docs/server.rst, test/test-session-api.py,
+	test/test-system-api.py, test/unit-devel.py: add: Add
+	GetPackageNameWithAttr, does the same as GetPackagesByName, but also
+	return user defined attributes
+
+2014-03-27  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* dnfdaemon/common.py: cleanup: remove a debug print
+
+2014-03-25  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* docs/client-python.rst, docs/server.rst: doc: build fixes
+
+2014-03-25  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* docs/fake-lib/README~, docs/fake-lib/gi/repository/Gio.py~: 
+	cleanup: backup files
+
+2014-03-25  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* docs/client-python.rst, docs/conf.py, docs/server.rst: doc: fix
+	readthedocs build warnings
+
+2014-03-25  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* docs/client-python.rst: doc: cleanup python client api doc
+
+2014-03-25  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* docs/fake-lib/gi/repository/GObject.py,
+	docs/fake-lib/gi/repository/Gio.py: doc: Added some fake libs to
+	build docs without GObject instrospection is installed
+
+2014-03-25  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* .gitignore, docs/fake-lib/gi/repository/GObject.py: doc: Added
+	some fake libs to build docs without GObject instrospection is
+	installed
+
+2014-03-25  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* docs/conf.py, docs/fake-lib/README, docs/fake-lib/README~,
+	docs/fake-lib/gi/__init__.py, docs/fake-lib/gi/repository/Gio.py,
+	docs/fake-lib/gi/repository/Gio.py~,
+	docs/fake-lib/gi/repository/__init__.py: doc: Added some fake libs
+	to build docs without GObject instrospection is installed
+
+2014-03-25  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* docs/conf.py: doc: more ReadTheDocs fixes
+
+2014-03-25  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* docs/conf.py: doc: more ReadTheDocs fixes
+
+2014-03-25  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* docs/conf.py: doc: Mock som modules, so doc will build on
+	ReadTheDocs
+
+2014-03-25  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* docs/server.rst: doc: fix some Yum leftovers
+
+2014-03-25  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* README.md: doc: updated link to API doc at
+	http://dnf-daemon.readthedocs.org/en/latest/index.html
+
+2014-03-24  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* dnfdaemon/common.py: cleanup: removed unused code
+
+2014-03-24  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* dnfdaemon.spec, dnfdaemon/common.py,
+	dnfdaemon/dnfdaemon-session.py, dnfdaemon/dnfdaemon-system.py: 
+	cleanup: remove workaround for group issue in dnf 0.4.18, fixed in
+	0.4.19 doc: better fixme comments release: bumped release to 0.1.2
+
+2014-03-21  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* dnfdaemon/dnfdaemon-system.py: doc: update non public api fixme's
+	with bugzilla report links
+
+2014-03-21  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* client/dnfdaemon/__init__.py, dnfdaemon/common.py,
+	dnfdaemon/dnfdaemon-session.py, dnfdaemon/dnfdaemon-system.py: fix :
+	ExpireCache handle RepoErrors and return True if the cache was
+	populated without errors
+
+2014-03-20  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* client/dnfdaemon/__init__.py, dnfdaemon/common.py,
+	dnfdaemon/dnfdaemon-system.py, docs/server.rst: add: add max_err
+	parameter to RunTransaction and let it return (rc, messages) as an
+	json encoded string
+
+2014-03-20  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* dnfdaemon/common.py, dnfdaemon/dnfdaemon-system.py: add : collect
+	dnl err msgs and count errors and abort if there is to many download
+	errors
+
+2014-03-18  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* dnfdaemon/dnfdaemon-system.py, test/test-system-api.py,
+	test/unit-devel.py: add: return list of obsoleted packages in
+	transaction results
+
+2014-03-17  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* dnfdaemon/dnfdaemon-system.py, test/test-system-api.py,
+	test/unit-devel.py: fix: make history work on completted transaction
+	only and make test cases better
+
+2014-03-17  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* dnfdaemon/dnfdaemon-system.py, test/unit-devel.py: fix: temp
+	workaround for history changes in dnf 0.4.18 (not complete yet)
+
+2014-03-17  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* dnfdaemon/dnfdaemon-system.py: fix: dont blowup if rpm callback
+	with package = None, just ignore it
+
+2014-03-17  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* dnfdaemon/common.py: fix: dont hardcode the fedora release
+
+2014-03-17  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* dnfdaemon/common.py: Added temporary workaround for problem with
+	0.4.18 https://bugzilla.redhat.com/show_bug.cgi?id=1077173
+
+2014-03-17  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* dnfdaemon/dnfdaemon-system.py: fix: UnboundLocalError: local
+	variable 'rc' referenced before assignment (RunTransaction) fix:
+	First set can_quit=False, just before we executing the transaction
+
+2014-03-16  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* dnfdaemon/dnfdaemon-system.py: implement RPM Display callback for
+	RunTransaction
+
+2014-03-16  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* dnfdaemon/dnfdaemon-system.py: fix; rename Exception
+
+2014-03-15  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* dnfdaemon/common.py, dnfdaemon/dnfdaemon-system.py: Use dnf
+	transaction, instead of dnf.Base._goal there is not public API
+
+2014-03-14  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* dnfdaemon/common.py: fix: watchdog can't close service because of
+	Gtk not defined
+
+2014-03-14  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* Makefile: add: make kill-both will kill installed system & session
+	jobs too
+
+2014-03-14  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* dnfdaemon/common.py, test/test-system-api.py, test/unit-devel.py: 
+	fix: GetPackagesByName should not return both install & available
+	for same package
+
+2014-03-14  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* dnfdaemon/dnfdaemon-system.py: fix: AddTransaction(... ,
+	action='obsolete') should use base.upgrade
+
+2014-03-14  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* test/pkgs/build-rpms.sh, test/pkgs/specs/bar-new.spec,
+	test/pkgs/specs/bar-old.spec, test/test-system-api.py,
+	test/unit-devel.py: test: make obsoleting test pkgs and and a test
+	case
+
+2014-03-14  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* Makefile: fix: make test-inst include the release number in *.rpm
+	install
+
+2014-03-14  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* Makefile, test/pkgs/specs/foobar-20.spec, test/unit-devel.py: add:
+	add test-repo-build Makefile target, to refresh the local test repo.
+	fix: fix duplicate version in test .spec file
+
+2014-03-14  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* test/test-system-api.py: fix: repair broken test cases
+
+2014-03-14  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* dnfdaemon/common.py: fix : dont print, use logger
+
+2014-03-14  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* .gitignore, .settings/org.eclipse.core.resources.prefs: remove
+	eclipse settings
+
+2014-03-14  Tim Lauridsen <timlau@fedoraproject.org>
+
+	Merge branch 'master' of github.com:timlau/dnf-daemon
+
+2014-03-14  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* .settings/org.eclipse.core.resources.prefs,
+	dnfdaemon/dnfdaemon-system.py, test/pkgs/build-rpms.sh,
+	test/pkgs/specs/bar-dep-err.spec, test/pkgs/specs/foo-20.spec,
+	test/pkgs/specs/foo-dep-err.spec, test/test-system-api.py,
+	test/unit-devel.py: Handle depsolve errors
+
+2014-03-13  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* Makefile: fix test-builds Makefile target
+
+2014-03-12  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* client/dnfdaemon/__init__.py, dnfdaemon/common.py,
+	dnfdaemon/dnfdaemon-session.py, test/test-session-api.py: 
+	GetGroupPackages return user defined pkg attributes
+
+2014-03-12  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* test/base.py: fix issue with session api tests
+
+2014-03-12  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* dnfdaemon.spec: change requirements from dnf to python3-dnf
+
+2014-03-12  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* client/dnfdaemon/__init__.py, dnfdaemon/common.py,
+	dnfdaemon/dnfdaemon-session.py, dnfdaemon/dnfdaemon-system.py,
+	test/base.py, test/test-session-api.py, test/test-system-api.py,
+	test/unit-devel.py: Added ExpireCache API to reset dnf metadata
+	cache make the test framework handle signals better
+
+2014-03-12  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* dnfdaemon/dnfdaemon-system.py: return error from AddTransaction
+
+2014-03-12  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* client/dnfdaemon/__init__.py, dnfdaemon/dnfdaemon-system.py: Added
+	new ErrorMessage signal AddTransaction will send ErrorMessage if
+	pkg_id cant be resolved to a package object
+
+2014-03-12  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* Makefile: Use dnf for test-inst target in Makefile
+
+2014-03-12  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* dnfdaemon/common.py: fix the progress signals
+
+2014-03-12  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* dnfdaemon/dnfdaemon-system.py: Send TransactionEvent when
+	executing  the transaction
+
+2014-03-12  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* dnfdaemon/dnfdaemon-session.py, dnfdaemon/dnfdaemon-system.py:  reset the dnf.Base object on unlock
+
+2014-03-12  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* dnfdaemon/common.py, dnfdaemon/dnfdaemon-system.py, test/base.py,
+	test/test-system-api.py, test/unit-devel.py: Fix remove not working
+	if there is deps
+
+2014-03-12  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* dnfdaemon/dnfdaemon-system.py, test/test-system-api.py: Fix the
+	AddTransaction, ClearTransaction, GetTransaction to work with
+	Hawkey.Goal the right way.
+
+2014-03-12  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* dnfdaemon/dnfdaemon-system.py: use Hawkey.goal in AddTransaction
+
+2014-03-11  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* dnfdaemon.spec, dnfdaemon/common.py,
+	dnfdaemon/dnfdaemon-session.py, dnfdaemon/dnfdaemon-system.py: 
+	convert services to python3
+
+2014-03-11  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* Makefile, dnfdaemon/dnfdaemon-system.py, test/base.py,
+	test/test-session-api.py, test/test-system-api.py,
+	test/unit-devel.py: - Implemented History api (system) - make the tests run in Python
+	3.3
+
+2014-03-11  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* Makefile: Workaround test-release gives weird error
+
+2014-03-11  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* Makefile, dnfdaemon.spec: cleanup .spec & Makefile
+
+2014-03-11  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* Makefile, test/test-system-api.py: Added more test cases for
+	system API
+
+2014-03-11  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* dnfdaemon/dnfdaemon-system.py, test/test-system-api.py: fix system
+	api test to use local test repo
+
+2014-03-11  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* Makefile, dnfdaemon/common.py, test/base.py,
+	test/pkgs/build-rpms.sh, test/pkgs/specs/bar-10.spec,
+	test/pkgs/specs/bar-20.spec, test/pkgs/specs/foo-20.spec,
+	test/pkgs/specs/foobar-10.spec, test/pkgs/specs/foobar-20.spec,
+	test/test-session-api.py, test/unit-devel.py: Use only local test
+	repo for unit tests
+
+2014-03-10  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* dnfdaemon/common.py, dnfdaemon/dnfdaemon-session.py,
+	dnfdaemon/dnfdaemon-system.py, test/test-session-api.py: refactor
+	SetEnabledRepos() and added it to session api
+
+2014-03-10  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* .gitignore, test/pkgs/README, test/pkgs/build-rpms.sh,
+	test/pkgs/source.tar.gz, test/pkgs/source/README,
+	test/pkgs/specs/bar-10.spec, test/pkgs/specs/bar-20.spec,
+	test/pkgs/specs/foo-10.spec, test/pkgs/specs/foo-20.spec: Added
+	tools for creation of test pkgs in a test repo
+
+2014-03-10  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* dnfdaemon/dnfdaemon-system.py, test/test-system-api.py: 
+	Implemented SetConfig()
+
+2014-03-10  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* dnfdaemon/dnfdaemon-system.py, test/test-system-api.py: Implement
+	SetEnabledRepos
+
+2014-03-09  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* dnfdaemon/dnfdaemon-system.py: removed TODO comment
+
+2014-03-09  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* dnfdaemon/dnfdaemon-system.py, test/base.py,
+	test/test-system-api.py, test/unit-devel.py: Minor testcase cleanup
+
+
+2014-03-09  Tim Lauridsen <timlau@fedoraproject.org>
+
+	fix merge
+
+2014-03-09  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* client/dnfdaemon/__init__.py, dnfdaemon/dnfdaemon-system.py,
+	test/base.py, test/test-system-api.py: Implement the
+	AddTransaction, ClearTransaction & GetTransaction
+
+2014-03-09  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* client/dnfdaemon/__init__.py, dnfdaemon/dnfdaemon-system.py,
+	test/base.py, test/test-system-api.py: Implement the initial version
+	of AddTransaction, ClearTransaction & GetTransaction
+
+2014-03-09  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* dnfdaemon/dnfdaemon-system.py, test/test-system-api.py,
+	test/unit-devel.py: implemented Downgrade & Update
+
+2014-03-09  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* dnfdaemon/dnfdaemon-system.py, test/test-system-api.py: 
+	Implemented Reinstall
+
+2014-03-09  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* test/test-system-api.py, test/unit-devel.py: Extended the Install
+	& Remove testcase and move it the system test module
+
+2014-03-08  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* dnfdaemon/common.py, dnfdaemon/dnfdaemon-system.py, test/base.py,
+	test/unit-devel.py: implemented Install & Remove in system API
+
+2014-03-08  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* docs/client-python.rst: fix the exception docs in python client
+	api
+
+2014-03-08  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* client/dnfdaemon/__init__.py: cleanup the python api client with
+	the right signal handlers
+
+2014-03-08  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* .gitignore, Makefile, docs/conf.py, docs/index.rst: Cleanup yum
+	refs in the docs
+
+2014-03-08  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* docs/Makefile: fix docs upload dir
+
+2014-03-08  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* dnfdaemon/dnfdaemon-session.py, dnfdaemon/dnfdaemon-system.py: 
+	removed usued signal
+
+2014-03-08  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* dbus/org.baseurl.DnfSession.service: fix typo in DBus conf
+
+2014-03-08  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* dnfdaemon/dnfdaemon-session.py, dnfdaemon/dnfdaemon-system.py: 
+	cleanup usused imports
+
+2014-03-08  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* .gitignore: opdated .gitignore
+
+2014-03-08  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* dnfdaemon/dnfdaemon-session.py, dnfdaemon/dnfdaemon-system.py,
+	test/test-system-api.py: Make the common part of the System API work
+	and added TestCase from the Session API
+
+2014-03-08  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* Makefile, dnfdaemon.spec: fix .spec  & Makefile typos
+
+2014-03-08  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* COPYING, ChangeLog, LICENSE, Makefile, README.md,
+	client/dnfdaemon/Makefile, client/dnfdaemon/__init__.py,
+	dbus/org.baseurl.DnfSession.service,
+	dbus/org.baseurl.DnfSystem.conf,
+	dbus/org.baseurl.DnfSystem.service, dnfdaemon.spec,
+	dnfdaemon/common.py, dnfdaemon/dnfdaemon-session.py,
+	dnfdaemon/dnfdaemon-system.py, docs/Makefile,
+	docs/client-python.rst, docs/conf.py, docs/examples.rst,
+	docs/index.rst, docs/server.rst,
+	policykit1/org.baseurl.DnfSystem.policy, test/base.py,
+	test/test-session-api.py, test/unit-devel.py, tools/git2cl: Initial
+	commit
+
+2014-03-07  Tim Lauridsen <tla@rasmil.dk>
+
+	* Initial commit
+
