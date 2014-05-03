@@ -91,6 +91,7 @@ changelog:
 	
 release:
 	$(MAKE) changelog
+	@git commit -a -m "updated ChangeLog"	
 	@tito tag 
 	@git push
 	@git push --tags origin
