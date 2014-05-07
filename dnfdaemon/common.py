@@ -22,35 +22,49 @@ Common stuff for the dnfdaemon dbus services
 from __future__ import print_function
 from __future__ import absolute_import
 
-import sys
-sys.path.insert(0, '/home/tim/udv/tmp/dnf/dnf')
-
+from datetime import datetime
+from dnf.exceptions import DownloadError
+from dnf.yum.rpmtrans import TransactionDisplay
+from time import time
+from gi.repository import GLib, Gtk
 
 import dbus
 import dbus.service
 import dbus.glib
-import json
-import logging
-from datetime import datetime
-from time import time
-from gi.repository import GLib, Gtk
-
-
-import sys
-
 import dnf
-import dnf.yum
 import dnf.const
 import dnf.conf
-import dnf.subject
+import dnf.exceptions
 import dnf.callback
 import dnf.comps
+import dnf.subject
+import dnf.transaction
+import dnf.yum
 import hawkey
-from dnf.exceptions import DownloadError
+import json
+import logging
+import operator
+import sys
+
+VERSION = 104  # (00.01.02) must be integer
 
 FAKE_ATTR = ['downgrades', 'action', 'pkgtags', 'changelog']
 NONE = json.dumps(None)
 
+_ACTIVE_DCT = {
+    dnf.transaction.DOWNGRADE: operator.attrgetter('installed'),
+    dnf.transaction.ERASE: operator.attrgetter('erased'),
+    dnf.transaction.INSTALL: operator.attrgetter('installed'),
+    dnf.transaction.REINSTALL: operator.attrgetter('installed'),
+    dnf.transaction.UPGRADE: operator.attrgetter('installed'),
+}
+
+
+def _active_pkg(tsi):
+    """Return the package from tsi that takes the active role
+    in the transaction.
+    """
+    return _ACTIVE_DCT[tsi.op_type](tsi)
 
 #------------------------------------------------------------ Callback handlers
 
@@ -71,6 +85,49 @@ def Logger(func):
     newFunc.__doc__ = func.__doc__
     newFunc.__dict__.update(func.__dict__)
     return newFunc
+
+
+# FIXME: TransactionDisplay is not public API
+class RPMTransactionDisplay(TransactionDisplay):
+
+    def __init__(self, base):
+        self.actions = {self.PKG_CLEANUP: 'cleanup',
+                        self.PKG_DOWNGRADE: 'downgrade',
+                        self.PKG_ERASE: 'erase',
+                        self.PKG_INSTALL: 'install',
+                        self.PKG_OBSOLETE: 'obsolete',
+                        self.PKG_REINSTALL: 'reinstall',
+                        self.PKG_UPGRADE: 'update'}
+
+        super(TransactionDisplay, self).__init__()
+        self.base = base
+
+    def event(self, package, action, te_current, te_total, ts_current,
+              ts_total):
+        """
+        @param package: A yum package object or simple string of a package name
+        @param action: A constant transaction set state
+        @param te_current: current number of bytes processed in the transaction
+                           element being processed
+        @param te_total: total number of bytes in the transaction element being
+                         processed
+        @param ts_current: number of processes completed in whole transaction
+        @param ts_total: total number of processes in the transaction.
+        """
+        if package:
+            # package can be both str or dnf package object
+            if not isinstance(package, str):
+                pkg_id = self.base._get_id(package)
+            else:
+                pkg_id = package
+            if action in self.actions:
+                action = self.actions[action]
+            self.base.RPMProgress(
+                pkg_id, action, te_current, te_total, ts_current, ts_total)
+
+    def scriptout(self, msgs):
+        """msgs is the messages that were output (if any)."""
+        pass
 
 
 class DownloadCallback:
@@ -157,7 +214,7 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
         showdups = not newest_only
         pkgs = self.base.search(fields, keys, match_all, showdups)
         values = [self._get_po_list(po, attrs) for po in pkgs]
-        return values
+        return json.dumps(values)
 
     def _expire_cache(self):
         try:
@@ -312,7 +369,7 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
                           'recent', 'extras']:
             pkgs = getattr(self.base.packages, pkg_filter)
             value = [self._get_po_list(po, fields) for po in pkgs]
-        return value
+        return json.dumps(value)
 
     def _get_attribute(self, id, attr):
         '''
@@ -363,7 +420,7 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
         """
         pkgs = self._get_po_by_name(name, newest_only)
         values = [self._get_po_list(po, attrs) for po in pkgs]
-        return values
+        return json.dumps(values)
 
     def _get_group_pkgs(self, grp_id, grp_flt, fields):
         '''
@@ -387,7 +444,366 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
         else:
             pass
         value = [self._get_po_list(po, fields) for po in pkgs]
+        return json.dumps(value)
+
+    def _group_install(self, cmds):
+        """Install groups"""
+        value = 0
+        for cmd in cmds.split(' '):
+            pkg_types = ["mandatory", "default"]
+            grp = self._find_group(cmd)
+            if grp:
+                try:
+                    self.base.group_install(grp, pkg_types)
+                except dnf.exceptions.CompsError as e:
+                    return json.dumps((False, str(e)))
+        value = self._build_transaction()
         return value
+
+    def _group_remove(self, cmds):
+        value = 0
+        for cmd in cmds.split(' '):
+            grp = self._find_group(cmd)
+            if grp:
+                try:
+                    self.base.group_remove(grp)
+                except dnf.exceptions.CompsError as e:
+                    return json.dumps((False, str(e)))
+        value = self._build_transaction()
+        return value
+
+    def _install(self, cmds):
+        value = 0
+        for cmd in cmds.split(' '):
+            if cmd.endswith('.rpm'):
+                self.base.install_local(cmd)
+            else:
+                try:
+                    self.base.install(cmd)
+                except dnf.exceptions.MarkingError:
+                    pass
+        value = self._build_transaction()
+        return value
+
+    def _remove(self, cmds):
+        value = 0
+        try:
+            for cmd in cmds.split(' '):
+                self.base.remove(cmd)
+        # ignore if the package is not installed
+        except dnf.exceptions.PackagesNotInstalledError:
+            pass
+        value = self._build_transaction()
+        return value
+
+    def _update(self, cmds):
+        value = 0
+        try:
+            for cmd in cmds.split(' '):
+                self.base.upgrade(cmd)
+        # ignore if the package is not installed
+        except dnf.exceptions.PackagesNotInstalledError:
+            pass
+        value = self._build_transaction()
+        return value
+
+    def _reinstall(self, cmds):
+        value = 0
+        try:
+            for cmd in cmds.split(' '):
+                self.base.reinstall(cmd)
+        # ignore if the package is not installed
+        except dnf.exceptions.PackagesNotInstalledError:
+            pass
+        value = self._build_transaction()
+        return value
+
+    def _downgrade(self, cmds):
+        value = 0
+        try:
+            for cmd in cmds.split(' '):
+                self.base.downgrade(cmd)
+        # ignore if the package is not installed
+        except dnf.exceptions.PackagesNotInstalledError:
+            pass
+        value = self._build_transaction()
+        return value
+
+    def _add_transaction(self, pkg_id, action):
+        value = json.dumps((0, []))
+        # localinstall has the path to the local rpm, not pkg_id
+        if action != "localinstall":
+            po = self._get_po(pkg_id)
+            if not po:
+                msg = "Cant find package object for : %s" % pkg_id
+                self.ErrorMessage(msg)
+                value = json.dumps((0, [msg]))
+                return self.working_ended(value)
+        rc = 0
+        try:
+            if action == 'install':
+                rc = self.base.package_install(po)
+            elif action == 'remove':
+                rc = self.base.remove(str(po))
+            elif action == 'update':
+                rc = self.base.package_upgrade(po)
+            elif action == 'obsolete':
+                rc = self.base.package_upgrade(po)
+            elif action == 'reinstall':
+                rc = self.base.package_install(po)
+            elif action == 'downgrade':
+                rc = self.base.package_downgrade(po)
+            elif action == 'localinstall':
+                po = self.base.add_remote_rpm(pkg_id)
+                rc = self.base.package_install(po)
+            else:
+                self.logger.error("unknown action :", action)
+        # ignore if the package is not installed
+        except dnf.exceptions.PackagesNotInstalledError:
+            self.logger.warning("package not installed : ", str(po))
+            self.ErrorMessage("package not installed : ", str(po))
+        if rc:
+            value = json.dumps(self._get_transaction_list())
+            #value = json.dumps(self._get_goal_list())
+        return value
+
+    def _clear_transaction(self):
+        self.base.reset(goal=True)  # reset the current goal
+
+    def _get_transaction(self):
+        value = json.dumps(self._get_transaction_list())
+        return value
+
+    def _build_transaction(self):
+        '''
+        Resolve dependencies of current transaction
+        '''
+        output = []
+        self.TransactionEvent('start-build', NONE)
+        rc, output = self._get_transaction_list()
+        self.TransactionEvent('end-build', NONE)
+        return json.dumps((rc, output))
+
+    def _get_packages_to_download(self):
+        to_dnl = []
+        for tsi in self.base.transaction:
+            if tsi.installed:
+                to_dnl.append(tsi.installed)
+        return to_dnl
+
+    def _run_transaction(self, max_err):
+        self.TransactionEvent('start-run', NONE)
+        self.base.set_max_error(max_err)
+        rc = 0
+        msgs = []
+        to_dnl = self._get_packages_to_download()
+        try:
+            if to_dnl:
+                data = [self._get_id(po) for po in to_dnl]
+                self.TransactionEvent('pkg-to-download', data)
+                self.TransactionEvent('download', NONE)
+                self.base.download_packages(to_dnl, self.base.progress)
+            self.TransactionEvent('run-transaction', NONE)
+            display = RPMTransactionDisplay(self)  # RPM Display callback
+            self._can_quit = False
+            rc, msgs = self.base.do_transaction(display=display)
+            if rc == 0:
+                self.base.success_finish()
+        except DownloadError as e:
+            rc = 4  # Download errors
+            if isinstance(e.errmap, dict):
+                msgs = e.errmap
+                error_msgs = []
+                for fn in msgs:
+                    for msg in msgs[fn]:
+                        error_msgs.append("%s : %s" % (fn, msg))
+                        self.logger.debug("  %s : %s" % (fn, msg))
+                msgs = error_msgs
+            else:
+                msgs = [str(e)]
+                print("DEBUG:", msgs)
+        self._can_quit = True
+        self._reset_base()
+        self.TransactionEvent('end-run', NONE)
+        result = json.dumps((rc, msgs))
+        # FIXME: It should not be needed to call .success_finish()
+        return result
+
+    def _get_history_by_days(self, start, end):
+        '''
+        Get the yum history transaction member located in a date interval
+        from today
+        :param start: start days from today
+        :param end: end days from today
+        '''
+        # FIXME: Base.history is not public api
+        # https://bugzilla.redhat.com/show_bug.cgi?id=1079526
+        result = []
+        now = datetime.now()
+        history = self.base.history.old(complete_transactions_only=False)
+        i = 0
+        result = []
+        while i < len(history):
+            ht = history[i]
+            i += 1
+            print("DBG: ", ht, ht.end_timestamp)
+            if not ht.end_timestamp:
+                continue
+            tm = datetime.fromtimestamp(ht.end_timestamp)
+            delta = now - tm
+            if delta.days < start:  # before start days
+                continue
+            elif delta.days > end:  # after end days
+                break
+            result.append(ht)
+        value = json.dumps(self._get_id_time_list(result))
+        return value
+
+    def _history_search(self, pattern):
+        '''
+        search in yum history
+        :param pattern: list of search patterns
+        :type pattern: list
+        '''
+        # FIXME: Base.history is not public api
+        # https://bugzilla.redhat.com/show_bug.cgi?id=1079526
+        result = []
+        tids = self.base.history.search(pattern)
+        if len(tids) > 0:
+            result = self.base.history.old(tids)
+        else:
+            result = []
+        value = json.dumps(self._get_id_time_list(result))
+        return value
+
+    def _get_history_transaction_pkgs(self, tid):
+        '''
+        return a list of (pkg_id, tx_state, installed_state) pairs from a given
+        yum history transaction id
+        '''
+        # FIXME: Base.history is not public api
+        # https://bugzilla.redhat.com/show_bug.cgi?id=1079526
+        result = []
+        tx = self.base.history.old([tid], complete_transactions_only=False)
+        result = []
+        for pkg in tx[0].trans_data:
+            values = [pkg.name, pkg.epoch, pkg.version,
+                      pkg.release, pkg.arch, pkg.ui_from_repo]
+            pkg_id = ",".join(values)
+            elem = (pkg_id, pkg.state, pkg.state_installed)
+            result.append(elem)
+        value = json.dumps(result)
+        return value
+
+    def _get_transaction_list(self):
+        '''
+        Generate a list of the current transaction
+        '''
+        out_list = []
+        sublist = []
+        rc, tx_list = self._make_trans_dict()
+        if rc:
+            for (action, pkglist) in [('install', tx_list['install']),
+                ('update', tx_list['update']),
+                ('remove', tx_list['remove']),
+                ('reinstall', tx_list['reinstall']),
+                    ('downgrade', tx_list['downgrade'])]:
+
+                for tsi in pkglist:
+                    po = _active_pkg(tsi)
+                    (n, a, e, v, r) = po.pkgtup
+                    size = float(po.size)
+                    # build a list of obsoleted packages
+                    alist = []
+                    for obs_po in tsi.obsoleted:
+                        alist.append(self._get_id(obs_po))
+                    if alist:
+                        logger.debug(repr(alist))
+                    el = (self._get_id(po), size, alist)
+                    sublist.append(el)
+                if pkglist:
+                    out_list.append([action, sublist])
+                    sublist = []
+            return rc, out_list
+        else:  # Error in depsolve, return error msgs
+            return rc, tx_list
+
+    def _make_trans_dict(self):
+        b = {}
+        for t in ('downgrade', 'remove', 'install', 'reinstall', 'update'):
+            b[t] = []
+        # Resolve to get the Transaction object popolated
+        try:
+            rc = self.base.resolve(allow_erasing=True)
+            output = []
+        except dnf.exceptions.DepsolveError as e:
+            rc = False
+            output = e.value.split('. ')
+        if rc:
+            for tsi in self.base.transaction:
+                if tsi.op_type == dnf.transaction.DOWNGRADE:
+                    b['downgrade'].append(tsi)
+                elif tsi.op_type == dnf.transaction.ERASE:
+                    b['remove'].append(tsi)
+                elif tsi.op_type == dnf.transaction.INSTALL:
+                    b['install'].append(tsi)
+                elif tsi.op_type == dnf.transaction.REINSTALL:
+                    b['reinstall'].append(tsi)
+                elif tsi.op_type == dnf.transaction.UPGRADE:
+                    b['update'].append(tsi)
+            return rc, b
+        else:
+            return rc, output
+
+    def _to_transaction_id_list(self):
+        '''
+        return a sorted list of package ids from a list of packages
+        if and po is installed, the installed po id will be returned
+        :param pkgs:
+        '''
+        result = []
+        for tsi in self.base.transaction:
+            po = tsi.active
+            result.append("%s,%s" %
+                          (self._get_id(po), tsi.active_history_state))
+        return result
+
+    def _set_option(self, option, value):
+        value = json.loads(value)
+        if hasattr(self.base.conf, option):
+            setattr(self.base.conf, option, value)
+            self.logger.debug("Setting Option %s = %s" % (option, value))
+            for repo in self.base.repos.iter_enabled():
+                if hasattr(repo, option):
+                    setattr(repo, option, value)
+                    self.logger.debug(
+                        "Setting Option %s = %s (%s)", option, value, repo.id)
+            return True
+        else:
+            return False
+        pass
+
+    def handle_gpg_import(self, gpg_info):
+        '''
+        Callback for handling af user confirmation of gpg key import
+
+        :param gpg_info: dict with info about gpg key
+        {"po": ..,  "userid": .., "hexkeyid": .., "keyurl": ..,
+          "fingerprint": .., "timestamp": ..)
+
+        '''
+        print(gpg_info)
+        pkg_id = self._get_id(gpg_info['po'])
+        userid = gpg_info['userid']
+        hexkeyid = gpg_info['hexkeyid']
+        keyurl = gpg_info['keyurl']
+        #fingerprint = gpg_info['fingerprint']
+        timestamp = gpg_info['timestamp']
+        # the gpg key has not been confirmed by the user
+        if not hexkeyid in self._gpg_confirm:
+            self._gpg_confirm[hexkeyid] = False
+            self.GPGImport(pkg_id, userid, hexkeyid, keyurl, timestamp)
+        return self._gpg_confirm[hexkeyid]
 
 #=========================================================================
 # Helper methods
