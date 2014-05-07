@@ -15,4 +15,5 @@
 =Req: not-found-dep >= 1-0
 =Pkg: bar-new 2.0 1 noarch
 =Obs: bar-old
+=Pkg: petzoo 1.0 1 noarch
 

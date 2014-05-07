@@ -973,6 +973,13 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
             self.logger.debug("Watchdog : %i" % self._watchdog_count)
             return True
 
+    def TransactionEvent(self, event, data):
+        """Transaction event stub, overload in child class
+
+        Needed for unit testing
+        """
+        print("event: %s" % event)
+
 
 class Packages:
 

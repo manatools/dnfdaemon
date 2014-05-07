@@ -7,6 +7,7 @@ sys.path.insert(0, os.path.abspath('dnfdaemon'))
 import support
 import common
 import json
+import logging
 
 
 class DnfBaseMock(common.DnfBase):
@@ -31,24 +32,25 @@ class DnfBaseMock(common.DnfBase):
 class TestPackages(support.TestCase):
 
     def test_packages(self):
-        """Test Packages class"""
+        """Test Packages()"""
         base = support.MockBase('main')
         pkgs = common.Packages(base)
         inst = list(map(str, pkgs.installed))
-        self.assertEqual(inst, ['bar-1.0-1.noarch',
+        self.assertItemsEqual(inst, ['bar-1.0-1.noarch',
                                 'foo-1.0-1.noarch',
                                 'bar-old-1.0-1.noarch'])
         avail = list(map(str, pkgs.available))
-        self.assertEqual(avail, ['bar-2.0-1.noarch',
+        self.assertItemsEqual(avail, ['bar-2.0-1.noarch',
                                  'foo-2.0-1.noarch',
                                  'foo-dep-err-1.0-1.noarch',
                                  'bar-dep-err-1.0-1.noarch',
-                                 'bar-new-2.0-1.noarch'])
+                                 'bar-new-2.0-1.noarch',
+                                 'petzoo-1.0-1.noarch'])
         upds = list(map(str, pkgs.updates))
-        self.assertEqual(upds, ['bar-2.0-1.noarch',
+        self.assertItemsEqual(upds, ['bar-2.0-1.noarch',
                                 'foo-2.0-1.noarch'])
         obs = list(map(str, pkgs.obsoletes))
-        self.assertEqual(obs, ['bar-new-2.0-1.noarch'])
+        self.assertItemsEqual(obs, ['bar-new-2.0-1.noarch'])
 
 
 class TestDnfBase(support.TestCase):
@@ -58,24 +60,27 @@ class TestDnfBase(support.TestCase):
         self.base.setup_base()
 
     def test_packages_attr(self):
+        """Test packages attr"""
         self.assertIsInstance(self.base.packages, common.Packages)
 
     def test_search_nodups(self):
+        """Test search (nodups)"""
         found = self.base.search(['name'], ['foo'], showdups=False)
         res = list(map(str, found))
-        self.assertEqual(res, ['foo-2.0-1.noarch',
+        self.assertItemsEqual(res, ['foo-2.0-1.noarch',
                                'foo-dep-err-1.0-1.noarch'])
 
     def test_search_dups(self):
+        """Test search (dups)"""
         found = self.base.search(['name'], ['foo'], showdups=True)
         res = list(map(str, found))
-        self.assertEqual(res, ['foo-2.0-1.noarch',
+        self.assertItemsEqual(res, ['foo-2.0-1.noarch',
                                'foo-dep-err-1.0-1.noarch',
                                'foo-1.0-1.noarch',
                                'foo-1.0-1.noarch'])
 
 
-class TestCommon(support.TestCase):
+class TestCommonBase(support.TestCase):
 
     def _get_base(self, reset=False, load_sack=True):
         if not self._base or reset:
@@ -85,9 +90,13 @@ class TestCommon(support.TestCase):
         return self._base
 
     def setUp(self):
+        common.doTextLoggerSetup(logroot='dnf', loglvl=logging.DEBUG)
         self._base = None
         self.daemon = common.DnfDaemonBase()
         self.daemon._base = self._get_base()
+
+
+class TestCommonMisc(TestCommonBase):
 
     def test_base(self):
         """Test Packages class"""
@@ -105,7 +114,7 @@ class TestCommon(support.TestCase):
         found = self.daemon._search_with_attr(fields, keys, attrs,
                                               match_all, newest_only,
                                               tags)
-        self.assertEqual(json.loads(found),
+        self.assertItemsEqual(json.loads(found),
             ['bar,0,1.0,1,noarch,@System',
              'bar-old,0,1.0,1,noarch,@System',
              'bar,0,1.0,1,noarch,main',
@@ -125,7 +134,7 @@ class TestCommon(support.TestCase):
         found = self.daemon._search_with_attr(fields, keys, attrs,
                                               match_all, newest_only,
                                               tags)
-        self.assertEqual(json.loads(found),
+        self.assertItemsEqual(json.loads(found),
             ['bar-old,0,1.0,1,noarch,@System',
              'bar,0,2.0,1,noarch,main',
              'bar-dep-err,0,1.0,1,noarch,main',
@@ -135,27 +144,41 @@ class TestCommon(support.TestCase):
         """Test get_packages_by_name_with_attr"""
         attrs = []
         pkgs = self.daemon._get_packages_by_name_with_attr('foo', attrs, True)
-        self.assertEqual(json.loads(pkgs), ["foo,0,2.0,1,noarch,main"])
+        self.assertItemsEqual(json.loads(pkgs), ["foo,0,2.0,1,noarch,main"])
         pkgs = self.daemon._get_packages_by_name_with_attr('foo', attrs, False)
         self.assertEqual(json.loads(pkgs),
             ["foo,0,2.0,1,noarch,main",
              "foo,0,1.0,1,noarch,@System"])
         pkgs = self.daemon._get_packages_by_name_with_attr('*dep*',
                                                            attrs, True)
-        self.assertEqual(json.loads(pkgs),
+        self.assertItemsEqual(json.loads(pkgs),
             ["foo-dep-err,0,1.0,1,noarch,main",
              "bar-dep-err,0,1.0,1,noarch,main"])
 
+
+class TestCommonGroups(TestCommonBase):
+
+    def setUp(self):
+        TestCommonBase.setUp(self)
+        self.daemon.base.conf.debuglevel = 9
+        self.daemon.base.read_mock_comps()
+
     def test_get_group_pkgs(self):
         """Test get_group_pkgs"""
-        self.daemon.base.read_mock_comps()
         grp_id = 'test-grp'
         grp_flt = 'all'
         fields = []
         pkgs = self.daemon._get_group_pkgs(grp_id, grp_flt, fields)
-        self.assertEqual(json.loads(pkgs),
-            ['bar,0,2.0,1,noarch,main', 'foo,0,2.0,1,noarch,main'])
+        self.assertItemsEqual(json.loads(pkgs),
+            ['bar,0,2.0,1,noarch,main', 'petzoo,0,1.0,1,noarch,main'])
         grp_flt = ''
         pkgs = self.daemon._get_group_pkgs(grp_id, grp_flt, fields)
-        self.assertEqual(json.loads(pkgs),
-            ['foo,0,2.0,1,noarch,main'])
+        self.assertItemsEqual(json.loads(pkgs),
+            ['petzoo,0,1.0,1,noarch,main'])
+
+    def test_group_install(self):
+        cmds = "test-grp"
+        res = self.daemon._group_install(cmds)
+        print(json.loads(res))
+        self.assertItemsEqual(json.loads(res),
+        [True, [['install', [['petzoo,0,1.0,1,noarch,main', 0.0, []]]]]])

@@ -9,7 +9,7 @@
    <name>Test Group</name>
    <description>--</description>
     <packagelist>
-      <packagereq type="mandatory">foo</packagereq>
+      <packagereq type="mandatory">petzoo</packagereq>
       <packagereq type="optional">bar</packagereq>
     </packagelist>
   </group>
