@@ -227,18 +227,6 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
             self.ErrorMessage(str(e))
             return False
 
-    def _get_packages_by_name(self, name, newest_only):
-        '''
-        Get a list of pkg ids from a name pattern
-        (Helper for GetPackagesByName)
-
-        :param name: name pattern
-        :param newest_only: True = get newest packages only
-        '''
-        qa = self._get_po_by_name(name, newest_only)
-        pkg_ids = self._to_package_id_list(qa)
-        return pkg_ids
-
     def _get_po_by_name(self, name, newest_only):
         '''
         Get packages matching a name pattern
@@ -607,8 +595,6 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
             display = RPMTransactionDisplay(self)  # RPM Display callback
             self._can_quit = False
             rc, msgs = self.base.do_transaction(display=display)
-            if rc == 0:
-                self.base.success_finish()
         except DownloadError as e:
             rc = 4  # Download errors
             if isinstance(e.errmap, dict):
@@ -1093,7 +1079,7 @@ class Packages:
 class DnfBase(dnf.Base):
 
     def __init__(self, parent):
-        dnf.Base.__init__(self)
+        super(DnfBase, self).__init__()
         self.parent = parent
         self.md_progress = MDProgress(parent)
         self.setup_cache()
@@ -1155,7 +1141,7 @@ class DnfBase(dnf.Base):
                     matches |= key_set
         result = list(matches)
         if not showdups:
-            result = self.sack.query().filter(pkg=result).latest()
+            result = self.sack.query().filter(pkg=result).latest().run()
         return result
 
     def contains(self, attr, needle, ignore_case=True):
