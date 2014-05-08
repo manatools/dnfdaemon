@@ -463,8 +463,9 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
     def _install(self, cmds):
         value = 0
         for cmd in cmds.split(' '):
-            if cmd.endswith('.rpm'):
-                self.base.install_local(cmd)
+            if cmd.endswith('.rpm'):  # install local .rpm
+                po = self.base.add_remote_rpm(cmd)
+                self.base.package_install(po)
             else:
                 try:
                     self.base.install(cmd)
@@ -978,7 +979,7 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
 
         Needed for unit testing
         """
-        print("event: %s" % event)
+        #print("event: %s" % event)
 
 
 class Packages:

@@ -13,4 +13,16 @@
       <packagereq type="optional">bar</packagereq>
     </packagelist>
   </group>
+  <group>
+   <id>inst-grp</id>
+   <default>true</default>
+   <uservisible>false</uservisible>
+   <display_order>1024</display_order>
+   <name>Inst Test Group</name>
+   <description>--</description>
+    <packagelist>
+      <packagereq type="mandatory">foo</packagereq>
+      <packagereq type="mandatory">bar</packagereq>
+    </packagelist>
+  </group>
 </comps>

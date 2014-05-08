@@ -2,7 +2,7 @@
 #
 =Pkg: bar 1.0 1 noarch
 =Sum bar-1.0 test package
-=Pkg: foo 1.0 1 noarch
-=Sum foo-1.0 test package
+=Pkg: foo 2.0 1 noarch
+=Sum foo-2.0 test package
 =Pkg: bar-old 1.0 1 noarch
 

@@ -17,10 +17,7 @@
 
 from __future__ import absolute_import
 from __future__ import unicode_literals
-from functools import reduce
-from sys import version_info as python_version
 
-import contextlib
 import dnf
 import dnf.cli.cli
 import dnf.cli.demand
@@ -35,90 +32,28 @@ import dnf.sack
 import hawkey
 import hawkey.test
 import itertools
-import logging
 import os
-import re
 import unittest
 
-if dnf.pycomp.PY3:
-    from unittest import mock
-else:
-    from tests import mock
+from unittest import mock
 
 skip = unittest.skip
 
-TRACEBACK_RE = re.compile(
-    '(Traceback \(most recent call last\):\n'
-    '(?:  File "[^"\n]+", line \d+, in \w+\n'
-    '(?:    .+\n)?)+'
-    '\S.*\n)')
-REASONS = {
-    'hole'      : 'group',
-    'pepper'    : 'group',
-    'right'     : 'dep',
-    'tour'      : 'group',
-    'trampoline': 'group',
-}
-RPMDB_CHECKSUM = '5ff5337cff3fcdcee31760ab6478c9a7c784c0b2'
-TOTAL_RPMDB_COUNT = 5
-SYSTEM_NSOLVABLES = TOTAL_RPMDB_COUNT
-MAIN_NSOLVABLES = 9
-UPDATES_NSOLVABLES = 4
-AVAILABLE_NSOLVABLES = MAIN_NSOLVABLES + UPDATES_NSOLVABLES
-TOTAL_GROUPS = 3
-TOTAL_NSOLVABLES = SYSTEM_NSOLVABLES + AVAILABLE_NSOLVABLES
-
 # testing infrastructure
 
-def dnf_toplevel():
-    return os.path.normpath(os.path.join(__file__, "../../"))
 
 def repo(reponame):
     return os.path.join(repo_dir(), reponame)
 
+
 def repo_dir():
-    this_dir=os.path.dirname(__file__)
+    this_dir = os.path.dirname(__file__)
     return os.path.join(this_dir, "test_data/repos")
 
 COMPS_PATH = os.path.join(repo_dir(), "main_comps.xml")
-NONEXISTENT_FILE = os.path.join(dnf_toplevel(), "does-not/exist")
-TOUR_44_PKG_PATH = os.path.join(repo_dir(), "rpm/tour-4-4.noarch.rpm")
-TOUR_50_PKG_PATH = os.path.join(repo_dir(), "rpm/tour-5-0.noarch.rpm")
-TOUR_51_PKG_PATH = os.path.join(repo_dir(), "rpm/tour-5-1.noarch.rpm")
-USER_RUNDIR = '/tmp/dnf-user-rundir'
-
-# often used query
-
-def installed_but(sack, *args):
-    q = sack.query().filter(reponame__eq=hawkey.SYSTEM_REPO_NAME)
-    return reduce(lambda query, name: query.filter(name__neq=name), args, q)
-
-# patching the stdout
-
-@contextlib.contextmanager
-def patch_std_streams():
-    with mock.patch('sys.stdout', new_callable=dnf.pycomp.StringIO) as stdout, \
-            mock.patch('sys.stderr', new_callable=dnf.pycomp.StringIO) as stderr:
-        yield (stdout, stderr)
-
-@contextlib.contextmanager
-def wiretap_logs(logger_name, level, stream):
-    """Record *logger_name* logs of at least *level* into the *stream*."""
-    logger = logging.getLogger(logger_name)
-
-    orig_level = logger.level
-    logger.setLevel(level)
-
-    handler = logging.StreamHandler(stream)
-    logger.addHandler(handler)
-
-    try:
-        yield stream
-    finally:
-        logger.removeHandler(handler)
-        logger.setLevel(orig_level)
 
 # mock objects
+
 
 def mock_comps(seed_persistor):
     comps = dnf.comps.Comps()
@@ -126,18 +61,12 @@ def mock_comps(seed_persistor):
 
     persistor = MockGroupPersistor()
     if seed_persistor:
-        p_env = persistor.environment('sugar-desktop-environment')
-        p_env.grp_types = dnf.comps.ALL_TYPES
-        p_env.pkg_types = dnf.comps.ALL_TYPES
-        p_env.full_list.extend(('Peppers', 'somerset'))
-        p_pep = persistor.group('Peppers')
-        p_pep.pkg_types = dnf.comps.MANDATORY
-        p_pep.full_list.extend(('hole', 'lotus'))
-        p_som = persistor.group('somerset')
+        p_som = persistor.group('inst-grp')
         p_som.pkg_types = dnf.comps.MANDATORY
-        p_som.full_list.extend(('pepper', 'trampoline', 'lotus'))
+        p_som.full_list.extend(('foo','bar'))
 
     return comps, persistor
+
 
 class _BaseStubMixin(object):
     """A reusable class for creating `dnf.Base` stubs.
@@ -170,15 +99,10 @@ class _BaseStubMixin(object):
     def _activate_group_persistor(self):
         return MockGroupPersistor()
 
-    def build_comps_solver(self):
-        return dnf.comps.Solver(self.group_persistor, REASONS.get)
-
     def activate_persistor(self):
         pass
 
     def init_sack(self):
-        # Create the Sack, tell it how to build packages, passing in the Package
-        # class and a Base reference.
         self._sack = TestSack(repo_dir(), self)
         self._sack.load_system_repo()
         for repo in self.repos.iter_enabled():
@@ -192,14 +116,6 @@ class _BaseStubMixin(object):
     def close(self):
         pass
 
-    def mock_cli(self):
-        stream = dnf.pycomp.StringIO()
-        logger = logging.getLogger('test')
-        logger.setLevel(logging.DEBUG)
-        logger.addHandler(logging.StreamHandler(stream))
-        return mock.Mock(base=self, log_stream=stream, logger=logger,
-                         nogpgcheck=True, demands=dnf.cli.demand.DemandSheet())
-
     def read_mock_comps(self, seed_persistor=True):
         self._comps, self.group_persistor = mock_comps(seed_persistor)
         return self._comps
@@ -207,14 +123,6 @@ class _BaseStubMixin(object):
     def read_all_repos(self):
         pass
 
-
-class BaseCliStub(_BaseStubMixin, dnf.cli.cli.BaseCli):
-    """A class mocking `dnf.cli.cli.BaseCli`."""
-
-    def __init__(self, *extra_repos):
-        """Initialize the base."""
-        super(BaseCliStub, self).__init__(*extra_repos)
-        self.output.term = MockTerminal()
 
 class HistoryStub(dnf.yum.history.YumHistory):
     """Stub of dnf.yum.history.YumHistory for easier testing."""
@@ -246,14 +154,6 @@ class HistoryStub(dnf.yum.history.YumHistory):
         limited = trxs if limit is None else itertools.islice(trxs, limit)
         return tuple(limited)
 
-class MockOutput(object):
-    _cli_confirm_gpg_key_import = None
-
-    def __init__(self):
-        self.term = MockTerminal()
-
-    def setup_progress_callbacks(self):
-        return (None, None)
 
 class MockPackage(object):
     def __init__(self, nevra, repo=None):
@@ -280,15 +180,11 @@ class MockPackage(object):
     def returnIdSum(self):
         return self.chksum
 
+
 class MockRepo(dnf.repo.Repo):
     def valid(self):
         return None
 
-class MockTerminal(object):
-    def __init__(self):
-        self.MODE = {'bold'   : '', 'normal' : ''}
-        self.columns = 80
-        self.reinit = mock.Mock()
 
 class TestSack(hawkey.test.TestSackMixin, dnf.sack.Sack):
     def __init__(self, repo_dir, base):
@@ -299,11 +195,14 @@ class TestSack(hawkey.test.TestSackMixin, dnf.sack.Sack):
                                pkginitval=base,
                                make_cache_dir=True)
 
+
 class MockBase(_BaseStubMixin, dnf.Base):
     """A class mocking `dnf.Base`."""
 
+
 def mock_sack(*extra_repos):
     return MockBase(*extra_repos).sack
+
 
 class MockYumDB(mock.Mock):
     def __init__(self):
@@ -316,45 +215,6 @@ class MockYumDB(mock.Mock):
     def assertLength(self, length):
         assert(len(self.db) == length)
 
-class RPMDBAdditionalDataPackageStub(dnf.yum.rpmsack.RPMDBAdditionalDataPackage):
-
-    """A class mocking `dnf.yum.rpmsack.RPMDBAdditionalDataPackage`."""
-
-    def __init__(self):
-        """Initialize the data."""
-        super(RPMDBAdditionalDataPackageStub, self).__init__(None, None, None)
-
-    def __iter__(self, show_hidden=False):
-        """Return a new iterator over the data."""
-        for item in self._read_cached_data:
-            yield item
-
-    def _attr2fn(self, attribute):
-        """Convert given *attribute* to a filename."""
-        raise NotImplementedError('the method is not supported')
-
-    def _delete(self, attribute):
-        """Delete the *attribute* value."""
-        try:
-            del self._read_cached_data[attribute]
-        except KeyError:
-            raise AttributeError("Cannot delete attribute %s on %s " %
-                                 (attribute, self))
-
-    def _read(self, attribute):
-        """Read the *attribute* value."""
-        if attribute in self._read_cached_data:
-            return self._read_cached_data[attribute]
-        raise AttributeError("%s has no attribute %s" % (self, attribute))
-
-    def _write(self, attribute, value):
-        """Write the *attribute* value."""
-        self._auto_cache(attribute, value, None)
-
-    def clean(self):
-        """Purge out everything."""
-        for item in self.__iter__(show_hidden=True):
-            self._delete(item)
 
 # mock object taken from testbase.py in yum/test:
 class FakeConf(object):
@@ -395,7 +255,8 @@ class FakeConf(object):
         self.showdupesfromrepos = False
         self.tsflags = []
         self.verbose = False
-        self.yumvar = {'releasever' : 'Fedora69'}
+        self.yumvar = {'releasever': 'Fedora69'}
+
 
 class FakePersistor(object):
     def get_expired_repos(self):
@@ -407,62 +268,16 @@ class FakePersistor(object):
     def since_last_makecache(self):
         return None
 
+
 class MockGroupPersistor(dnf.persistor.GroupPersistor):
     """Empty persistor that doesn't need any I/O."""
     def __init__(self):
         self.db = self._empty_db()
 
-# object matchers for asserts
-
-class ObjectMatcher(object):
-    """Class allowing partial matching of objects."""
-
-    def __init__(self, type_=None, attrs=None):
-        """Initialize a matcher instance."""
-        self._type = type_
-        self._attrs = attrs
-
-    def __eq__(self, other):
-        """Test whether this object is equal to the *other* one."""
-        if self._type is not None:
-            if type(other) is not self._type:
-                return False
-
-        if self._attrs:
-            for attr, value in self._attrs.items():
-                if value != getattr(other, attr):
-                    return False
-        return True
-
-    def __ne__(self, other):
-        """Test whether this object is not equal to the *other* one."""
-        return not self == other
-
-    def __repr__(self):
-        """Compute the "official" string representation of this object."""
-        args_strs = []
-
-        if self._type is not None:
-            args_strs.append('type_=%s' % repr(self._type))
-
-        if self._attrs:
-            attrs_str = ', '.join('%s: %s' % (str(attr), repr(value))
-                                  for attr, value in self._attrs.items())
-            args_strs.append('attrs={%s}' % attrs_str)
-
-        return '%s(%s)' % (type(self).__name__, ", ".join(args_strs))
-
 # test cases
 
-if python_version.major < 3:
-    class PycompTestCase(unittest.TestCase):
-        pass
-else:
-    class PycompTestCase(unittest.TestCase):
-        def assertItemsEqual(self, item1, item2):
-            super().assertCountEqual(item1, item2)
 
-class TestCase(PycompTestCase):
+class TestCase(unittest.TestCase):
     def assertEmpty(self, collection):
         return self.assertEqual(len(collection), 0)
 
@@ -479,43 +294,5 @@ class TestCase(PycompTestCase):
     def assertStartsWith(self, string, what):
         return self.assertTrue(string.startswith(what))
 
-    def assertTracebackIn(self, end, string):
-        """Test that a traceback ending with line *end* is in the *string*."""
-        traces = (match.group() for match in TRACEBACK_RE.finditer(string))
-        self.assertTrue(any(trace.endswith(end) for trace in traces))
 
-class ResultTestCase(TestCase):
 
-    allow_erasing = False
-
-    def _get_installed(self, base):
-        try:
-            base.resolve(self.allow_erasing)
-        except dnf.exceptions.DepsolveError:
-            self.fail()
-
-        installed = set(base.sack.query().installed())
-        for r in base._transaction.remove_set:
-            installed.remove(r)
-        installed.update(base._transaction.install_set)
-        return installed
-
-    def assertResult(self, base, pkgs):
-        """Check whether the system contains the given pkgs.
-
-        pkgs must be present. Any other pkgs result in an error. Pkgs are
-        present if they are in the rpmdb and are not REMOVEd or they are
-        INSTALLed.
-        """
-
-        self.assertItemsEqual(self._get_installed(base), pkgs)
-
-    def installed_removed(self, base):
-        try:
-            base.resolve(self.allow_erasing)
-        except dnf.exceptions.DepsolveError:
-            self.fail()
-
-        installed = base._transaction.install_set
-        removed = base._transaction.remove_set
-        return installed, removed
