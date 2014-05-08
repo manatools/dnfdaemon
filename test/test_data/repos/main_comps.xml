@@ -25,4 +25,15 @@
       <packagereq type="mandatory">bar</packagereq>
     </packagelist>
   </group>
+  <category>
+   <id>my-category</id>
+   <display_order>99</display_order>
+   <name>Base System</name>
+   <description>Various core pieces of the system.</description>
+   <grouplist>
+     <groupid>test-grp</groupid>
+     <groupid>inst-grp</groupid>
+   </grouplist>
+  </category>
+  
 </comps>

@@ -226,7 +226,7 @@ class DnfDaemon(common.DnfDaemonBase):
         :param sender:
         '''
         self.working_start(sender)
-        value = self._get_package_with_attributes(pkg_filter, fields)
+        value = self._get_packages_with_attributes(pkg_filter, fields)
         return self.working_ended(value)
 
     @common.Logger

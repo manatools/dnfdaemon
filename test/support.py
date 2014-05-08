@@ -48,9 +48,10 @@ def repo(reponame):
 
 def repo_dir():
     this_dir = os.path.dirname(__file__)
-    return os.path.join(this_dir, "test_data/repos")
+    return os.path.join(this_dir, 'test_data/repos')
 
-COMPS_PATH = os.path.join(repo_dir(), "main_comps.xml")
+COMPS_PATH = os.path.join(repo_dir(), 'main_comps.xml')
+LOCAL_RPM = os.path.join(repo_dir(), 'local-pkg-1.0-1.fc20.noarch.rpm')
 
 # mock objects
 
@@ -63,7 +64,7 @@ def mock_comps(seed_persistor):
     if seed_persistor:
         p_som = persistor.group('inst-grp')
         p_som.pkg_types = dnf.comps.MANDATORY
-        p_som.full_list.extend(('foo','bar'))
+        p_som.full_list.extend(('foo', 'bar'))
 
     return comps, persistor
 
@@ -256,6 +257,11 @@ class FakeConf(object):
         self.tsflags = []
         self.verbose = False
         self.yumvar = {'releasever': 'Fedora69'}
+
+    def iterkeys(self):
+        """Yield the names of all defined options in the instance."""
+        for name in self.__dict__:
+            yield name
 
 
 class FakePersistor(object):

@@ -100,6 +100,43 @@ class TestCommonMisc(TestCommonBase):
         base = self.daemon.base
         self.assertIsNotNone(base)
 
+    def test_get_repositories(self):
+        repos = self.daemon._get_repositories('enabled')
+        self.assertEqual(repos, ['main'])
+
+    def test_get_config(self):
+        # read all conf
+        cfg = self.daemon._get_config('*')
+        self.assertEqual(len(json.loads(cfg)), 37)
+        # read single conf
+        cfg = self.daemon._get_config('debuglevel')
+        self.assertEqual(json.loads(cfg), 8)
+
+    def test_get_packages(self):
+        # only need to check on pkg_filter, to check the return format
+        # other filters are checked in the TestPackages tests.
+        pkgs = self.daemon._get_packages('installed')
+        self.assertEqual(pkgs, {'bar-old,0,1.0,1,noarch,@System',
+                                'foo,0,2.0,1,noarch,@System',
+                                'bar,0,1.0,1,noarch,@System'})
+
+    def test_get_packages_with_attributes(self):
+        # only need to check on pkg_filter, to check the return format
+        # other filters are checked in the TestPackages tests.
+        pkgs = self.daemon._get_packages_with_attributes('installed', ['size'])
+        self.assertEqual(json.loads(pkgs),
+            [['bar,0,1.0,1,noarch,@System', 0],
+             ['foo,0,2.0,1,noarch,@System', 0],
+             ['bar-old,0,1.0,1,noarch,@System', 0]])
+
+    def test_get_attribute(self):
+        pkg_id = 'bar,0,2.0,1,noarch,main'
+        attr = self.daemon._get_attribute(pkg_id, 'size')
+        self.assertEqual(json.loads(attr), 0)
+        # fake attr
+        attr = self.daemon._get_attribute(pkg_id, 'action')
+        self.assertEqual(json.loads(attr), 'update')
+
     def test_search_with_attr_all(self):
         """Test search_with_attr (all)"""
         fields = ['name']
@@ -161,6 +198,16 @@ class TestCommonGroups(TestCommonBase):
         #self.daemon.base.conf.debuglevel = 9
         self.daemon.base.read_mock_comps()
 
+    def test_get_groups(self):
+        res = self.daemon._get_groups()
+        print(json.loads(res))
+        self.assertEqual(json.loads(res),
+            [[["Base System", "Base System",
+               "Various core pieces of the system."],
+             [["inst-grp", "Inst Test Group", "--", True],
+              ["test-grp", "Test Group", "--", False]]]]
+            )
+
     def test_get_group_pkgs(self):
         """Test get_group_pkgs"""
         grp_id = 'test-grp'
@@ -210,6 +257,13 @@ class TestCommonInstall(TestCommonBase):
         self.assertEqual(json.loads(res),
             [True, [['install', [['petzoo,0,1.0,1,noarch,main', 0.0, []]]]]])
 
+    def test_install_local(self):
+        # install local rpm
+        res = self.daemon._install(support.LOCAL_RPM)
+        self.assertEqual(json.loads(res),
+            [True, [['install', [['local-pkg,0,1.0,1.fc20,noarch,@commandline',
+             2512.0, []]]]]])
+
     def test_remove(self):
         cmds = 'bar'
         res = self.daemon._remove(cmds)
@@ -225,6 +279,11 @@ class TestCommonInstall(TestCommonBase):
     def test_downgrade(self):
         cmds = 'foo'
         res = self.daemon._downgrade(cmds)
-        print(json.loads(res))
         self.assertEqual(json.loads(res),
             [True, [['downgrade', [['foo,0,1.0,1,noarch,main', 0.0, []]]]]])
+
+    def test_reinstall(self):
+        cmds = 'foo'
+        res = self.daemon._reinstall(cmds)
+        self.assertEqual(json.loads(res),
+            [True, [['reinstall', [['foo,0,2.0,1,noarch,main', 0.0, []]]]]])

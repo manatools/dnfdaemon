@@ -298,13 +298,13 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
         '''
         if setting == '*':  # Return all config
             cfg = self.base.conf
-            all_conf = dict([(c, getattr(cfg, c)) for c in cfg.iterkeys()])
+            data = [(c, getattr(cfg, c)) for c in cfg.iterkeys()]
+            all_conf = dict(data)
             value = json.dumps(all_conf)
         elif hasattr(self.base.conf, setting):
             value = json.dumps(getattr(self.base.conf, setting))
         else:
             value = json.dumps(None)
-        return value
         return value
 
     def _get_repo(self, repo_id):
@@ -347,7 +347,7 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
             value = []
         return value
 
-    def _get_package_with_attributes(self, pkg_filter, fields):
+    def _get_packages_with_attributes(self, pkg_filter, fields):
         '''
         Get a list of package ids, based on a package pkg_filterer
         :param pkg_filter: pkg pkg_filter string ('installed','updates' etc)
