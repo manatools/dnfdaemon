@@ -134,7 +134,7 @@ class DnfDaemon(common.DnfDaemonBase):
         :param sender:
         '''
         self.working_start(sender)
-        rc = self._expire_cache()
+        rc = self.expire_cache()
         return self.working_ended(rc)
 
     @common.Logger
@@ -149,7 +149,7 @@ class DnfDaemon(common.DnfDaemonBase):
         :param sender:
         '''
         self.working_start(sender)
-        repos = self._get_repositories(filter)
+        repos = self.get_repositories(filter)
         return self.working_ended(repos)
 
     @common.Logger
@@ -164,7 +164,7 @@ class DnfDaemon(common.DnfDaemonBase):
         :param sender:
         '''
         self.working_start(sender)
-        self._set_enabled_repos(repo_ids)
+        self.set_enabled_repos(repo_ids)
         return self.working_ended()
 
     @common.Logger
@@ -180,7 +180,7 @@ class DnfDaemon(common.DnfDaemonBase):
         :param sender:
         '''
         self.working_start(sender)
-        value = self._get_config(setting)
+        value = self.get_config(setting)
         return self.working_ended(value)
 
     @common.Logger
@@ -196,7 +196,7 @@ class DnfDaemon(common.DnfDaemonBase):
         :param sender:
         '''
         self.working_start(sender)
-        value = self._get_repo(repo_id)
+        value = self.get_repo(repo_id)
         return self.working_ended(value)
 
     @common.Logger
@@ -211,7 +211,7 @@ class DnfDaemon(common.DnfDaemonBase):
         :param sender:
         '''
         self.working_start(sender)
-        value = self._get_packages(pkg_filter)
+        value = self.get_packages(pkg_filter)
         return self.working_ended(value)
 
     @common.Logger
@@ -226,7 +226,7 @@ class DnfDaemon(common.DnfDaemonBase):
         :param sender:
         '''
         self.working_start(sender)
-        value = self._get_packages_with_attributes(pkg_filter, fields)
+        value = self.get_packages_with_attributes(pkg_filter, fields)
         return self.working_ended(value)
 
     @common.Logger
@@ -243,7 +243,7 @@ class DnfDaemon(common.DnfDaemonBase):
         :param sender:
         '''
         self.working_start(sender)
-        values = self._get_packages_by_name_with_attr(name, attrs, newest_only)
+        values = self.get_packages_by_name_with_attr(name, attrs, newest_only)
         return self.working_ended(values)
 
     @common.Logger
@@ -261,7 +261,7 @@ class DnfDaemon(common.DnfDaemonBase):
         :param sender:
         '''
         self.working_start(sender)
-        value = self._get_attribute(id, attr)
+        value = self.get_attribute(id, attr)
         return self.working_ended(value)
 
     @common.Logger
@@ -277,7 +277,7 @@ class DnfDaemon(common.DnfDaemonBase):
         :param sender:
         '''
         self.working_start(sender)
-        value = self._get_updateInfo(id)
+        value = self.get_updateInfo(id)
         return self.working_ended(value)
 
     @common.Logger
@@ -311,7 +311,7 @@ class DnfDaemon(common.DnfDaemonBase):
         :param tags: seach pkgtags
         '''
         self.working_start(sender)
-        result = self._search_with_attr(
+        result = self.search_with_attr(
             fields, keys, attrs, match_all, newest_only, tags)
         return self.working_ended(result)
 
@@ -325,7 +325,7 @@ class DnfDaemon(common.DnfDaemonBase):
         Return a category/group tree
         '''
         self.working_start(sender)
-        value = self._get_groups()
+        value = self.get_groups()
         return self.working_ended(value)
 
     @common.Logger
@@ -342,7 +342,7 @@ class DnfDaemon(common.DnfDaemonBase):
         :param sender:
         '''
         self.working_start(sender)
-        value = self._get_group_pkgs(grp_id, grp_flt, fields)
+        value = self.get_group_pkgs(grp_id, grp_flt, fields)
         return self.working_ended(value)
 
 #

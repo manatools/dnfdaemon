@@ -8,13 +8,14 @@ import support
 import common
 import json
 import logging
+from unittest import mock
 
 
 class DnfBaseMock(common.DnfBase):
 
     def __init__(self, parent):
         self._base = support.MockBase('main')
-        self.parent = parent
+        self.parent = mock.MagicMock()
         self.md_progress = common.MDProgress(parent)
         self.progress = common.Progress(parent, max_err=100)
         self._packages = None
@@ -28,6 +29,14 @@ class DnfBaseMock(common.DnfBase):
         else:
             raise AttributeError
 
+    def do_transaction(self, display):
+        return True, ['no message']
+
+    def download_packages(self, to_dnl, progress):
+        pass
+
+    def close(self):
+        pass
 
 class TestPackages(support.TestCase):
 
@@ -101,21 +110,21 @@ class TestCommonMisc(TestCommonBase):
         self.assertIsNotNone(base)
 
     def test_get_repositories(self):
-        repos = self.daemon._get_repositories('enabled')
+        repos = self.daemon.get_repositories('enabled')
         self.assertEqual(repos, ['main'])
 
     def test_get_config(self):
         # read all conf
-        cfg = self.daemon._get_config('*')
+        cfg = self.daemon.get_config('*')
         self.assertEqual(len(json.loads(cfg)), 37)
         # read single conf
-        cfg = self.daemon._get_config('debuglevel')
+        cfg = self.daemon.get_config('debuglevel')
         self.assertEqual(json.loads(cfg), 8)
 
     def test_get_packages(self):
         # only need to check on pkg_filter, to check the return format
         # other filters are checked in the TestPackages tests.
-        pkgs = self.daemon._get_packages('installed')
+        pkgs = self.daemon.get_packages('installed')
         self.assertEqual(pkgs, {'bar-old,0,1.0,1,noarch,@System',
                                 'foo,0,2.0,1,noarch,@System',
                                 'bar,0,1.0,1,noarch,@System'})
@@ -123,7 +132,7 @@ class TestCommonMisc(TestCommonBase):
     def test_get_packages_with_attributes(self):
         # only need to check on pkg_filter, to check the return format
         # other filters are checked in the TestPackages tests.
-        pkgs = self.daemon._get_packages_with_attributes('installed', ['size'])
+        pkgs = self.daemon.get_packages_with_attributes('installed', ['size'])
         self.assertEqual(json.loads(pkgs),
             [['bar,0,1.0,1,noarch,@System', 0],
              ['foo,0,2.0,1,noarch,@System', 0],
@@ -131,10 +140,10 @@ class TestCommonMisc(TestCommonBase):
 
     def test_get_attribute(self):
         pkg_id = 'bar,0,2.0,1,noarch,main'
-        attr = self.daemon._get_attribute(pkg_id, 'size')
+        attr = self.daemon.get_attribute(pkg_id, 'size')
         self.assertEqual(json.loads(attr), 0)
         # fake attr
-        attr = self.daemon._get_attribute(pkg_id, 'action')
+        attr = self.daemon.get_attribute(pkg_id, 'action')
         self.assertEqual(json.loads(attr), 'update')
 
     def test_search_with_attr_all(self):
@@ -145,7 +154,7 @@ class TestCommonMisc(TestCommonBase):
         match_all = True
         newest_only = False
         tags = False
-        found = self.daemon._search_with_attr(fields, keys, attrs,
+        found = self.daemon.search_with_attr(fields, keys, attrs,
                                               match_all, newest_only,
                                               tags)
         self.assertEqual(json.loads(found),
@@ -165,7 +174,7 @@ class TestCommonMisc(TestCommonBase):
         match_all = True
         newest_only = True
         tags = False
-        found = self.daemon._search_with_attr(fields, keys, attrs,
+        found = self.daemon.search_with_attr(fields, keys, attrs,
                                               match_all, newest_only,
                                               tags)
         self.assertEqual(json.loads(found),
@@ -177,13 +186,13 @@ class TestCommonMisc(TestCommonBase):
     def test_get_packages_by_name_with_attr(self):
         """Test get_packages_by_name_with_attr"""
         attrs = []
-        pkgs = self.daemon._get_packages_by_name_with_attr('foo', attrs, True)
+        pkgs = self.daemon.get_packages_by_name_with_attr('foo', attrs, True)
         self.assertEqual(json.loads(pkgs), ["foo,0,2.0,1,noarch,@System"])
-        pkgs = self.daemon._get_packages_by_name_with_attr('foo', attrs, False)
+        pkgs = self.daemon.get_packages_by_name_with_attr('foo', attrs, False)
         self.assertEqual(json.loads(pkgs),
             ["foo,0,2.0,1,noarch,@System",
              "foo,0,1.0,1,noarch,main"])
-        pkgs = self.daemon._get_packages_by_name_with_attr('*dep*',
+        pkgs = self.daemon.get_packages_by_name_with_attr('*dep*',
                                                            attrs, True)
         self.assertEqual(json.loads(pkgs),
             ["foo-dep-err,0,1.0,1,noarch,main",
@@ -199,7 +208,7 @@ class TestCommonGroups(TestCommonBase):
         self.daemon.base.read_mock_comps()
 
     def test_get_groups(self):
-        res = self.daemon._get_groups()
+        res = self.daemon.get_groups()
         print(json.loads(res))
         self.assertEqual(json.loads(res),
             [[["Base System", "Base System",
@@ -213,11 +222,11 @@ class TestCommonGroups(TestCommonBase):
         grp_id = 'test-grp'
         grp_flt = 'all'
         fields = []
-        pkgs = self.daemon._get_group_pkgs(grp_id, grp_flt, fields)
+        pkgs = self.daemon.get_group_pkgs(grp_id, grp_flt, fields)
         self.assertEqual(json.loads(pkgs),
             ['bar,0,2.0,1,noarch,main', 'petzoo,0,1.0,1,noarch,main'])
         grp_flt = ''
-        pkgs = self.daemon._get_group_pkgs(grp_id, grp_flt, fields)
+        pkgs = self.daemon.get_group_pkgs(grp_id, grp_flt, fields)
         self.assertEqual(json.loads(pkgs),
             ['petzoo,0,1.0,1,noarch,main'])
 
@@ -227,13 +236,13 @@ class TestCommonGroups(TestCommonBase):
         prst = self.daemon.base.group_persistor
         p_grp = prst.group(cmds)
         self.assertFalse(p_grp.installed)
-        res = self.daemon._group_install(cmds)
+        res = self.daemon.group_install(cmds)
         self.assertEqual(json.loads(res),
         [True, [['install', [['petzoo,0,1.0,1,noarch,main', 0.0, []]]]]])
         self.assertTrue(p_grp.installed)
         # try to install already installed group
         cmds = "inst-grp"
-        res = self.daemon._group_install(cmds)
+        res = self.daemon.group_install(cmds)
         self.assertEqual(json.loads(res),
             [False, "Group 'Inst Test Group' is already installed."])
 
@@ -244,46 +253,145 @@ class TestCommonGroups(TestCommonBase):
         print(json.dumps(prst.db.dct))
         p_grp = prst.group(cmds)
         self.assertTrue(p_grp.installed)
-        res = self.daemon._group_remove(cmds)
+        res = self.daemon.group_remove(cmds)
         print(json.loads(res))
         self.assertFalse(p_grp.installed)
         print(json.dumps(prst.db.dct))
+
 
 class TestCommonInstall(TestCommonBase):
 
     def test_install(self):
         cmds = 'petzoo'
-        res = self.daemon._install(cmds)
+        res = self.daemon.install(cmds)
         self.assertEqual(json.loads(res),
             [True, [['install', [['petzoo,0,1.0,1,noarch,main', 0.0, []]]]]])
 
     def test_install_local(self):
         # install local rpm
-        res = self.daemon._install(support.LOCAL_RPM)
+        res = self.daemon.install(support.LOCAL_RPM)
         self.assertEqual(json.loads(res),
             [True, [['install', [['local-pkg,0,1.0,1.fc20,noarch,@commandline',
              2512.0, []]]]]])
 
     def test_remove(self):
         cmds = 'bar'
-        res = self.daemon._remove(cmds)
+        res = self.daemon.remove(cmds)
         self.assertEqual(json.loads(res),
             [True, [['remove', [['bar,0,1.0,1,noarch,@System', 0.0, []]]]]])
 
     def test_update(self):
         cmds = 'bar'
-        res = self.daemon._update(cmds)
+        res = self.daemon.update(cmds)
         self.assertEqual(json.loads(res),
             [True, [['update', [['bar,0,2.0,1,noarch,main', 0.0, []]]]]])
 
     def test_downgrade(self):
         cmds = 'foo'
-        res = self.daemon._downgrade(cmds)
+        res = self.daemon.downgrade(cmds)
         self.assertEqual(json.loads(res),
             [True, [['downgrade', [['foo,0,1.0,1,noarch,main', 0.0, []]]]]])
 
     def test_reinstall(self):
         cmds = 'foo'
-        res = self.daemon._reinstall(cmds)
+        res = self.daemon.reinstall(cmds)
         self.assertEqual(json.loads(res),
             [True, [['reinstall', [['foo,0,2.0,1,noarch,main', 0.0, []]]]]])
+
+
+class TestCommonTransaction(TestCommonBase):
+
+    def test_add_transaction_install(self):
+        pkg_id = 'petzoo,0,1.0,1,noarch,main'
+        res = self.daemon.add_transaction(pkg_id, 'install')
+        self.assertEqual(json.loads(res),
+            [True, [['install', [['petzoo,0,1.0,1,noarch,main', 0.0, []]]]]])
+        # install no existing pkg_id
+        pkg_id = 'not-found,0,1.0,1,noarch,main'
+        res = self.daemon.add_transaction(pkg_id, 'install')
+        self.assertEqual(json.loads(res),
+            [False, ['Cant find package object for : '
+                 'not-found,0,1.0,1,noarch,main']])
+
+    def test_add_transaction_install_local(self):
+        pkg_id = support.LOCAL_RPM
+        res = self.daemon.add_transaction(pkg_id, 'localinstall')
+        self.assertEqual(json.loads(res),
+            [True, [['install', [['local-pkg,0,1.0,1.fc20,noarch,@commandline',
+             2512.0, []]]]]])
+
+    def test_add_transaction_remove(self):
+        pkg_id = 'bar,0,1.0,1,noarch,@System'
+        res = self.daemon.add_transaction(pkg_id, 'remove')
+        self.assertEqual(json.loads(res),
+            [True, [['remove', [['bar,0,1.0,1,noarch,@System', 0.0, []]]]]])
+
+    def test_add_transaction_update(self):
+        pkg_id = 'bar,0,2.0,1,noarch,main'
+        res = self.daemon.add_transaction(pkg_id, 'update')
+        self.assertEqual(json.loads(res),
+            [True, [['update', [['bar,0,2.0,1,noarch,main', 0.0, []]]]]])
+
+    def test_add_transaction_downgrade(self):
+        pkg_id = 'foo,0,1.0,1,noarch,main'
+        res = self.daemon.add_transaction(pkg_id, 'downgrade')
+        self.assertEqual(json.loads(res),
+            [True, [['downgrade', [['foo,0,1.0,1,noarch,main', 0.0, []]]]]])
+
+    def test_add_transaction_reinstall(self):
+        pkg_id = 'foo,0,2.0,1,noarch,main'
+        res = self.daemon.add_transaction(pkg_id, 'reinstall')
+        self.assertEqual(json.loads(res),
+            [True, [['reinstall', [['foo,0,2.0,1,noarch,main', 0.0, []]]]]])
+
+    def test_add_transaction_illegal(self):
+        pkg_id = 'foo,0,2.0,1,noarch,main'
+        res = self.daemon.add_transaction(pkg_id, 'illegal')
+        self.assertEqual(json.loads(res), [False, []])
+
+    def test_add_transaction_already_installed(self):
+        pkg_id = 'foo,0,2.0,1,noarch,main'
+        res = self.daemon.add_transaction(pkg_id, 'install')
+        self.assertEqual(json.loads(res),
+            [True, [['reinstall', [['foo,0,2.0,1,noarch,main', 0.0, []]]]]])
+
+    def test_transaction_misc(self):
+        pkg_id = 'petzoo,0,1.0,1,noarch,main'
+        res = self.daemon.add_transaction(pkg_id, 'install')
+        self.assertEqual(json.loads(res),
+            [True, [['install', [['petzoo,0,1.0,1,noarch,main', 0.0, []]]]]])
+        # test _get_transaction()
+        trans = self.daemon.get_transaction()
+        self.assertEqual(json.loads(trans),
+            [True, [['install', [['petzoo,0,1.0,1,noarch,main', 0.0, []]]]]])
+        # test _clear_transaction()
+        self.daemon.clear_transaction()
+        trans = self.daemon.get_transaction()
+        self.assertEqual(json.loads(trans), [False, []])
+
+    def test_build_transaction(self):
+        pkg_id = 'petzoo,0,1.0,1,noarch,main'
+        res = self.daemon.add_transaction(pkg_id, 'install')
+        self.assertEqual(json.loads(res),
+            [True, [['install', [['petzoo,0,1.0,1,noarch,main', 0.0, []]]]]])
+        # test _get_transaction()
+        trans = self.daemon.build_transaction()
+        print(json.loads(trans))
+        self.assertEqual(json.loads(trans),
+            [True, [['install', [['petzoo,0,1.0,1,noarch,main', 0.0, []]]]]])
+
+    def test_get_packages_to_download(self):
+        pkg_id = 'petzoo,0,1.0,1,noarch,main'
+        res = self.daemon.add_transaction(pkg_id, 'install')
+        self.assertEqual(json.loads(res),
+            [True, [['install', [['petzoo,0,1.0,1,noarch,main', 0.0, []]]]]])
+        pkgs = self.daemon._get_packages_to_download()
+        self.assertEqual(str(pkgs[0]), 'petzoo-1.0-1.noarch')
+
+    def test_run_transaction(self):
+        pkg_id = 'petzoo,0,1.0,1,noarch,main'
+        res = self.daemon.add_transaction(pkg_id, 'install')
+        self.assertEqual(json.loads(res),
+            [True, [['install', [['petzoo,0,1.0,1,noarch,main', 0.0, []]]]]])
+        res = self.daemon.run_transaction(max_err=10)
+        self.assertEqual(json.loads(res), [True, ['no message']])

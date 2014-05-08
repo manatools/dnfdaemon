@@ -68,7 +68,7 @@ def _active_pkg(tsi):
 
 #------------------------------------------------------------ Callback handlers
 
-logger = logging.getLogger('dnfdaemon.service')
+logger = logging.getLogger('dnfdaemon.common')
 
 
 def Logger(func):
@@ -193,10 +193,10 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
 
 #=========================================================================
 # Helper methods for api methods both in system & session
-# Search -> _search etc
+# Search -> search etc
 #=========================================================================
 
-    def _search_with_attr(self, fields, keys, attrs, match_all, newest_only,
+    def search_with_attr(self, fields, keys, attrs, match_all, newest_only,
                           tags):
         '''
         Search for for packages, where given fields contain given key words
@@ -216,7 +216,7 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
         values = [self._get_po_list(po, attrs) for po in pkgs]
         return json.dumps(values)
 
-    def _expire_cache(self):
+    def expire_cache(self):
         try:
             self.base.expire_cache()
             self.base.reset(sack=True)
@@ -248,7 +248,7 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
         grp = self.base.comps.group_by_pattern(pattern)
         return grp
 
-    def _get_groups(self):
+    def get_groups(self):
         '''
         make a list with categoties and there groups
         This is the old way of yum groups, where a group is a collection of
@@ -279,7 +279,7 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
         all_groups.sort()
         return json.dumps(all_groups)
 
-    def _get_repositories(self, filter):
+    def get_repositories(self, filter):
         '''
         Get the value a list of repo ids
         :param filter: filter to limit the listed repositories
@@ -290,7 +290,7 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
             repos = [repo.id for repo in self.base.repos.get_matching(filter)]
         return repos
 
-    def _get_config(self, setting):
+    def get_config(self, setting):
         '''
         Get the value of a yum config setting
         it will return a JSON string of the config
@@ -307,7 +307,7 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
             value = json.dumps(None)
         return value
 
-    def _get_repo(self, repo_id):
+    def get_repo(self, repo_id):
         '''
         Get information about a give repo_id
         the repo setting will be returned as dictionary in JSON format
@@ -320,7 +320,7 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
             value = json.dumps(repo_conf)
         return value
 
-    def _set_enabled_repos(self, repo_ids):
+    def set_enabled_repos(self, repo_ids):
         '''
         Enable a list of repos, disable the ones not in list
         '''
@@ -334,7 +334,7 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
                 repo.disable()
         self._base.setup_base()  # load the sack with the current enabled repos
 
-    def _get_packages(self, pkg_filter):
+    def get_packages(self, pkg_filter):
         '''
         Get a list of package ids, based on a package pkg_filterer
         :param pkg_filter: pkg pkg_filter string ('installed','updates' etc)
@@ -347,7 +347,7 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
             value = []
         return value
 
-    def _get_packages_with_attributes(self, pkg_filter, fields):
+    def get_packages_with_attributes(self, pkg_filter, fields):
         '''
         Get a list of package ids, based on a package pkg_filterer
         :param pkg_filter: pkg pkg_filter string ('installed','updates' etc)
@@ -359,7 +359,7 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
             value = [self._get_po_list(po, fields) for po in pkgs]
         return json.dumps(value)
 
-    def _get_attribute(self, id, attr):
+    def get_attribute(self, id, attr):
         '''
         Get an attribute from a yum package id
         it will return a python repr string of the attribute
@@ -387,11 +387,11 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
         else:
             return None
 
-    def _get_updateInfo(self, id):
+    def get_updateInfo(self, id):
         '''
-        Get an Update Infomation e from a yum package id
+        Get an Update Infomation e from a dnf package id
         it will return a python repr string of the attribute
-        :param id: yum package id
+        :param id: dnf package id
         '''
         po = self._get_po(id)
         if po:
@@ -402,7 +402,7 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
             value = json.dumps(None)
         return value
 
-    def _get_packages_by_name_with_attr(self, name, attrs, newest_only):
+    def get_packages_by_name_with_attr(self, name, attrs, newest_only):
         """
         get packages matching a name wildcard with extra attributes
         """
@@ -410,7 +410,7 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
         values = [self._get_po_list(po, attrs) for po in pkgs]
         return json.dumps(values)
 
-    def _get_group_pkgs(self, grp_id, grp_flt, fields):
+    def get_group_pkgs(self, grp_id, grp_flt, fields):
         '''
         Get packages for a given grp_id and group filter
         '''
@@ -434,7 +434,7 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
         value = [self._get_po_list(po, fields) for po in pkgs]
         return json.dumps(value)
 
-    def _group_install(self, cmds):
+    def group_install(self, cmds):
         """Install groups"""
         value = 0
         for cmd in cmds.split(' '):
@@ -445,10 +445,10 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
                     self.base.group_install(grp, pkg_types)
                 except dnf.exceptions.CompsError as e:
                     return json.dumps((False, str(e)))
-        value = self._build_transaction()
+        value = self.build_transaction()
         return value
 
-    def _group_remove(self, cmds):
+    def group_remove(self, cmds):
         value = 0
         for cmd in cmds.split(' '):
             grp = self._find_group(cmd)
@@ -457,10 +457,10 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
                     self.base.group_remove(grp)
                 except dnf.exceptions.CompsError as e:
                     return json.dumps((False, str(e)))
-        value = self._build_transaction()
+        value = self.build_transaction()
         return value
 
-    def _install(self, cmds):
+    def install(self, cmds):
         value = 0
         for cmd in cmds.split(' '):
             if cmd.endswith('.rpm'):  # install local .rpm
@@ -471,10 +471,10 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
                     self.base.install(cmd)
                 except dnf.exceptions.MarkingError:
                     pass
-        value = self._build_transaction()
+        value = self.build_transaction()
         return value
 
-    def _remove(self, cmds):
+    def remove(self, cmds):
         value = 0
         try:
             for cmd in cmds.split(' '):
@@ -482,10 +482,10 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
         # ignore if the package is not installed
         except dnf.exceptions.PackagesNotInstalledError:
             pass
-        value = self._build_transaction()
+        value = self.build_transaction()
         return value
 
-    def _update(self, cmds):
+    def update(self, cmds):
         value = 0
         try:
             for cmd in cmds.split(' '):
@@ -493,10 +493,10 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
         # ignore if the package is not installed
         except dnf.exceptions.PackagesNotInstalledError:
             pass
-        value = self._build_transaction()
+        value = self.build_transaction()
         return value
 
-    def _reinstall(self, cmds):
+    def reinstall(self, cmds):
         value = 0
         try:
             for cmd in cmds.split(' '):
@@ -504,10 +504,10 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
         # ignore if the package is not installed
         except dnf.exceptions.PackagesNotInstalledError:
             pass
-        value = self._build_transaction()
+        value = self.build_transaction()
         return value
 
-    def _downgrade(self, cmds):
+    def downgrade(self, cmds):
         value = 0
         try:
             for cmd in cmds.split(' '):
@@ -515,19 +515,19 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
         # ignore if the package is not installed
         except dnf.exceptions.PackagesNotInstalledError:
             pass
-        value = self._build_transaction()
+        value = self.build_transaction()
         return value
 
-    def _add_transaction(self, pkg_id, action):
-        value = json.dumps((0, []))
+    def add_transaction(self, pkg_id, action):
+        value = json.dumps((False, []))
         # localinstall has the path to the local rpm, not pkg_id
         if action != "localinstall":
             po = self._get_po(pkg_id)
             if not po:
                 msg = "Cant find package object for : %s" % pkg_id
                 self.ErrorMessage(msg)
-                value = json.dumps((0, [msg]))
-                return self.working_ended(value)
+                value = json.dumps((False, [msg]))
+                return value
         rc = 0
         try:
             if action == 'install':
@@ -546,7 +546,7 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
                 po = self.base.add_remote_rpm(pkg_id)
                 rc = self.base.package_install(po)
             else:
-                self.logger.error("unknown action :", action)
+                logger.error("unknown action : %s", action)
         # ignore if the package is not installed
         except dnf.exceptions.PackagesNotInstalledError:
             self.logger.warning("package not installed : ", str(po))
@@ -556,22 +556,21 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
             #value = json.dumps(self._get_goal_list())
         return value
 
-    def _clear_transaction(self):
+    def clear_transaction(self):
         self.base.reset(goal=True)  # reset the current goal
 
-    def _get_transaction(self):
+    def get_transaction(self):
         value = json.dumps(self._get_transaction_list())
         return value
 
-    def _build_transaction(self):
+    def build_transaction(self):
         '''
         Resolve dependencies of current transaction
         '''
-        output = []
         self.TransactionEvent('start-build', NONE)
-        rc, output = self._get_transaction_list()
+        value = json.dumps(self._get_transaction_list())
         self.TransactionEvent('end-build', NONE)
-        return json.dumps((rc, output))
+        return value
 
     def _get_packages_to_download(self):
         to_dnl = []
@@ -580,7 +579,7 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
                 to_dnl.append(tsi.installed)
         return to_dnl
 
-    def _run_transaction(self, max_err):
+    def run_transaction(self, max_err):
         self.TransactionEvent('start-run', NONE)
         self.base.set_max_error(max_err)
         rc = 0
@@ -616,7 +615,7 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
         # FIXME: It should not be needed to call .success_finish()
         return result
 
-    def _get_history_by_days(self, start, end):
+    def get_history_by_days(self, start, end):
         '''
         Get the yum history transaction member located in a date interval
         from today
@@ -646,7 +645,7 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
         value = json.dumps(self._get_id_time_list(result))
         return value
 
-    def _history_search(self, pattern):
+    def history_search(self, pattern):
         '''
         search in yum history
         :param pattern: list of search patterns
@@ -663,7 +662,7 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
         value = json.dumps(self._get_id_time_list(result))
         return value
 
-    def _get_history_transaction_pkgs(self, tid):
+    def get_history_transaction_pkgs(self, tid):
         '''
         return a list of (pkg_id, tx_state, installed_state) pairs from a given
         yum history transaction id
@@ -980,6 +979,15 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
         Needed for unit testing
         """
         #print("event: %s" % event)
+        pass
+
+    def ErrorMessage(self, msg):
+        """ErrorMessage stub, overload in child class
+
+        Needed for unit testing
+        """
+        print("error: %s" % msg)
+        pass
 
 
 class Packages:

@@ -186,6 +186,11 @@ class MockRepo(dnf.repo.Repo):
     def valid(self):
         return None
 
+    def local(self):
+        return True
+
+
+
 
 class TestSack(hawkey.test.TestSackMixin, dnf.sack.Sack):
     def __init__(self, repo_dir, base):
