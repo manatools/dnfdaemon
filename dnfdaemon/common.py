@@ -48,7 +48,8 @@ import sys
 
 VERSION = 104  # (00.01.02) must be integer
 
-FAKE_ATTR = ['downgrades', 'action', 'pkgtags', 'changelog']
+FAKE_ATTR = ['downgrades', 'action', 'pkgtags',
+             'changelog', 'filelist','updateinfo']
 NONE = json.dumps(None)
 
 _ACTIVE_DCT = {
@@ -375,29 +376,6 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
                 value = json.dumps(getattr(po, attr))
             else:
                 value = json.dumps(None)
-        else:
-            value = json.dumps(None)
-        return value
-
-    def _get_installed_na(self, name, arch):
-        q = self.base.sack.query()
-        inst = q.installed().filter(name=name, arch=arch).run()
-        if inst:
-            return inst[0]
-        else:
-            return None
-
-    def _get_update_info(self, id):
-        '''
-        Get an Update Infomation e from a dnf package id
-        it will return a python repr string of the attribute
-        :param id: dnf package id
-        '''
-        po = self._get_po(id)
-        if po:
-            # TODO : updateinfo is not supported in DNF yet
-            # https://bugzilla.redhat.com/show_bug.cgi?id=850912
-            value = json.dumps(None)
         else:
             value = json.dumps(None)
         return value
@@ -795,6 +773,43 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
 # Helper methods
 #=========================================================================
 
+    def _get_installed_na(self, name, arch):
+        q = self.base.sack.query()
+        inst = q.installed().filter(name=name, arch=arch).run()
+        if inst:
+            return inst[0]
+        else:
+            return None
+
+    def _get_update_info(self, po):
+        """Get update info for a package."""
+        # TODO : updateinfo is not supported in DNF yet
+        # https://bugzilla.redhat.com/show_bug.cgi?id=850912
+        if po:
+            value = None
+        else:
+            value = None
+        return value
+
+    def _get_filelist(self, po):
+        """Get filelist for a package."""
+        # TODO : filelist is not supported in DNF yet
+        if po:
+            value = None
+        else:
+            value = None
+        return value
+
+    def _get_changelog(self, po):
+        """Get changelog for a package."""
+        # TODO : changelog is not supported in DNF yet
+        # https://bugzilla.redhat.com/show_bug.cgi?id=1066867
+        if po:
+            value = None
+        else:
+            value = None
+        return value
+
     def _get_po_list(self, po, attrs):
         if not attrs:
             return self._get_id(po)
@@ -834,11 +849,11 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
         elif attr == 'pkgtags':
             return self._get_pkgtags(po)
         elif attr == 'changelog':
-            # TODO : changelog is not supported in DNF yet
-            # https://bugzilla.redhat.com/show_bug.cgi?id=1066867
-            return None
+            return self._get_changelog(po)
         elif attr == 'updateinfo':
-            return self._get_update_info()
+            return self._get_update_info(po)
+        elif attr == 'filelist':
+            return self._get_filelist(po)
 
     def _get_downgrades(self, pkg):
         pkg_ids = []

@@ -142,9 +142,19 @@ class TestCommonMisc(TestCommonBase):
         pkg_id = 'bar,0,2.0,1,noarch,main'
         attr = self.daemon.get_attribute(pkg_id, 'size')
         self.assertEqual(json.loads(attr), 0)
-        # fake attr
+
+    def test_get_attribute_fake(self):
+        pkg_id = 'bar,0,2.0,1,noarch,main'
         attr = self.daemon.get_attribute(pkg_id, 'action')
         self.assertEqual(json.loads(attr), 'update')
+        # FIXME: updateinfo, changelog, filelist not supported
+        # in dnf yet, so they just return None for now
+        attr = self.daemon.get_attribute(pkg_id, 'updateinfo')
+        self.assertEqual(json.loads(attr), None)
+        attr = self.daemon.get_attribute(pkg_id, 'changelog')
+        self.assertEqual(json.loads(attr), None)
+        attr = self.daemon.get_attribute(pkg_id, 'filelist')
+        self.assertEqual(json.loads(attr), None)
 
     def test_search_with_attr_all(self):
         """Test search_with_attr (all)"""
