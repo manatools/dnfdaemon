@@ -92,6 +92,10 @@ fi
 
 
 %changelog
+* Fri May 09 2014 Tim Lauridsen <timlau@fedoraproject.org> 0.2.0-1
+- bumped release to 0.2.0
+
+
 * Fri May 09 2014 Tim Lauridsen <timlau@fedoraproject.org> 0.1.6-1
 - bumped release
 * Sat May 03 2014 Tim Lauridsen <timlau@fedoraproject.org> 0.1.5-1
