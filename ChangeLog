@@ -1,5 +1,53 @@
 2014-05-09  Tim Lauridsen <timlau@fedoraproject.org>
 
+	* Makefile, client/dnfdaemon/Makefile,
+	client/dnfdaemon/__init__.py, daemon/dnfdaemon-session.py,
+	daemon/dnfdaemon-system.py, dnfdaemon.spec, dnfdaemon/common.py,
+	dnfdaemon/dnfdaemon-session.py, dnfdaemon/dnfdaemon-system.py,
+	python/Makefile, python/dnfdaemon/Makefile,
+	python/dnfdaemon/__init__.py, python/dnfdaemon/client/Makefile,
+	python/dnfdaemon/client/__init__.py,
+	python/dnfdaemon/server/Makefile,
+	python/dnfdaemon/server/__init__.py,
+	python/dnfdaemon/server/backend.py, test/__init__.py,
+	test/apitest.py, test/base.py, test/test-session-api.py,
+	test/test-system-ro.py, test/test-system-rw.py,
+	test/test_common.py, test/unit-devel.py: refactor: move server
+	support code into dnfdaemon/server  client code into
+	dnfdaemon/client
+
+2014-05-09  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* dnfdaemon/common.py: cleanup: cleanup code and added doc strings
+
+2014-05-09  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* .gitignore, Makefile: build: build rpms into build dir in source
+	tree
+
+2014-05-09  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* dnfdaemon/common.py, test/test_common.py: add changelog, filelist
+	as fake attributes, just returns None for now
+
+2014-05-09  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* client/dnfdaemon/__init__.py, dnfdaemon/common.py,
+	dnfdaemon/dnfdaemon-session.py, dnfdaemon/dnfdaemon-system.py,
+	docs/client-python.rst, docs/server.rst: api: remove
+	GetUpdateInfo(), use GetAttribute(..,'updateinfo) instead
+
+2014-05-09  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* dnfdaemon.spec, rel-eng/packages/dnfdaemon: Automatic commit of
+	package [dnfdaemon] release [0.1.6-1].
+
+2014-05-09  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* ChangeLog: updated ChangeLog
+
+2014-05-09  Tim Lauridsen <timlau@fedoraproject.org>
+
 	* dnfdaemon/common.py, dnfdaemon/dnfdaemon-session.py,
 	dnfdaemon/dnfdaemon-system.py: fix: rename issues
 
