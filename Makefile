@@ -78,6 +78,9 @@ run-tests-session-verbose: FORCE
 test-devel: FORCE
 	@nosetests-3.3 -v -s test/unit-devel.py
 
+run-tests-unit: FORCE
+	@nosetests-3.3 -v -s test/test_common.py
+
 instdeps:
 	sudo yum install python-nose python3-gobject pygobject3	python3-nose
 
@@ -88,18 +91,23 @@ get-builddeps:
 changelog:
 	@git log --pretty --numstat --summary --after=2008-10-22 | tools/git2cl > ChangeLog
 	
+
+build-setup:
+	@rm -rf build/  &>/dev/null ||:
+	@mkdir -p build ||:
 	
 release:
+	$(MAKE) build-setup
 	$(MAKE) changelog
 	@git commit -a -m "updated ChangeLog"	
 	@tito tag 
 	@git push
 	@git push --tags origin
-	@tito build --rpm
+	@tito build --rpm  -o build/
 
 test-release:
-	@sudo rm -rf /var/tito
-	tito build --rpm --test
+	$(MAKE) build-setup
+	tito build --rpm --test -o build/
 	
 test-repo-build:
 	@cd test/pkgs/ && ./build-rpms.sh
@@ -109,10 +117,10 @@ test-repo-build:
 
 test-inst:
 	$(MAKE) test-release
-	@sudo dnf install /tmp/tito/noarch/*.rpm
+	@sudo dnf install build/noarch/*.rpm
 	
 rpms:
-	tito build --rpm 
+	tito build --rpm -o build/
 	
 
 exit-session:
