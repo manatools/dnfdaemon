@@ -432,15 +432,6 @@ class DnfDaemonBase:
             result = json.loads(result)
         return result
 
-    def GetUpdateInfo(self, pkg_id):
-        '''Get Updateinfo for a package
-
-        Args:
-            pkg_id: pkg_id to get update info from
-        '''
-        result = self._run_dbus_async('GetUpdateInfo', '(s)', pkg_id)
-        return json.loads(result)
-
     def GetPackages(self, pkg_filter):
         '''Get a list of pkg ids for a given filter (installed, updates ..)
 

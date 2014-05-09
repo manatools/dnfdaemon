@@ -266,22 +266,6 @@ class DnfDaemon(common.DnfDaemonBase):
 
     @common.Logger
     @dbus.service.method(DAEMON_INTERFACE,
-                         in_signature='s',
-                         out_signature='s',
-                         sender_keyword='sender')
-    def GetUpdateInfo(self, id, sender=None):
-        '''
-        Get an Update Infomation e from a yum package id
-        it will return a python repr string of the attribute
-        :param id: yum package id
-        :param sender:
-        '''
-        self.working_start(sender)
-        value = self.get_update_info(id)
-        return self.working_ended(value)
-
-    @common.Logger
-    @dbus.service.method(DAEMON_INTERFACE,
                          in_signature='',
                          out_signature='b',
                          sender_keyword='sender')

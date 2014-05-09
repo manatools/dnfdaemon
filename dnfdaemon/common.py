@@ -387,7 +387,7 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
         else:
             return None
 
-    def get_update_info(self, id):
+    def _get_update_info(self, id):
         '''
         Get an Update Infomation e from a dnf package id
         it will return a python repr string of the attribute
@@ -837,6 +837,8 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
             # TODO : changelog is not supported in DNF yet
             # https://bugzilla.redhat.com/show_bug.cgi?id=1066867
             return None
+        elif attr == 'updateinfo':
+            return self._get_update_info()
 
     def _get_downgrades(self, pkg):
         pkg_ids = []

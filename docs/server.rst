@@ -176,16 +176,6 @@ These methods is for getting packages and information about packages
    :return: the value of the attribute **(JSON)**, the content depend on attribute being read
    :rtype:  string (s)
    
-.. py:function:: GetUpdateInfo(id)
- 
-   Get Updateinfo for a package
-        
-   :param pkg_id: pkg_id to get update info from
-   :type pkg_id: string
-   :return: update info for the package **(JSON)**
-   :rtype: string (s)
-
-
 .. py:function:: Search(fields, keys, attrs, match_all, newest_only, tags )
 
    Search for packages where keys is matched in fields and return extra attributes
@@ -551,16 +541,6 @@ These methods is for getting packages and information about packages
    :return: the value of the attribute **(JSON)**, the content depend on attribute being read
    :rtype:  string (s)
    
-.. py:function:: GetUpdateInfo(id)
- 
-   Get Updateinfo for a package
-        
-   :param pkg_id: pkg_id to get update info from
-   :type pkg_id: string
-   :return: update info for the package **(JSON)**
-   :rtype: string (s)
-
-
 .. py:function:: Search(fields, keys, attrs, match_all, newest_only, tags )
 
    Search for packages where keys is matched in fields and return extra attributes
