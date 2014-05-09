@@ -1,3 +1,81 @@
+2014-05-09  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* dnfdaemon/common.py, dnfdaemon/dnfdaemon-session.py,
+	dnfdaemon/dnfdaemon-system.py: fix: rename issues
+
+2014-05-08  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* dnfdaemon/common.py, dnfdaemon/dnfdaemon-session.py,
+	dnfdaemon/dnfdaemon-system.py, test/support.py,
+	test/test_common.py, test/test_data/local-pkg-1.0-1.fc20.noarch.rpm: 
+	tests: added more test, renamed methods from _name() to name() for
+	the the methods there is called from the session & system daemons
+
+2014-05-08  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* dnfdaemon/common.py, dnfdaemon/dnfdaemon-session.py,
+	dnfdaemon/dnfdaemon-system.py, test/pkgs/specs/local-pkg.spec,
+	test/support.py, test/test_common.py,
+	test/test_data/local-pkg-1.0-1.fc20.noarch.rpm,
+	test/test_data/repos/local-pkg-1.0-1.fc20.noarch.rpm,
+	test/test_data/repos/main_comps.xml: test: more test cases & some
+	cleanup
+
+2014-05-08  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* dnfdaemon/common.py, test/support.py, test/test_common.py,
+	test/test_data/repos/@System.repo,
+	test/test_data/repos/main_comps.xml: tests: added more tests
+
+2014-05-07  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* dnfdaemon/common.py, test/test_common.py,
+	test/test_data/repos/main.repo, test/test_data/repos/main_comps.xml: 
+	test: more common unit tests
+
+2014-05-07  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* dnfdaemon/common.py: cleanup: remove unused code  fix: search
+	should allways return list
+
+2014-05-07  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* test/support.py, test/test_common.py,
+	test/test_data/repos/@System.repo, test/test_data/repos/main.repo,
+	test/test_data/repos/main_comps.xml: Test: add unit tests for
+	common.py
+
+2014-05-07  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* dnfdaemon/common.py, dnfdaemon/dnfdaemon-session.py,
+	dnfdaemon/dnfdaemon-system.py: refactor: move all dnf released code
+	into common and other cleanups
+
+2014-05-05  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* dnfdaemon/common.py: return if group is marked as installed in dnf
+
+
+2014-05-05  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* policykit1/org.baseurl.DnfSystem.policy: make policykit less
+	desktop centric
+
+	https://github.com/stefwalter/yum-daemon/commit/f47f0f9bd69a9f5564a35009a2f6715aa486c211
+
+2014-05-03  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* Makefile: build: make sure changelog is committed
+
+2014-05-03  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* ChangeLog, Makefile: updated changelog + fix typo in Makefile
+
+2014-05-03  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* dnfdaemon.spec, rel-eng/packages/dnfdaemon: Automatic commit of
+	package [dnfdaemon] release [0.1.5-1].
+
 2014-04-20  Tim Lauridsen <timlau@fedoraproject.org>
 
 	* Makefile, dnfdaemon/dnfdaemon-system.py, test/base.py,
