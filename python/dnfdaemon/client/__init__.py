@@ -354,7 +354,7 @@ class DnfDaemonBase:
         except Exception as err:
             self._handle_dbus_error(err)
 
-    def GetPackageWithAttributes(self, pkg_filter, fields):
+    def GetPackages(self, pkg_filter, fields=[]):
         '''Get a list of pkg list for a given package filter
 
         each pkg list contains [pkg_id, field,....] where field is a
@@ -367,7 +367,7 @@ class DnfDaemonBase:
             fields: yum package objects attributes to get.
         '''
         result = self._run_dbus_async(
-            'GetPackageWithAttributes', '(sas)', pkg_filter, fields)
+            'GetPackages', '(sas)', pkg_filter, fields)
         return json.loads(result)
 
     def ExpireCache(self):
@@ -431,18 +431,6 @@ class DnfDaemonBase:
         else:
             result = json.loads(result)
         return result
-
-    def GetPackages(self, pkg_filter):
-        '''Get a list of pkg ids for a given filter (installed, updates ..)
-
-        Args:
-            pkg_filter: package filter ('installed','available','updates',
-                       'obsoletes','recent','extras')
-
-        Returns:
-           list of pkg_id's
-        '''
-        return self._run_dbus_async('GetPackages', '(s)', pkg_filter)
 
     def GetPackagesByName(self, name, attr=[], newest_only=True):
         '''Get a list of pkg ids for starts with name

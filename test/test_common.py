@@ -123,19 +123,17 @@ class TestCommonMisc(TestCommonBase):
     def test_get_packages(self):
         # only need to check on pkg_filter, to check the return format
         # other filters are checked in the TestPackages tests.
-        pkgs = self.daemon.get_packages('installed')
-        self.assertEqual(pkgs, {'bar-old,0,1.0,1,noarch,@System',
-                                'foo,0,2.0,1,noarch,@System',
-                                'bar,0,1.0,1,noarch,@System'})
-
-    def test_get_packages_with_attributes(self):
-        # only need to check on pkg_filter, to check the return format
-        # other filters are checked in the TestPackages tests.
-        pkgs = self.daemon.get_packages_with_attributes('installed', ['size'])
+        pkgs = self.daemon.get_packages('installed', ['size'])
         self.assertEqual(json.loads(pkgs),
             [['bar,0,1.0,1,noarch,@System', 0],
              ['foo,0,2.0,1,noarch,@System', 0],
              ['bar-old,0,1.0,1,noarch,@System', 0]])
+
+        pkgs = self.daemon.get_packages('installed', [])
+        self.assertEqual(json.loads(pkgs),
+            ['bar,0,1.0,1,noarch,@System',
+             'foo,0,2.0,1,noarch,@System',
+             'bar-old,0,1.0,1,noarch,@System'])
 
     def test_get_attribute(self):
         pkg_id = 'bar,0,2.0,1,noarch,main'

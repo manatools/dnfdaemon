@@ -300,20 +300,7 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
                 repo.disable()
         self._base.setup_base()  # load the sack with the current enabled repos
 
-    def get_packages(self, pkg_filter):
-        """Get packages based on a given filter.
-
-        :param pkg_filter: pkg pkg_filter string ('installed','updates' etc)
-        """
-        if pkg_filter in ['installed', 'available', 'updates', 'obsoletes',
-                          'recent', 'extras']:
-            pkgs = getattr(self.base.packages, pkg_filter)
-            value = self._to_package_id_list(pkgs)
-        else:
-            value = []
-        return value
-
-    def get_packages_with_attributes(self, pkg_filter, attrs):
+    def get_packages(self, pkg_filter, attrs):
         """Get packages and attribute values based on a filter.
 
         :param pkg_filter: pkg pkg_filter string ('installed','updates' etc)

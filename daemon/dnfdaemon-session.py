@@ -1,5 +1,4 @@
 #!/usr/bin/python3 -tt
-# coding: utf-8
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
 # as published by the Free Software Foundation; either version 2
@@ -15,20 +14,20 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301, USA.
 
-# (C) 2013-2014 - Tim Lauridsen <timlau@fedoraproject.org>
+# (C) 2013-2014 Tim Lauridsen <timlau@fedoraproject.org>
 
 #
 # dnf session bus dBus service (Readonly)
 #
 
-from dbus.mainloop.glib import DBusGMainLoop
 from dnfdaemon.server import Logger
 from gi.repository import Gtk
 
 import argparse
-import dnfdaemon.server
 import dbus
 import dbus.service
+import dbus.mainloop.glib
+import dnfdaemon.server
 import logging
 
 DAEMON_ORG = 'org.baseurl.DnfSession'
@@ -199,32 +198,17 @@ class DnfDaemon(dnfdaemon.server.DnfDaemonBase):
 
     @Logger
     @dbus.service.method(DAEMON_INTERFACE,
-                         in_signature='s',
-                         out_signature='as',
-                         sender_keyword='sender')
-    def GetPackages(self, pkg_filter, sender=None):
-        '''
-        Get a list of package ids, based on a package pkg_filterer
-        :param pkg_filter: pkg pkg_filter string ('installed','updates' etc)
-        :param sender:
-        '''
-        self.working_start(sender)
-        value = self.get_packages(pkg_filter)
-        return self.working_ended(value)
-
-    @Logger
-    @dbus.service.method(DAEMON_INTERFACE,
                          in_signature='sas',
                          out_signature='s',
                          sender_keyword='sender')
-    def GetPackageWithAttributes(self, pkg_filter, fields, sender=None):
+    def GetPackages(self, pkg_filter, fields, sender=None):
         '''
         Get a list of package ids, based on a package pkg_filterer
         :param pkg_filter: pkg pkg_filter string ('installed','updates' etc)
         :param sender:
         '''
         self.working_start(sender)
-        value = self.get_packages_with_attributes(pkg_filter, fields)
+        value = self.get_packages(pkg_filter, fields)
         return self.working_ended(value)
 
     @Logger
@@ -407,7 +391,6 @@ def main():
             dnfdaemon.server.doTextLoggerSetup(logroot='dnfdaemon')
 
     # setup the DBus mainloop
-    DBusGMainLoop(set_as_default=True)
     dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
     yd = DnfDaemon()
     if not args.notimeout:
