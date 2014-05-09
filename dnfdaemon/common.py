@@ -48,8 +48,11 @@ import sys
 
 VERSION = 104  # (00.01.02) must be integer
 
+# Fake attributes, there is simulating real package attribute
+# used by get_attributes and others
 FAKE_ATTR = ['downgrades', 'action', 'pkgtags',
-             'changelog', 'filelist','updateinfo']
+             'changelog', 'filelist', 'updateinfo']
+
 NONE = json.dumps(None)
 
 _ACTIVE_DCT = {
@@ -132,23 +135,23 @@ class RPMTransactionDisplay(TransactionDisplay):
 
 
 class DownloadCallback:
-    '''
+    """
     Dnf Download callback handler class
-    '''
+    """
     def __init__(self):
         pass
 
     def downloadStart(self, num_files, num_bytes):
-        ''' Starting a new parallel download batch '''
+        """ Starting a new parallel download batch """
         self.DownloadStart(num_files, num_bytes)  # send a signal
 
     def downloadProgress(self, name, frac, total_frac, total_files):
-        ''' Progress for a single instance in the batch '''
+        """ Progress for a single instance in the batch """
         # send a signal
         self.DownloadProgress(name, frac, total_frac, total_files)
 
     def downloadEnd(self, name, status, msg):
-        ''' Download of af single instace ended '''
+        """ Download of af single instace ended """
         if not status:
             status = -1
         if not msg:
@@ -156,7 +159,7 @@ class DownloadCallback:
         self.DownloadEnd(name, status, msg)  # send a signal
 
     def repoMetaDataProgress(self, name, frac):
-        ''' Repository Metadata Download progress '''
+        """ Repository Metadata Download progress """
         self.RepoMetaDataProgress(name, frac)
 
 
@@ -177,31 +180,23 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
         self._timeout_locked = 600
         self._obsoletes_list = None     # Cache for obsoletes
 
-    def _get_obsoletes(self):
-        ''' Cache a list of obsoletes'''
-        if not self._obsoletes_list:
-            self._obsoletes_list = list(self.base.packages.obsoletes)
-        return self._obsoletes_list
-
     @property
     def base(self):
-        '''
+        """
         yumbase property so we can auto initialize it if not defined
-        '''
+        """
         if not self._base:
             self._get_base()
         return self._base
 
 #=========================================================================
-# Helper methods for api methods both in system & session
-# Search -> search etc
+# The action methods for the DBUS API (Session & System)
+# RunTransaction -> run_transaction, etc
 #=========================================================================
 
     def search_with_attr(self, fields, keys, attrs, match_all, newest_only,
                           tags):
-        '''
-        Search for for packages, where given fields contain given key words
-        (Helper for Search)
+        """Search for for packages, where given fields contain given key words
 
         :param fields: list of fields to search in
         :param keys: list of keywords to search for
@@ -210,7 +205,7 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
                           matching all keys
         :param newest_only: return only the newest version of a package
         :param tags: seach pkgtags
-        '''
+        """
         # FIXME: Add support for search in pkgtags, when supported in dnf
         showdups = not newest_only
         pkgs = self.base.search(fields, keys, match_all, showdups)
@@ -218,6 +213,8 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
         return json.dumps(values)
 
     def expire_cache(self):
+        """Expire the dnf cache."""
+
         try:
             self.base.expire_cache()
             self.base.reset(sack=True)
@@ -228,34 +225,8 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
             self.ErrorMessage(str(e))
             return False
 
-    def _get_po_by_name(self, name, newest_only):
-        '''
-        Get packages matching a name pattern
-
-        :param name: name pattern
-        :param newest_only: True = get newest packages only
-        '''
-        subj = dnf.subject.Subject(name)
-        qa = subj.get_best_query(self.base.sack, with_provides=False)
-        if newest_only:
-            qa = qa.latest()
-        pkgs = self.base.packages.filter_packages(qa)
-        return pkgs
-
-    def _find_group(self, pattern):
-        """ Find comps.Group object by pattern"""
-        if not self.base.comps:  # lazy load the comps metadata
-            self.base.read_comps()
-        grp = self.base.comps.group_by_pattern(pattern)
-        return grp
-
     def get_groups(self):
-        '''
-        make a list with categoties and there groups
-        This is the old way of yum groups, where a group is a collection of
-        mandatory, default and optional pacakges and the group
-        is installed when all mandatory & default packages is installed.
-        '''
+        """Get available comps categories & groups"""
         all_groups = []
         if not self.base.comps:  # lazy load the comps metadata
             self.base.read_comps()
@@ -281,10 +252,10 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
         return json.dumps(all_groups)
 
     def get_repositories(self, filter):
-        '''
-        Get the value a list of repo ids
+        """Get repository ids, based on a filter
+
         :param filter: filter to limit the listed repositories
-        '''
+        """
         if filter == '' or filter == 'enabled':
             repos = [repo.id for repo in self.base.repos.iter_enabled()]
         else:
@@ -292,11 +263,12 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
         return repos
 
     def get_config(self, setting):
-        '''
-        Get the value of a yum config setting
-        it will return a JSON string of the config
+        """Get dnf config value(s)
+
         :param setting: name of setting (debuglevel etc..)
-        '''
+
+        if settings = '*', all keys/values is returned
+        """
         if setting == '*':  # Return all config
             cfg = self.base.conf
             data = [(c, getattr(cfg, c)) for c in cfg.iterkeys()]
@@ -309,11 +281,10 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
         return value
 
     def get_repo(self, repo_id):
-        '''
-        Get information about a give repo_id
-        the repo setting will be returned as dictionary in JSON format
-        :param repo_id:
-        '''
+        """Get information about a given repo_id
+
+        :param repo_id: repo id to get information from
+        """
         value = json.dumps(None)
         repo = self.base.repos.get(repo_id, None)  # get the repo object
         if repo:
@@ -322,9 +293,7 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
         return value
 
     def set_enabled_repos(self, repo_ids):
-        '''
-        Enable a list of repos, disable the ones not in list
-        '''
+        """Enable a list of repos, disable the ones not in list"""
         self._reset_base()
         self._get_base(reset=True, load_sack=False)
         for repo in self.base.repos.all():
@@ -336,10 +305,10 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
         self._base.setup_base()  # load the sack with the current enabled repos
 
     def get_packages(self, pkg_filter):
-        '''
-        Get a list of package ids, based on a package pkg_filterer
+        """Get packages based on a given filter.
+
         :param pkg_filter: pkg pkg_filter string ('installed','updates' etc)
-        '''
+        """
         if pkg_filter in ['installed', 'available', 'updates', 'obsoletes',
                           'recent', 'extras']:
             pkgs = getattr(self.base.packages, pkg_filter)
@@ -348,26 +317,26 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
             value = []
         return value
 
-    def get_packages_with_attributes(self, pkg_filter, fields):
-        '''
-        Get a list of package ids, based on a package pkg_filterer
+    def get_packages_with_attributes(self, pkg_filter, attrs):
+        """Get packages and attribute values based on a filter.
+
         :param pkg_filter: pkg pkg_filter string ('installed','updates' etc)
-        '''
+        :param attrs: list of attributes to get.
+        """
         value = []
         if pkg_filter in ['installed', 'available', 'updates', 'obsoletes',
                           'recent', 'extras']:
             pkgs = getattr(self.base.packages, pkg_filter)
-            value = [self._get_po_list(po, fields) for po in pkgs]
+            value = [self._get_po_list(po, attrs) for po in pkgs]
         return json.dumps(value)
 
     def get_attribute(self, id, attr):
-        '''
-        Get an attribute from a yum package id
-        it will return a python repr string of the attribute
+        """Get package attribute.
+
         :param id: yum package id
         :param attr: name of attribute (summary, size, description,
                      changelog etc..)
-        '''
+        """
         po = self._get_po(id)
         if po:
             if attr in FAKE_ATTR:  # is this a fake attr:
@@ -381,17 +350,15 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
         return value
 
     def get_packages_by_name_with_attr(self, name, attrs, newest_only):
-        """
-        get packages matching a name wildcard with extra attributes
-        """
+        """get packages matching a name wildcard with given attributes."""
         pkgs = self._get_po_by_name(name, newest_only)
         values = [self._get_po_list(po, attrs) for po in pkgs]
         return json.dumps(values)
 
-    def get_group_pkgs(self, grp_id, grp_flt, fields):
-        '''
-        Get packages for a given grp_id and group filter
-        '''
+    def get_group_pkgs(self, grp_id, grp_flt, attrs):
+        """Get packages & attributes for a given group id and
+        group package type.
+        """
         pkgs = []
         grp = self.base.comps.group_by_pattern(grp_id)
         if grp:
@@ -409,7 +376,7 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
             pkgs = self.base.packages.filter_packages(best_pkgs)
         else:
             pass
-        value = [self._get_po_list(po, fields) for po in pkgs]
+        value = [self._get_po_list(po, attrs) for po in pkgs]
         return json.dumps(value)
 
     def group_install(self, cmds):
@@ -427,6 +394,7 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
         return value
 
     def group_remove(self, cmds):
+        """Remove groups"""
         value = 0
         for cmd in cmds.split(' '):
             grp = self._find_group(cmd)
@@ -439,6 +407,7 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
         return value
 
     def install(self, cmds):
+        """Install packages from pkg-specs."""
         value = 0
         for cmd in cmds.split(' '):
             if cmd.endswith('.rpm'):  # install local .rpm
@@ -453,6 +422,7 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
         return value
 
     def remove(self, cmds):
+        """Remove packages from pkg-specs."""
         value = 0
         try:
             for cmd in cmds.split(' '):
@@ -464,6 +434,7 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
         return value
 
     def update(self, cmds):
+        """Update packages from pkg-specs."""
         value = 0
         try:
             for cmd in cmds.split(' '):
@@ -475,6 +446,7 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
         return value
 
     def reinstall(self, cmds):
+        """Reinstall packages from pkg-specs."""
         value = 0
         try:
             for cmd in cmds.split(' '):
@@ -486,6 +458,7 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
         return value
 
     def downgrade(self, cmds):
+        """downgrade packages from pkg-specs."""
         value = 0
         try:
             for cmd in cmds.split(' '):
@@ -497,6 +470,7 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
         return value
 
     def add_transaction(self, pkg_id, action):
+        """Add package id to transaction with a given action"""
         value = json.dumps((False, []))
         # localinstall has the path to the local rpm, not pkg_id
         if action != "localinstall":
@@ -535,29 +509,27 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
         return value
 
     def clear_transaction(self):
+        """Clear the current transaction."""
         self.base.reset(goal=True)  # reset the current goal
 
     def get_transaction(self):
+        """Get the current transaction."""
         value = json.dumps(self._get_transaction_list())
         return value
 
     def build_transaction(self):
-        '''
-        Resolve dependencies of current transaction
-        '''
+        """Resolve dependencies of current transaction."""
         self.TransactionEvent('start-build', NONE)
         value = json.dumps(self._get_transaction_list())
         self.TransactionEvent('end-build', NONE)
         return value
 
-    def _get_packages_to_download(self):
-        to_dnl = []
-        for tsi in self.base.transaction:
-            if tsi.installed:
-                to_dnl.append(tsi.installed)
-        return to_dnl
-
     def run_transaction(self, max_err):
+        """Apply the current transaction to the system.
+
+        It will download the needed packages and apply actions in the
+        current transaction to the system
+        """
         self.TransactionEvent('start-run', NONE)
         self.base.set_max_error(max_err)
         rc = 0
@@ -594,12 +566,11 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
         return result
 
     def get_history_by_days(self, start, end):
-        '''
-        Get the yum history transaction member located in a date interval
-        from today
+        """Get the history transaction by a give date interval.
+
         :param start: start days from today
         :param end: end days from today
-        '''
+        """
         # FIXME: Base.history is not public api
         # https://bugzilla.redhat.com/show_bug.cgi?id=1079526
         result = []
@@ -624,11 +595,11 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
         return value
 
     def history_search(self, pattern):
-        '''
+        """
         search in yum history
         :param pattern: list of search patterns
         :type pattern: list
-        '''
+        """
         # FIXME: Base.history is not public api
         # https://bugzilla.redhat.com/show_bug.cgi?id=1079526
         result = []
@@ -641,10 +612,7 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
         return value
 
     def get_history_transaction_pkgs(self, tid):
-        '''
-        return a list of (pkg_id, tx_state, installed_state) pairs from a given
-        yum history transaction id
-        '''
+        """Get the package transactions for given transaction id."""
         # FIXME: Base.history is not public api
         # https://bugzilla.redhat.com/show_bug.cgi?id=1079526
         result = []
@@ -659,10 +627,76 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
         value = json.dumps(result)
         return value
 
+    def set_option(self, option, value):
+        """Set an DNF config option to a given value."""
+        value = json.loads(value)
+        if hasattr(self.base.conf, option):
+            setattr(self.base.conf, option, value)
+            self.logger.debug("Setting Option %s = %s" % (option, value))
+            for repo in self.base.repos.iter_enabled():
+                if hasattr(repo, option):
+                    setattr(repo, option, value)
+                    self.logger.debug(
+                        "Setting Option %s = %s (%s)", option, value, repo.id)
+            return True
+        else:
+            return False
+        pass
+
+    def handle_gpg_import(self, gpg_info):
+        """Callback for handling af user confirmation of gpg key import.
+
+        :param gpg_info: dict with info about gpg key
+        {"po": ..,  "userid": .., "hexkeyid": .., "keyurl": ..,
+          "fingerprint": .., "timestamp": ..)
+        """
+        print(gpg_info)
+        pkg_id = self._get_id(gpg_info['po'])
+        userid = gpg_info['userid']
+        hexkeyid = gpg_info['hexkeyid']
+        keyurl = gpg_info['keyurl']
+        #fingerprint = gpg_info['fingerprint']
+        timestamp = gpg_info['timestamp']
+        # the gpg key has not been confirmed by the user
+        if not hexkeyid in self._gpg_confirm:
+            self._gpg_confirm[hexkeyid] = False
+            self.GPGImport(pkg_id, userid, hexkeyid, keyurl, timestamp)
+        return self._gpg_confirm[hexkeyid]
+
+#=========================================================================
+# Helper methods
+#=========================================================================
+
+    def _get_po_by_name(self, name, newest_only):
+        """Get packages matching a name pattern.
+
+        :param name: name pattern
+        :param newest_only: True = get newest packages only
+        """
+        subj = dnf.subject.Subject(name)
+        qa = subj.get_best_query(self.base.sack, with_provides=False)
+        if newest_only:
+            qa = qa.latest()
+        pkgs = self.base.packages.filter_packages(qa)
+        return pkgs
+
+    def _find_group(self, pattern):
+        """ Find comps.Group object by pattern."""
+        if not self.base.comps:  # lazy load the comps metadata
+            self.base.read_comps()
+        grp = self.base.comps.group_by_pattern(pattern)
+        return grp
+
+    def _get_packages_to_download(self):
+        """Get packages to download for the current dnf transaction."""
+        to_dnl = []
+        for tsi in self.base.transaction:
+            if tsi.installed:
+                to_dnl.append(tsi.installed)
+        return to_dnl
+
     def _get_transaction_list(self):
-        '''
-        Generate a list of the current transaction
-        '''
+        """Get a list of the current transaction."""
         out_list = []
         sublist = []
         rc, tx_list = self._make_trans_dict()
@@ -693,6 +727,7 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
             return rc, tx_list
 
     def _make_trans_dict(self):
+        """Get a dict of action & packages from the current transaction"""
         b = {}
         for t in ('downgrade', 'remove', 'install', 'reinstall', 'update'):
             b[t] = []
@@ -719,67 +754,11 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
         else:
             return rc, output
 
-    def _to_transaction_id_list(self):
-        '''
-        return a sorted list of package ids from a list of packages
-        if and po is installed, the installed po id will be returned
-        :param pkgs:
-        '''
-        result = []
-        for tsi in self.base.transaction:
-            po = tsi.active
-            result.append("%s,%s" %
-                          (self._get_id(po), tsi.active_history_state))
-        return result
-
-    def set_option(self, option, value):
-        value = json.loads(value)
-        if hasattr(self.base.conf, option):
-            setattr(self.base.conf, option, value)
-            self.logger.debug("Setting Option %s = %s" % (option, value))
-            for repo in self.base.repos.iter_enabled():
-                if hasattr(repo, option):
-                    setattr(repo, option, value)
-                    self.logger.debug(
-                        "Setting Option %s = %s (%s)", option, value, repo.id)
-            return True
-        else:
-            return False
-        pass
-
-    def handle_gpg_import(self, gpg_info):
-        '''
-        Callback for handling af user confirmation of gpg key import
-
-        :param gpg_info: dict with info about gpg key
-        {"po": ..,  "userid": .., "hexkeyid": .., "keyurl": ..,
-          "fingerprint": .., "timestamp": ..)
-
-        '''
-        print(gpg_info)
-        pkg_id = self._get_id(gpg_info['po'])
-        userid = gpg_info['userid']
-        hexkeyid = gpg_info['hexkeyid']
-        keyurl = gpg_info['keyurl']
-        #fingerprint = gpg_info['fingerprint']
-        timestamp = gpg_info['timestamp']
-        # the gpg key has not been confirmed by the user
-        if not hexkeyid in self._gpg_confirm:
-            self._gpg_confirm[hexkeyid] = False
-            self.GPGImport(pkg_id, userid, hexkeyid, keyurl, timestamp)
-        return self._gpg_confirm[hexkeyid]
-
-#=========================================================================
-# Helper methods
-#=========================================================================
-
-    def _get_installed_na(self, name, arch):
-        q = self.base.sack.query()
-        inst = q.installed().filter(name=name, arch=arch).run()
-        if inst:
-            return inst[0]
-        else:
-            return None
+    def _get_obsoletes(self):
+        """Cache a list of obsoletes."""
+        if not self._obsoletes_list:
+            self._obsoletes_list = list(self.base.packages.obsoletes)
+        return self._obsoletes_list
 
     def _get_update_info(self, po):
         """Get update info for a package."""
@@ -811,6 +790,7 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
         return value
 
     def _get_po_list(self, po, attrs):
+        """Get a list packages with given attributes."""
         if not attrs:
             return self._get_id(po)
         po_list = [self._get_id(po)]
@@ -825,10 +805,9 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
         return po_list
 
     def _get_id_time_list(self, hist_trans):
-        '''
-        return a list of (tid, isodate) pairs from a list of
-        yum history transactions
-        '''
+        """Get a list of (tid, isodate) pairs from a list of
+        history transactions.
+        """
         result = []
         for ht in hist_trans:
             tm = datetime.fromtimestamp(ht.end_timestamp)
@@ -836,12 +815,11 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
         return result
 
     def _get_fake_attributes(self, po, attr):
-        '''
-        Get Fake Attributes, a whey to useful stuff for a package
-        there is not real attritbutes to the yum package object.
+        """Get pseudo attributes for a given package.
+
         :param attr: Fake attribute
         :type attr: string
-        '''
+        """
         if attr == "action":
             return self._get_action(po)
         elif attr == 'downgrades':
@@ -856,8 +834,8 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
             return self._get_filelist(po)
 
     def _get_downgrades(self, pkg):
+        """Get available downgrades for a given <name.arch>."""
         pkg_ids = []
-        ''' Find available downgrades for a given name.arch'''
         q = self.base.sack.query()
         avail = q.available().filter(name=pkg.name, arch=pkg.arch).run()
         for apkg in avail:
@@ -866,25 +844,23 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
         return pkg_ids
 
     def _get_pkgtags(self, po):
-        '''
-        Get pkgtags from a given po
-        '''
+        """Get tags from a given package."""
         # TODO : pkgtags is not supported in DNF yet
         return []
 
     def _to_package_id_list(self, pkgs):
-        '''
-        return a sorted list of package ids from a list of packages
-        if and po is installed, the installed po id will be returned
+        """Get a sorted list of package ids from a list of packages.
+
+        If and package is installed, the installed po id will be returned
         :param pkgs:
-        '''
+        """
         result = set()
         for po in sorted(pkgs):
             result.add(self._get_id(po))
         return result
 
     def _get_po(self, id):
-        ''' find the real package from an package id'''
+        """Get the package from given package id."""
         n, e, v, r, a, repo_id = id.split(',')
         q = self.base.sack.query()
         if repo_id.startswith('@'):  # installed package
@@ -903,28 +879,23 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
                 return None
 
     def _get_id(self, pkg):
-        '''
-        convert a yum package obejct to an id string containing
-        (n,e,v,r,a,repo)
-        :param pkg:
-        '''
+        """Get a package id from a given package."""
         values = [
             pkg.name, str(pkg.epoch), pkg.version, pkg.release,
             pkg.arch, pkg.ui_from_repo]
         return ",".join(values)
 
     def _get_action(self, po):
-        '''
-        Return the available action for a given pkg_id
+        """Get the action for a given package.
+
         The action is what can be performed on the package
         an installed package will return as 'remove' as action
         an available update will return 'update'
         an available package will return 'install'
-        :param po: yum package
-        :type po: yum package object
+
+        :param po: package
         :return: action (remove, install, update, downgrade, obsolete)
-        :rtype: string
-        '''
+        """
         action = 'install'
         n, a, e, v, r = po.pkgtup
         q = self.base.sack.query()
@@ -948,9 +919,7 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
         return action
 
     def _get_base(self, reset=False, load_sack=True):
-        '''
-        Get a Dnf Base object to work with
-        '''
+        """Get a cached dnf.Base object."""
         if not self._base or reset:
             self._base = DnfBase(self)
             if load_sack:
@@ -958,20 +927,17 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
         return self._base
 
     def _reset_base(self):
-        '''
-        destroy the current DnfBase object
-        '''
+        """Close the current dnf.Base object."""
         if self._base:
             self._base.close()
             self._base = None
 
     def _setup_watchdog(self):
-        '''
-        Setup the watchdog to run every second when idle
-        '''
+        """Setup the DBUS service watchdog to run every second when idle."""
         GLib.timeout_add(1000, self._watchdog)
 
     def _watchdog(self):
+        """Handle the DBUS service watchdog calls."""
         terminate = False
         if self._watchdog_disabled or self._is_working:  # is working
             return True
@@ -1003,11 +969,12 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
 
         Needed for unit testing
         """
-        print("error: %s" % msg)
+        #print("error: %s" % msg)
         pass
 
 
 class Packages:
+    """This class gives easier access to getting packages from the dnf Sack."""
 
     def __init__(self, base):
         self._base = base
@@ -1015,11 +982,10 @@ class Packages:
         self._inst_na = self._sack.query().installed().na_dict()
 
     def filter_packages(self, pkg_list, replace=True):
-        '''
-        Filter a list of package objects and replace
+        """Filter a list of package objects and replace
         the installed ones with the installed object, instead
-        of the available object
-        '''
+        of the available object.
+        """
         pkgs = set()
         for pkg in pkg_list:
             key = (pkg.name, pkg.arch)
@@ -1033,28 +999,26 @@ class Packages:
 
     @property
     def query(self):
+        """Get the query from the current sack"""
         return self._sack.query()
 
     @property
     def installed(self):
-        '''
-        instawlled packages
-        '''
+        """Get installed packages."""
         return self.query.installed().run()
 
     @property
     def updates(self):
-        '''
-        available updates
-        '''
+        """Get available updates."""
         return self.query.upgrades().run()
 
     @property
     def all(self, showdups=False):
-        '''
-        all packages in the repositories
-        installed ones are replace with the install package objects
-        '''
+        """Get all packages installed and available.
+
+        If a package is install, only the installed package object is
+        returned
+        """
         if showdups:
             return self.filter_packages(self.query.available().run())
         else:
@@ -1062,9 +1026,7 @@ class Packages:
 
     @property
     def available(self, showdups=False):
-        '''
-        available packages there is not installed yet
-        '''
+        """Get available packages."""
         if showdups:
             return self.filter_packages(self.query.available().run(),
                                         replace=False)
@@ -1074,9 +1036,7 @@ class Packages:
 
     @property
     def extras(self):
-        '''
-        installed packages, not in current repos
-        '''
+        """Get installed packages, not in current enabled repos."""
         # anything installed but not in a repo is an extra
         avail_dict = self.query.available().pkgtup_dict()
         inst_dict = self.query.installed().pkgtup_dict()
@@ -1088,14 +1048,13 @@ class Packages:
 
     @property
     def obsoletes(self):
-        '''
-        packages there is obsoleting some installed packages
-        '''
+        """Get available obsoletes."""
         inst = self.query.installed()
         return self.query.filter(obsoletes=inst)
 
     @property
     def recent(self, showdups=False):
+        """Get recent packages."""
         recent = []
         now = time()
         recentlimit = now - (self._base.conf.recent * 86400)
@@ -1110,6 +1069,7 @@ class Packages:
 
 
 class DnfBase(dnf.Base):
+    """An extended version of the dnf.Base class."""
 
     def __init__(self, parent):
         super(DnfBase, self).__init__()
@@ -1122,9 +1082,11 @@ class DnfBase(dnf.Base):
         self._packages = None
 
     def expire_cache(self):
+        """Make the current cache expire"""
         self.cleanExpireCache()  # FIXME : cleanExpireCache() is not public API
 
     def setup_base(self):
+        """Setup dnf Sack and init packages helper"""
         self.fill_sack()
         self._packages = Packages(self)
 
@@ -1133,6 +1095,7 @@ class DnfBase(dnf.Base):
         return self._packages
 
     def setup_cache(self):
+        """Setup the dnf cache, same as dnf cli"""
         # perform the CLI-specific cachedir tricks
         conf = self.conf
         conf.releasever = None  # This will take the current release
@@ -1145,20 +1108,20 @@ class DnfBase(dnf.Base):
         logger.debug("dnf cachedir: %s" % conf.cachedir)
 
     def set_max_error(self, max_err):
-        """
-        Setup a new progress object with a new max number of download errors
+        """Setup a new progress object with a new
+        max number of download errors.
         """
         self.progress = Progress(self.parent, max_err=max_err)
 
     def search(self, fields, values, match_all=True, showdups=False):
-        '''
-        search in a list of package fields for a list of keys
+        """Search in a list of package attributes for a list of keys.
+
         :param fields: package attributes to search in
         :param values: the values to match
         :param match_all: match all values (default)
         :param showdups: show duplicate packages or latest (default)
         :return: a list of package objects
-        '''
+        """
         matches = set()
         for key in values:
             key_set = set()
@@ -1186,6 +1149,7 @@ class DnfBase(dnf.Base):
 
 
 class MDProgress(dnf.callback.DownloadProgress):
+    """Metadata Download callback handler."""
 
     def __init__(self, parent):
         super(MDProgress, self).__init__()
@@ -1213,6 +1177,7 @@ class MDProgress(dnf.callback.DownloadProgress):
 
 
 class Progress(dnf.callback.DownloadProgress):
+    """Package Download callback handler"""
 
     def __init__(self, parent, max_err):
         super(Progress, self).__init__()
@@ -1268,7 +1233,7 @@ class Progress(dnf.callback.DownloadProgress):
                 pload, frac, total_frac, self.download_files)
 
     def get_total(self):
-        """ Get the total downloaded percentage"""
+        """Get the total downloaded percentage."""
         tot = 0.0
         for value in self.dnl.values():
             tot += value
@@ -1276,7 +1241,7 @@ class Progress(dnf.callback.DownloadProgress):
         return frac
 
     def update(self):
-        """ Output the current progress"""
+        """Output the current progress."""
 
         sys.stdout.write("Progress : %-3d %% (%d/%d)\r" %
                          (self.last_pct,
@@ -1286,7 +1251,7 @@ class Progress(dnf.callback.DownloadProgress):
 
 def doTextLoggerSetup(logroot='dnfdaemon', logfmt='%(asctime)s: %(message)s',
                       loglvl=logging.INFO):
-    ''' Setup Python logging  '''
+    """Setup Python logging."""
     logger = logging.getLogger(logroot)
     logger.setLevel(loglvl)
     formatter = logging.Formatter(logfmt, "%H:%M:%S")
