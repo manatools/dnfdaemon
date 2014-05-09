@@ -387,7 +387,7 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
         else:
             return None
 
-    def get_updateInfo(self, id):
+    def get_update_info(self, id):
         '''
         Get an Update Infomation e from a dnf package id
         it will return a python repr string of the attribute
@@ -754,7 +754,7 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
                           (self._get_id(po), tsi.active_history_state))
         return result
 
-    def _set_option(self, option, value):
+    def set_option(self, option, value):
         value = json.loads(value)
         if hasattr(self.base.conf, option):
             setattr(self.base.conf, option, value)

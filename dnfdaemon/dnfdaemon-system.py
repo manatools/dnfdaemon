@@ -312,7 +312,7 @@ class DnfDaemon(common.DnfDaemonBase):
         :param sender:
         """
         self.working_start(sender)
-        value = self.get_updateInfo(pkg_id)
+        value = self.get_update_info(pkg_id)
         return self.working_ended(value)
 
     @common.Logger
@@ -549,7 +549,7 @@ class DnfDaemon(common.DnfDaemonBase):
         Resolve dependencies of current transaction
         """
         self.working_start(sender)
-        value = self._build_transaction()
+        value = self.build_transaction()
         return self.working_ended(value)
 
     @common.Logger

@@ -277,7 +277,7 @@ class DnfDaemon(common.DnfDaemonBase):
         :param sender:
         '''
         self.working_start(sender)
-        value = self.get_updateInfo(id)
+        value = self.get_update_info(id)
         return self.working_ended(value)
 
     @common.Logger
