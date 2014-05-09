@@ -512,7 +512,7 @@ class DnfDaemonBase:
         return (n, e, v, r, a, repo_id, ts_state)
 
 
-class DnfDaemonReadOnlyClient(DnfDaemonBase):
+class ClientReadOnly(DnfDaemonBase):
     '''A class to communicate with the yumdaemon DBus services in a easy way
     '''
 
@@ -527,7 +527,7 @@ class DnfDaemonReadOnlyClient(DnfDaemonBase):
             print("Unhandled Signal : " + signal, " Param: ", args)
 
 
-class DnfDaemonClient(DnfDaemonBase):
+class Client(DnfDaemonBase):
     '''A class to communicate with the yumdaemon DBus services in a easy way
     '''
 

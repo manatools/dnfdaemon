@@ -1,19 +1,14 @@
-from __future__ import print_function
-from __future__ import absolute_import
-import sys
-import os.path
-sys.path.insert(0, os.path.abspath('client'))
 import unittest
 import datetime
 import time
 from datetime import date
-from dnfdaemon import DnfDaemonClient, DnfDaemonReadOnlyClient
+from dnfdaemon.client import Client, ClientReadOnly
 
 
-class TestBase(unittest.TestCase, DnfDaemonClient):
+class TestBase(unittest.TestCase, Client):
     def __init__(self, methodName='runTest'):
         unittest.TestCase.__init__(self, methodName)
-        DnfDaemonClient.__init__(self)
+        Client.__init__(self)
         self._gpg_confirm = None
         self._signals = {}
         self.default_repos = []
@@ -189,10 +184,10 @@ class TestBase(unittest.TestCase, DnfDaemonClient):
         #print("on_RepoMetaDataProgress : %s" % (repr(values)))
 
 
-class TestBaseReadonly(unittest.TestCase, DnfDaemonReadOnlyClient):
+class TestBaseReadonly(unittest.TestCase, ClientReadOnly):
     def __init__(self, methodName='runTest'):
         unittest.TestCase.__init__(self, methodName)
-        DnfDaemonReadOnlyClient.__init__(self)
+        ClientReadOnly.__init__(self)
         self.default_repos = []
         self._signals = {}
 

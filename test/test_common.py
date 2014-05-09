@@ -1,27 +1,25 @@
 # -*- coding: utf-8 -*-
 
-import sys
-import os
-sys.path.insert(0, os.path.abspath('dnfdaemon'))
+import dnfdaemon.server
+import dnfdaemon.server.backend as backend
 
-import support
-import common
+import test.support as support
 import json
 import logging
 from unittest import mock
 
 
-class DnfBaseMock(common.DnfBase):
+class DnfBaseMock(backend.DnfBase):
 
     def __init__(self, parent):
         self._base = support.MockBase('main')
         self.parent = mock.MagicMock()
-        self.md_progress = common.MDProgress(parent)
-        self.progress = common.Progress(parent, max_err=100)
+        self.md_progress = backend.MDProgress(parent)
+        self.progress = backend.Progress(parent, max_err=100)
         self._packages = None
 
     def setup_base(self):
-        self._packages = common.Packages(self._base)
+        self._packages = backend.Packages(self._base)
 
     def __getattr__(self, attr):
         if hasattr(self._base, attr):
@@ -38,12 +36,13 @@ class DnfBaseMock(common.DnfBase):
     def close(self):
         pass
 
+
 class TestPackages(support.TestCase):
 
     def test_packages(self):
         """Test Packages()"""
         base = support.MockBase('main')
-        pkgs = common.Packages(base)
+        pkgs = backend.Packages(base)
         inst = list(map(str, pkgs.installed))
         self.assertEqual(inst, ['bar-1.0-1.noarch',
                                 'foo-2.0-1.noarch',
@@ -68,7 +67,7 @@ class TestDnfBase(support.TestCase):
 
     def test_packages_attr(self):
         """Test packages attr"""
-        self.assertIsInstance(self.base.packages, common.Packages)
+        self.assertIsInstance(self.base.packages, backend.Packages)
 
     def test_search_nodups(self):
         """Test search (nodups)"""
@@ -98,7 +97,7 @@ class TestCommonBase(support.TestCase):
 
     def setUp(self):
         self._base = None
-        self.daemon = common.DnfDaemonBase()
+        self.daemon = dnfdaemon.server.DnfDaemonBase()
         self.daemon._base = self._get_base()
 
 
@@ -148,7 +147,7 @@ class TestCommonMisc(TestCommonBase):
         attr = self.daemon.get_attribute(pkg_id, 'action')
         self.assertEqual(json.loads(attr), 'update')
         # FIXME: updateinfo, changelog, filelist not supported
-        # in dnf yet, so they just return None for now
+        # in dnf yet, so they just return None for now.FA
         attr = self.daemon.get_attribute(pkg_id, 'updateinfo')
         self.assertEqual(json.loads(attr), None)
         attr = self.daemon.get_attribute(pkg_id, 'changelog')

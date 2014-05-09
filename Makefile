@@ -4,8 +4,9 @@ SYSCONFDIR=/etc
 PKGDIR = $(DATADIR)/$(PKGNAME)
 ORG_NAME = org.baseurl.DnfSystem
 ORG_RO_NAME = org.baseurl.DnfSession
-SUBDIRS = client/dnfdaemon
+SUBDIRS = python
 VERSION=$(shell awk '/Version:/ { print $$2 }' ${PKGNAME}.spec)
+TESTLIBS=python/:test/
 
 all: subdirs
 	
@@ -26,9 +27,8 @@ install:
 	install -m644 dbus/$(ORG_RO_NAME).service $(DESTDIR)$(DATADIR)/dbus-1/services/.				
 	install -m644 dbus/$(ORG_NAME).conf $(DESTDIR)$(SYSCONFDIR)/dbus-1/system.d/.				
 	install -m644 policykit1/$(ORG_NAME).policy $(DESTDIR)$(DATADIR)/polkit-1/actions/.				
-	install -m755 dnfdaemon/dnfdaemon-system.py $(DESTDIR)/$(PKGDIR)/dnfdaemon-system
-	install -m755 dnfdaemon/dnfdaemon-session.py $(DESTDIR)/$(PKGDIR)/dnfdaemon-session
-	install -m644 dnfdaemon/common.py $(DESTDIR)/$(PKGDIR)/.
+	install -m755 daemon/dnfdaemon-system.py $(DESTDIR)/$(PKGDIR)/dnfdaemon-system
+	install -m755 daemon/dnfdaemon-session.py $(DESTDIR)/$(PKGDIR)/dnfdaemon-session
 	for d in $(SUBDIRS); do make DESTDIR=$(DESTDIR) -C $$d install; [ $$? = 0 ] || exit 1; done
 
 uninstall:
@@ -44,42 +44,29 @@ selinux:
 	restorecon $(DESTDIR)/$(PKGDIR_DNF)/dnfdaemon-system
 	
 
-# Run as root or you will get a password prompt
-test-verbose: FORCE
-	@sudo nosetests-3.3 -v -s test/
-
-
-# Run as root or you will get a password prompt
-run-tests: FORCE
-	@sudo nosetests-3.3 -v test/
-
 # Run as root or you will get a password prompt 
 run-tests-system: FORCE
-	@sudo nosetests-3.3 -v test/test-system-*.py
+	@sudo PYTHONPATH=$(TESTLIBS) nosetests-3.3 -v test/test-system-*.py
 
 # Run as root or you will get a password prompt 
 run-tests-system-verbose: FORCE
-	@sudo nosetests-3.3 -v -s test/test-system-*.py
+	@sudo PYTHONPATH=$(TESTLIBS) nosetests-3.3 -v -s test/test-system-*.py
 
 # Run as root or you will get a password prompt 
 run-tests-system-rw: FORCE
-	@sudo nosetests-3.3 -v test/test-system-rw.py
+	@sudo PYTHONPATH=$(TESTLIBS) nosetests-3.3 -v test/test-system-rw.py
 
 run-tests-system-ro: FORCE
-	@sudo nosetests-3.3 -v test/test-system-ro.py
+	@sudo PYTHONPATH=$(TESTLIBS) nosetests-3.3 -v test/test-system-ro.py
 
 run-tests-session: FORCE
-	@nosetests-3.3 -v test/test-session-api.py
+	@PYTHONPATH=$(TESTLIBS) nosetests-3.3 -v test/test-session-api.py
 
 run-tests-session-verbose: FORCE
-	@nosetests-3.3 -v -s test/test-session-api.py
-
-# Run as root or you will get a password prompt for each test method :)
-test-devel: FORCE
-	@nosetests-3.3 -v -s test/unit-devel.py
+	@PYTHONPATH=$(TESTLIBS) nosetests-3.3 -v -s test/test-session-api.py
 
 run-tests-unit: FORCE
-	@nosetests-3.3 -v -s test/test_common.py
+	@PYTHONPATH=$(TESTLIBS) nosetests-3.3 -v -s test/test_common.py
 
 instdeps:
 	sudo yum install python-nose python3-gobject pygobject3	python3-nose
@@ -100,7 +87,7 @@ release:
 	$(MAKE) build-setup
 	$(MAKE) changelog
 	@git commit -a -m "updated ChangeLog"	
-	@tito tag 
+	@tito tag --keep-version
 	@git push
 	@git push --tags origin
 	@tito build --rpm  -o build/
@@ -134,7 +121,7 @@ exit-both:
 	@sudo /usr/bin/dbus-send --system --print-reply --dest="org.baseurl.DnfSystem" / org.baseurl.DnfSystem.Exit
 	
 start-session:
-	dnfdaemon/dnfdaemon-session.py -d -v --notimeout
+	PYTHONPATH=python/ daemon/dnfdaemon-session.py -d -v --notimeout
 
 kill-both:
 	@-sudo killall -9 -r "dnfdaemon-system\.py" &> /dev/null 
@@ -144,7 +131,7 @@ kill-both:
 	
 
 start-system:
-	sudo dnfdaemon/dnfdaemon-system.py -d -v --notimeout
+	@sudo PYTHONPATH=python/ daemon/dnfdaemon-system.py -d -v --notimeout
 
 monitor-session:
 	dbus-monitor "type='signal',sender='org.baseurl.DnfSession',interface='org.baseurl.DnfSession'"	

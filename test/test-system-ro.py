@@ -1,13 +1,7 @@
 # -*- coding: utf-8 -*-
-from __future__ import print_function
-from __future__ import absolute_import
-import sys
-import os
-sys.path.insert(0, os.path.abspath('../client'))
-from base import TestBase
-from dnfdaemon import LockedError
-from subprocess import check_output, call
-from nose.exc import SkipTest
+
+from apitest import TestBase
+from dnfdaemon.client import LockedError
 import time
 
 """

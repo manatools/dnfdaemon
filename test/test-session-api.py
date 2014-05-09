@@ -1,11 +1,5 @@
-import sys
-import os
-sys.path.insert(0, os.path.abspath('client'))
-#from base import TestBaseReadonly as TestBase
-from base import TestBase, TestBaseReadonly
-from dnfdaemon import LockedError
-from subprocess import check_output, call
-from nose.exc import SkipTest
+from apitest import TestBaseReadonly
+from dnfdaemon.client import LockedError
 import time
 
 """

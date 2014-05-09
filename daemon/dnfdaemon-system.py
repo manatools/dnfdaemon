@@ -15,20 +15,17 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301, USA.
 
-# (C) 2013 -2014 - Tim Lauridsen <timlau@fedoraproject.org>
+# (C) 2013-2014 - Tim Lauridsen <timlau@fedoraproject.org>
 
 #
 # dnf session bus dBus service (Readonly)
 #
-
-from __future__ import print_function
-from __future__ import absolute_import
-
 from dbus.mainloop.glib import DBusGMainLoop
+from dnfdaemon.server import Logger
 from gi.repository import Gtk
 
 import argparse
-import common
+import dnfdaemon.server
 import dbus
 import dbus.service
 import logging
@@ -68,10 +65,10 @@ class DaemonBase():
         return 0
 
 
-class DnfDaemon(common.DnfDaemonBase):
+class DnfDaemon(dnfdaemon.server.DnfDaemonBase):
 
     def __init__(self):
-        common.DnfDaemonBase.__init__(self)
+        dnfdaemon.server.DnfDaemonBase.__init__(self)
         bus_name = dbus.service.BusName(DAEMON_ORG, bus=dbus.SystemBus())
         dbus.service.Object.__init__(self, bus_name, '/')
         self._gpg_confirm = {}
@@ -80,7 +77,7 @@ class DnfDaemon(common.DnfDaemonBase):
 # DBus Methods
 #=========================================================================
 
-    @common.Logger
+    @Logger
     @dbus.service.method(DAEMON_INTERFACE,
                          in_signature='',
                          out_signature='i')
@@ -88,9 +85,9 @@ class DnfDaemon(common.DnfDaemonBase):
         """
         Get the daemon version
         """
-        return common.VERSION
+        return dnfdaemon.server.VERSION
 
-    @common.Logger
+    @Logger
     @dbus.service.method(DAEMON_INTERFACE,
                          in_signature='',
                          out_signature='b',
@@ -108,7 +105,7 @@ class DnfDaemon(common.DnfDaemonBase):
         else:
             return False
 
-    @common.Logger
+    @Logger
     @dbus.service.method(DAEMON_INTERFACE,
                          in_signature='',
                          out_signature='b',
@@ -125,7 +122,7 @@ class DnfDaemon(common.DnfDaemonBase):
             return True
         return False
 
-    @common.Logger
+    @Logger
     @dbus.service.method(DAEMON_INTERFACE,
                          in_signature='b',
                          out_signature='b',
@@ -140,7 +137,7 @@ class DnfDaemon(common.DnfDaemonBase):
         self._watchdog_disabled = not state
         return state
 
-    @common.Logger
+    @Logger
     @dbus.service.method(DAEMON_INTERFACE,
                          in_signature='s',
                          out_signature='as',
@@ -155,7 +152,7 @@ class DnfDaemon(common.DnfDaemonBase):
         repos = self.get_repositories(filter)
         return self.working_ended(repos)
 
-    @common.Logger
+    @Logger
     @dbus.service.method(DAEMON_INTERFACE,
                          in_signature='as',
                          out_signature='',
@@ -170,7 +167,7 @@ class DnfDaemon(common.DnfDaemonBase):
         self.set_enabled_repos(repo_ids)
         return self.working_ended()
 
-    @common.Logger
+    @Logger
     @dbus.service.method(DAEMON_INTERFACE,
                          in_signature='',
                          out_signature='b',
@@ -186,7 +183,7 @@ class DnfDaemon(common.DnfDaemonBase):
         rc = self.expire_cache()
         return self.working_ended(rc)
 
-    @common.Logger
+    @Logger
     @dbus.service.method(DAEMON_INTERFACE,
                          in_signature='s',
                          out_signature='s',
@@ -202,7 +199,7 @@ class DnfDaemon(common.DnfDaemonBase):
         value = self.get_config(setting)
         return self.working_ended(value)
 
-    @common.Logger
+    @Logger
     @dbus.service.method(DAEMON_INTERFACE,
                          in_signature='ss',
                          out_signature='b',
@@ -218,7 +215,7 @@ class DnfDaemon(common.DnfDaemonBase):
         rc = self.set_option(setting, value)
         return self.working_ended(rc)
 
-    @common.Logger
+    @Logger
     @dbus.service.method(DAEMON_INTERFACE,
                          in_signature='s',
                          out_signature='s',
@@ -234,7 +231,7 @@ class DnfDaemon(common.DnfDaemonBase):
         value = self._get_repo(repo_id)
         return self.working_ended(value)
 
-    @common.Logger
+    @Logger
     @dbus.service.method(DAEMON_INTERFACE,
                          in_signature='s',
                          out_signature='as',
@@ -249,7 +246,7 @@ class DnfDaemon(common.DnfDaemonBase):
         value = self.get_packages(pkg_filter)
         return self.working_ended(value)
 
-    @common.Logger
+    @Logger
     @dbus.service.method(DAEMON_INTERFACE,
                          in_signature='sas',
                          out_signature='s',
@@ -264,7 +261,7 @@ class DnfDaemon(common.DnfDaemonBase):
         value = self.get_packages_with_attributes(pkg_filter, fields)
         return self.working_ended(value)
 
-    @common.Logger
+    @Logger
     @dbus.service.method(DAEMON_INTERFACE,
                          in_signature='sasb',
                          out_signature='s',
@@ -281,7 +278,7 @@ class DnfDaemon(common.DnfDaemonBase):
         values = self.get_packages_by_name_with_attr(name, attrs, newest_only)
         return self.working_ended(values)
 
-    @common.Logger
+    @Logger
     @dbus.service.method(DAEMON_INTERFACE,
                          in_signature='ss',
                          out_signature='s',
@@ -299,7 +296,7 @@ class DnfDaemon(common.DnfDaemonBase):
         value = self.get_attribute(pkg_id, attr)
         return self.working_ended(value)
 
-    @common.Logger
+    @Logger
     @dbus.service.method(DAEMON_INTERFACE,
                          in_signature='i',
                          out_signature='s',
@@ -317,7 +314,7 @@ class DnfDaemon(common.DnfDaemonBase):
         value = self.get_history_transaction_pkgs(tid)
         return self.working_ended(value)
 
-    @common.Logger
+    @Logger
     @dbus.service.method(DAEMON_INTERFACE,
                          in_signature='ii',
                          out_signature='s',
@@ -337,7 +334,7 @@ class DnfDaemon(common.DnfDaemonBase):
         value = self.get_history_by_days(start_days, end_days)
         return self.working_ended(value)
 
-    @common.Logger
+    @Logger
     @dbus.service.method(DAEMON_INTERFACE,
                          in_signature='as',
                          out_signature='s',
@@ -354,7 +351,7 @@ class DnfDaemon(common.DnfDaemonBase):
         value = self.history_search(pattern)
         return self.working_ended(value)
 
-    @common.Logger
+    @Logger
     @dbus.service.method(DAEMON_INTERFACE,
                          in_signature='',
                          out_signature='b',
@@ -368,7 +365,7 @@ class DnfDaemon(common.DnfDaemonBase):
             self._lock = None
             return True
 
-    @common.Logger
+    @Logger
     @dbus.service.method(DAEMON_INTERFACE,
                          in_signature='s',
                          out_signature='s',
@@ -384,7 +381,7 @@ class DnfDaemon(common.DnfDaemonBase):
         value = self.group_install(cmds)
         return self.working_ended(value)
 
-    @common.Logger
+    @Logger
     @dbus.service.method(DAEMON_INTERFACE,
                          in_signature='s',
                          out_signature='s',
@@ -400,7 +397,7 @@ class DnfDaemon(common.DnfDaemonBase):
         value = self.group_remove(cmds)
         return self.working_ended(value)
 
-    @common.Logger
+    @Logger
     @dbus.service.method(DAEMON_INTERFACE,
                          in_signature='s',
                          out_signature='s',
@@ -416,7 +413,7 @@ class DnfDaemon(common.DnfDaemonBase):
         value = self.install(cmds)
         return self.working_ended(value)
 
-    @common.Logger
+    @Logger
     @dbus.service.method(DAEMON_INTERFACE,
                          in_signature='s',
                          out_signature='s',
@@ -432,7 +429,7 @@ class DnfDaemon(common.DnfDaemonBase):
         value = self.remove(cmds)
         return self.working_ended(value)
 
-    @common.Logger
+    @Logger
     @dbus.service.method(DAEMON_INTERFACE,
                          in_signature='s',
                          out_signature='s',
@@ -448,7 +445,7 @@ class DnfDaemon(common.DnfDaemonBase):
         value = self.update(cmds)
         return self.working_ended(value)
 
-    @common.Logger
+    @Logger
     @dbus.service.method(DAEMON_INTERFACE,
                          in_signature='s',
                          out_signature='s',
@@ -464,7 +461,7 @@ class DnfDaemon(common.DnfDaemonBase):
         value = self.reinstall(cmds)
         return self.working_ended(value)
 
-    @common.Logger
+    @Logger
     @dbus.service.method(DAEMON_INTERFACE,
                          in_signature='s',
                          out_signature='s',
@@ -480,7 +477,7 @@ class DnfDaemon(common.DnfDaemonBase):
         value = self.downgrade(cmds)
         return self.working_ended(value)
 
-    @common.Logger
+    @Logger
     @dbus.service.method(DAEMON_INTERFACE,
                          in_signature='ss',
                          out_signature='s',
@@ -497,7 +494,7 @@ class DnfDaemon(common.DnfDaemonBase):
         value = self.add_transaction(pkg_id, action)
         return self.working_ended(value)
 
-    @common.Logger
+    @Logger
     @dbus.service.method(DAEMON_INTERFACE,
                          in_signature='',
                          out_signature='',
@@ -510,7 +507,7 @@ class DnfDaemon(common.DnfDaemonBase):
         self.clear_transaction()
         return self.working_ended()
 
-    @common.Logger
+    @Logger
     @dbus.service.method(DAEMON_INTERFACE,
                          in_signature='',
                          out_signature='s',
@@ -523,7 +520,7 @@ class DnfDaemon(common.DnfDaemonBase):
         value = self.get_transaction()
         return self.working_ended(value)
 
-    @common.Logger
+    @Logger
     @dbus.service.method(DAEMON_INTERFACE,
                          in_signature='',
                          out_signature='s',
@@ -536,7 +533,7 @@ class DnfDaemon(common.DnfDaemonBase):
         value = self.build_transaction()
         return self.working_ended(value)
 
-    @common.Logger
+    @Logger
     @dbus.service.method(DAEMON_INTERFACE,
                          in_signature='i',
                          out_signature='s',
@@ -552,7 +549,7 @@ class DnfDaemon(common.DnfDaemonBase):
         result = self.run_transaction(max_err)
         return self.working_ended(result)
 
-    @common.Logger
+    @Logger
     @dbus.service.method(DAEMON_INTERFACE,
                          in_signature='asasasbbb',
                          out_signature='s',
@@ -574,7 +571,7 @@ class DnfDaemon(common.DnfDaemonBase):
             fields, keys, attrs, match_all, newest_only, tags)
         return self.working_ended(result)
 
-    @common.Logger
+    @Logger
     @dbus.service.method(DAEMON_INTERFACE,
                          in_signature='',
                          out_signature='s',
@@ -587,7 +584,7 @@ class DnfDaemon(common.DnfDaemonBase):
         value = self.get_groups()
         return self.working_ended(value)
 
-    @common.Logger
+    @Logger
     @dbus.service.method(DAEMON_INTERFACE,
                          in_signature='ssas',
                          out_signature='s',
@@ -604,7 +601,7 @@ class DnfDaemon(common.DnfDaemonBase):
         value = self.get_group_pkgs(grp_id, grp_flt, fields)
         return self.working_ended(value)
 
-    @common.Logger
+    @Logger
     @dbus.service.method(DAEMON_INTERFACE,
                          in_signature='sb',
                          out_signature='',
@@ -754,9 +751,10 @@ def main():
     args = parser.parse_args()
     if args.verbose:
         if args.debug:
-            common.doTextLoggerSetup(logroot='dnfdaemon', loglvl=logging.DEBUG)
+            dnfdaemon.server.doTextLoggerSetup(logroot='dnfdaemon',
+                loglvl=logging.DEBUG)
         else:
-            common.doTextLoggerSetup(logroot='dnfdaemon')
+            dnfdaemon.server.doTextLoggerSetup(logroot='dnfdaemon')
 
     # setup the DBus mainloop
     DBusGMainLoop(set_as_default=True)

@@ -2,7 +2,7 @@
 %global dnf_version 0.5.1
 
 Name:           dnfdaemon
-Version:        0.1.6
+Version:        0.2.0
 Release:        1%{?dist}
 Summary:        DBus daemon for dnf package actions
 License:        GPLv2+
@@ -13,6 +13,7 @@ BuildRequires:  python3-devel
 Requires:       python3-dbus
 Requires:       python3-dnf >= %{dnf_version}
 Requires:       polkit
+Requires:       python3-%{name} = %{version}-%{release}
 Requires(post):     policycoreutils-python
 Requires(postun):   policycoreutils-python
 
@@ -29,29 +30,43 @@ Dbus daemon for performing package actions with the dnf package manager
 make install DESTDIR=$RPM_BUILD_ROOT DATADIR=%{_datadir} SYSCONFDIR=%{_sysconfdir}
 
 %package -n python3-%{name}
+Summary:        %{name} python support libs
+Group:          Applications/System
+BuildRequires:  python3-devel
+Requires:       python3-gobject
+
+%description -n python3-%{name}
+%{name} python support libs
+
+%files -n  python3-%{name}
+%{python3_sitelib}/%{name}/__*
+%{python3_sitelib}/%{name}/server/*
+
+
+%package -n python3-%{name}-client
 Summary:        Python 3 api for communicating with the dnf-daemon DBus service
 Group:          Applications/System
 BuildRequires:  python3-devel
 Requires:       %{name} = %{version}-%{release}
 Requires:       python3-gobject
 
-%description -n python3-%{name}
+%description -n python3-%{name}-client
 Python 3 api for communicating with the dnf-daemon DBus service
 
-%files -n  python3-%{name}
-%{python3_sitelib}/%{name}/
+%files -n  python3-%{name}-client
+%{python3_sitelib}/%{name}/client
 
-%package -n python-%{name}
+%package -n python-%{name}-client
 Summary:        Python 2 api for communicating with the dnf-daemon DBus service
 Group:          Applications/System
 BuildRequires:  python2-devel
 Requires:       %{name} = %{version}-%{release}
 Requires:       pygobject3
 
-%description -n python-%{name}
+%description -n python-%{name}-client
 Python 2 api for communicating with the dnf-daemon DBus service
 
-%files -n  python-%{name}
+%files -n  python-%{name}-client
 %{python_sitelib}/%{name}/
 
 # apply the right selinux file context
