@@ -87,7 +87,7 @@ release:
 	$(MAKE) build-setup
 	$(MAKE) changelog
 	@git commit -a -m "updated ChangeLog"	
-	@tito tag --keep-version
+	@tito tag
 	@git push
 	@git push --tags origin
 	@tito build --rpm  -o build/
