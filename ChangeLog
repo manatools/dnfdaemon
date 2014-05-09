@@ -1,5 +1,18 @@
 2014-05-09  Tim Lauridsen <timlau@fedoraproject.org>
 
+	* Makefile: build: auto bump release
+
+2014-05-09  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* dnfdaemon.spec, rel-eng/packages/dnfdaemon: Automatic commit of
+	package [dnfdaemon] release [0.2.0-1].
+
+2014-05-09  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* ChangeLog: updated ChangeLog
+
+2014-05-09  Tim Lauridsen <timlau@fedoraproject.org>
+
 	* Makefile, client/dnfdaemon/Makefile,
 	client/dnfdaemon/__init__.py, daemon/dnfdaemon-session.py,
 	daemon/dnfdaemon-system.py, dnfdaemon.spec, dnfdaemon/common.py,
