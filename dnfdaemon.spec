@@ -2,7 +2,7 @@
 %global dnf_version 0.5.2
 
 Name:           dnfdaemon
-Version:        0.2.1
+Version:        0.2.2
 Release:        1%{?dist}
 Summary:        DBus daemon for dnf package actions
 License:        GPLv2+
@@ -92,6 +92,12 @@ fi
 
 
 %changelog
+* Thu May 29 2014 Tim Lauridsen <timlau@fedoraproject.org> 0.2.2-1
+- build: require dnf 0.5.2 (timlau@fedoraproject.org)
+- fix refactor issue (timlau@fedoraproject.org)
+- api: merged GetPackages with GetPackageWithAttributes.
+  (timlau@fedoraproject.org)
+
 * Fri May 09 2014 Tim Lauridsen <timlau@fedoraproject.org> 0.2.1-1
 - bumped release
 
