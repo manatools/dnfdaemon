@@ -227,7 +227,7 @@ class DnfDaemon(dnfdaemon.server.DnfDaemonBase):
         :param sender:
         """
         self.working_start(sender)
-        value = self._get_repo(repo_id)
+        value = self.get_repo(repo_id)
         return self.working_ended(value)
 
     @Logger
