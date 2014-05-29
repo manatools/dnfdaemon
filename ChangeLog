@@ -1,3 +1,27 @@
+2014-05-29  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* dnfdaemon.spec: build: require dnf 0.5.2
+
+2014-05-29  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* daemon/dnfdaemon-system.py: fix refactor issue
+
+2014-05-09  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* daemon/dnfdaemon-session.py, daemon/dnfdaemon-system.py,
+	python/dnfdaemon/client/__init__.py,
+	python/dnfdaemon/server/__init__.py, test/test_common.py: api:
+	merged GetPackages with GetPackageWithAttributes.
+
+2014-05-09  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* dnfdaemon.spec, rel-eng/packages/dnfdaemon: Automatic commit of
+	package [dnfdaemon] release [0.2.1-1].
+
+2014-05-09  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* ChangeLog: updated ChangeLog
+
 2014-05-09  Tim Lauridsen <timlau@fedoraproject.org>
 
 	* Makefile: build: auto bump release
