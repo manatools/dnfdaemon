@@ -1,3 +1,21 @@
+2014-07-13  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* test/test-system-ro.py: test: fixed som test cases
+
+2014-07-13  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* dnfdaemon.spec, python/dnfdaemon/server/backend.py: fix cachedir
+	setup for dnf 0.5.3 bump dnf dnf requirement
+
+2014-05-29  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* dnfdaemon.spec, rel-eng/packages/dnfdaemon: Automatic commit of
+	package [dnfdaemon] release [0.2.2-1].
+
+2014-05-29  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* ChangeLog: updated ChangeLog
+
 2014-05-29  Tim Lauridsen <timlau@fedoraproject.org>
 
 	* dnfdaemon.spec: build: require dnf 0.5.2

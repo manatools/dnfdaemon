@@ -42,7 +42,7 @@ import logging
 import operator
 import sys
 
-VERSION = 104  # (00.01.02) must be integer
+VERSION = 105  # (00.01.02) must be integer
 
 # Fake attributes, there is simulating real package attribute
 # used by get_attributes and others
