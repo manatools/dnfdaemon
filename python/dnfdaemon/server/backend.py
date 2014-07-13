@@ -26,6 +26,7 @@ import dnf.conf
 import dnf.exceptions
 import dnf.callback
 import dnf.comps
+import dnf.rpm
 import dnf.subject
 import dnf.transaction
 import dnf.yum
@@ -64,16 +65,16 @@ class DnfBase(dnf.Base):
 
     def setup_cache(self):
         """Setup the dnf cache, same as dnf cli"""
-        # perform the CLI-specific cachedir tricks
-        conf = self.conf
-        conf.releasever = None  # This will take the current release
         # FIXME: This is not public API, but we want the same cache as dnf cli
-        suffix = dnf.yum.parser.varReplace(
-            dnf.const.CACHEDIR_SUFFIX, conf.yumvar)
+        conf = self.conf
+        releasever = dnf.rpm.detect_releasever('/')
+        conf.releasever = releasever
+        subst = conf.substitutions
+        suffix = dnf.yum.parser.varReplace(dnf.const.CACHEDIR_SUFFIX, subst)
         cli_cache = dnf.conf.CliCache(conf.cachedir, suffix)
         conf.cachedir = cli_cache.cachedir
         self._system_cachedir = cli_cache.system_cachedir
-        logger.debug("dnf cachedir: %s" % conf.cachedir)
+        logger.debug("cachedir: %s", conf.cachedir)
 
     def set_max_error(self, max_err):
         """Setup a new progress object with a new
