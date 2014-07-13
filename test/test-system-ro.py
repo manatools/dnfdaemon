@@ -213,7 +213,7 @@ class TestAPIDevel(TestBase):
             'obsolete'], 'available': ['install', 'remove', 'update', 'obsolete']}
         for flt in flt_dict.keys():
             now = time.time()
-            result = self.GetPackageWithAttributes(flt, ['summary', 'size'])
+            result = self.GetPackages(flt, ['summary', 'size'])
             print(
                 "%s, # = %s, time = %.3f" %
                 (flt, len(result), time.time() - now))
