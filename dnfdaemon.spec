@@ -2,7 +2,7 @@
 %global dnf_version 0.5.3
 
 Name:           dnfdaemon
-Version:        0.2.2
+Version:        0.2.3
 Release:        1%{?dist}
 Summary:        DBus daemon for dnf package actions
 License:        GPLv2+
@@ -92,6 +92,10 @@ fi
 
 
 %changelog
+* Sun Jul 13 2014 Tim Lauridsen <timlau@fedoraproject.org> 0.2.3-1
+- fix cachedir setup for dnf 0.5.3 bump dnf dnf requirement
+  (timlau@fedoraproject.org)
+
 * Thu May 29 2014 Tim Lauridsen <timlau@fedoraproject.org> 0.2.2-1
 - build: require dnf 0.5.2 (timlau@fedoraproject.org)
 - fix refactor issue (timlau@fedoraproject.org)
