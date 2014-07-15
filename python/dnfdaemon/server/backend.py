@@ -154,7 +154,7 @@ class Packages:
     @property
     def updates(self):
         """Get available updates."""
-        return self.query.upgrades().run()
+        return self.query.upgrades().latest().run()
 
     @property
     def all(self, showdups=False):
