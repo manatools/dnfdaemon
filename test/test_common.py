@@ -59,6 +59,24 @@ class TestPackages(support.TestCase):
         self.assertEqual(obs, ['bar-new-2.0-1.noarch'])
 
 
+class TestMultilpleUpdates(support.TestCase):
+
+    def test_packages(self):
+        """Test multiple updates for same pkg"""
+        print()
+        base = support.MockBase('updates')
+        pkgs = backend.Packages(base)
+        inst = list(map(str, pkgs.installed))
+        self.assertEqual(inst, ['bar-1.0-1.noarch',
+                                'foo-2.0-1.noarch',
+                                'bar-old-1.0-1.noarch'])
+        avail = list(map(str, pkgs.get_all(showdups=True)))
+        self.assertEqual(avail, ['bar-1.5-1.noarch',
+                                 'bar-2.0-1.noarch'])
+        upds = list(map(str, pkgs.updates))
+        self.assertEqual(upds, ['bar-2.0-1.noarch'])
+
+
 class TestDnfBase(support.TestCase):
 
     def setUp(self):

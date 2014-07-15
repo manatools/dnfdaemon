@@ -1,0 +1,7 @@
+=Ver: 2.0
+#
+=Pkg: bar 1.5 1 noarch
+=Sum bar-1.5 test package
+=Pkg: bar 2.0 1 noarch
+=Sum bar-2.0 test package
+

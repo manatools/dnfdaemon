@@ -157,19 +157,26 @@ class Packages:
         return self.query.upgrades().latest().run()
 
     @property
-    def all(self, showdups=False):
+    def all(self):
         """Get all packages installed and available.
 
         If a package is install, only the installed package object is
         returned
         """
+        return self.get_all()
+
+    def get_all(self, showdups=False):
         if showdups:
             return self.filter_packages(self.query.available().run())
         else:
             return self.filter_packages(self.query.latest().run())
 
     @property
-    def available(self, showdups=False):
+    def available(self):
+        """Get available packages."""
+        return self.get_available()
+
+    def get_available(self, showdups=False):
         """Get available packages."""
         if showdups:
             return self.filter_packages(self.query.available().run(),
