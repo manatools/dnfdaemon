@@ -52,7 +52,8 @@ class DnfBase(dnf.Base):
 
     def expire_cache(self):
         """Make the current cache expire"""
-        self.cleanExpireCache()  # FIXME : cleanExpireCache() is not public API
+        for repo in self.repos.iter_enabled():
+            repo.md_expire_cache()
 
     def setup_base(self):
         """Setup dnf Sack and init packages helper"""
@@ -63,6 +64,7 @@ class DnfBase(dnf.Base):
     def packages(self):
         return self._packages
 
+
     def setup_cache(self):
         """Setup the dnf cache, same as dnf cli"""
         # FIXME: This is not public API, but we want the same cache as dnf cli
@@ -70,7 +72,7 @@ class DnfBase(dnf.Base):
         releasever = dnf.rpm.detect_releasever('/')
         conf.releasever = releasever
         subst = conf.substitutions
-        suffix = dnf.yum.parser.varReplace(dnf.const.CACHEDIR_SUFFIX, subst)
+        suffix = dnf.conf.parser.substitute(dnf.const.CACHEDIR_SUFFIX, subst)
         cli_cache = dnf.conf.CliCache(conf.cachedir, suffix)
         conf.cachedir = cli_cache.cachedir
         self._system_cachedir = cli_cache.system_cachedir
