@@ -64,18 +64,19 @@ class DnfBase(dnf.Base):
     def packages(self):
         return self._packages
 
+    def cachedir_fit(self):
+        conf = self.conf
+        subst = conf.substitutions
+        # this is not public API, same procedure as dnf cli
+        suffix = dnf.conf.parser.substitute(dnf.const.CACHEDIR_SUFFIX, subst)
+        cli_cache = dnf.conf.CliCache(conf.cachedir, suffix)
+        return cli_cache.cachedir, cli_cache.system_cachedir
 
     def setup_cache(self):
         """Setup the dnf cache, same as dnf cli"""
-        # FIXME: This is not public API, but we want the same cache as dnf cli
         conf = self.conf
-        releasever = dnf.rpm.detect_releasever('/')
-        conf.releasever = releasever
-        subst = conf.substitutions
-        suffix = dnf.conf.parser.substitute(dnf.const.CACHEDIR_SUFFIX, subst)
-        cli_cache = dnf.conf.CliCache(conf.cachedir, suffix)
-        conf.cachedir = cli_cache.cachedir
-        self._system_cachedir = cli_cache.system_cachedir
+        conf.substitutions['releasever'] = dnf.rpm.detect_releasever('/')
+        conf.cachedir, self._system_cachedir = self.cachedir_fit()
         logger.debug("cachedir: %s", conf.cachedir)
 
     def set_max_error(self, max_err):
