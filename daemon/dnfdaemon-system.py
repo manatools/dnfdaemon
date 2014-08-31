@@ -17,10 +17,10 @@
 # (C) 2013-2014 Tim Lauridsen <timlau@fedoraproject.org>
 
 #
-# dnf session bus dBus service (Readonly)
-#
+# dnf system  bus dBus service
+
 from dnfdaemon.server import Logger
-from gi.repository import Gtk
+from gi.repository import GLib
 
 import argparse
 import dbus
@@ -32,6 +32,7 @@ import logging
 DAEMON_ORG = 'org.baseurl.DnfSystem'
 DAEMON_INTERFACE = DAEMON_ORG
 logger = logging.getLogger('dnfdaemon.system')
+mainloop = GLib.MainLoop()
 
 
 #--------------------------------------------------------------- DBus Exception
@@ -99,7 +100,7 @@ class DnfDaemon(dnfdaemon.server.DnfDaemonBase):
         self.check_permission(sender)
         if self._can_quit:
             self._reset_base()
-            Gtk.main_quit()
+            mainloop.quit()
             return True
         else:
             return False
@@ -745,7 +746,7 @@ def main():
     yd = DnfDaemon()
     if not args.notimeout:
         yd._setup_watchdog()
-    Gtk.main()
+    mainloop.run()
 
 
 if __name__ == '__main__':
