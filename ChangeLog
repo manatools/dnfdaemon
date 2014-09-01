@@ -1,3 +1,39 @@
+2014-08-31  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* daemon/dnfdaemon-session.py, daemon/dnfdaemon-system.py: Use GLib
+	mainloop, instead of Gtk, there is crashing in F21
+
+2014-08-30  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* python/dnfdaemon/server/backend.py: use the same cache setup as
+	dnf cli
+
+2014-08-29  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* python/dnfdaemon/server/backend.py: fix cachedir setup caused by
+	upstream changes
+
+2014-07-15  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* python/dnfdaemon/server/backend.py, test/test_common.py,
+	test/test_data/repos/updates.repo: fix: show only latest updates
+	(fixes : timlau/yumex-dnf#2)
+
+2014-07-15  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* python/dnfdaemon/server/backend.py: fix: only get latest upgrades
+
+
+2014-07-13  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* dnfdaemon.spec, rel-eng/packages/dnfdaemon: Automatic commit of
+	package [dnfdaemon] release [0.2.3-1].
+
+2014-07-13  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* ChangeLog, python/dnfdaemon/server/__init__.py: updated ChangeLog
+
+
 2014-07-13  Tim Lauridsen <timlau@fedoraproject.org>
 
 	* test/test-system-ro.py: test: fixed som test cases
