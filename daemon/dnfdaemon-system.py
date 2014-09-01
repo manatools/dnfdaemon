@@ -19,6 +19,10 @@
 #
 # dnf system  bus dBus service
 
+# FIXME: Hack for gobject don't blow up'
+import os
+os.environ['XDG_RUNTIME_DIR'] = '/root'
+
 from dnfdaemon.server import Logger
 from gi.repository import GLib
 
