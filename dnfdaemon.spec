@@ -2,7 +2,7 @@
 %global dnf_version 0.5.3
 
 Name:           dnfdaemon
-Version:        0.2.3
+Version:        0.2.4
 Release:        1%{?dist}
 Summary:        DBus daemon for dnf package actions
 License:        GPLv2+
@@ -92,6 +92,16 @@ fi
 
 
 %changelog
+* Mon Sep 01 2014 Tim Lauridsen <timlau@fedoraproject.org> 0.2.4-1
+- updated ChangeLog (timlau@fedoraproject.org)
+- Use GLib mainloop, instead of Gtk, there is crashing in F21
+  (timlau@fedoraproject.org)
+- use the same cache setup as dnf cli (timlau@fedoraproject.org)
+- fix cachedir setup caused by upstream changes (timlau@fedoraproject.org)
+- fix: show only latest updates (fixes : timlau/yumex-dnf#2)
+  (timlau@fedoraproject.org)
+- fix: only get latest upgrades (timlau@fedoraproject.org)
+
 * Sun Jul 13 2014 Tim Lauridsen <timlau@fedoraproject.org> 0.2.3-1
 - fix cachedir setup for dnf 0.5.3 bump dnf dnf requirement
   (timlau@fedoraproject.org)
