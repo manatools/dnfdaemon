@@ -1,3 +1,17 @@
+2014-09-01  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* daemon/dnfdaemon-system.py: Hack for GObjects dont blow up
+
+2014-09-01  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* dnfdaemon.spec, rel-eng/packages/dnfdaemon: Automatic commit of
+	package [dnfdaemon] release [0.2.4-1].
+
+2014-09-01  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* ChangeLog, test/test_data/repos/local-pkg-1.0-1.fc20.noarch.rpm: 
+	updated ChangeLog
+
 2014-08-31  Tim Lauridsen <timlau@fedoraproject.org>
 
 	* daemon/dnfdaemon-session.py, daemon/dnfdaemon-system.py: Use GLib
