@@ -2,7 +2,7 @@
 %global dnf_version 0.5.3
 
 Name:           dnfdaemon
-Version:        0.2.4
+Version:        0.2.5
 Release:        1%{?dist}
 Summary:        DBus daemon for dnf package actions
 License:        GPLv2+
@@ -92,6 +92,10 @@ fi
 
 
 %changelog
+* Mon Sep 01 2014 Tim Lauridsen <timlau@fedoraproject.org> 0.2.5-1
+- updated ChangeLog (timlau@fedoraproject.org)
+- Hack for GObjects dont blow up (timlau@fedoraproject.org)
+
 * Mon Sep 01 2014 Tim Lauridsen <timlau@fedoraproject.org> 0.2.4-1
 - updated ChangeLog (timlau@fedoraproject.org)
 - Use GLib mainloop, instead of Gtk, there is crashing in F21
