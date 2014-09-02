@@ -22,7 +22,7 @@ Common stuff for the dnfdaemon dbus services
 from datetime import datetime
 from dnf.exceptions import DownloadError
 from dnf.yum.rpmtrans import TransactionDisplay
-from gi.repository import GLib, Gtk
+from gi.repository import GLib
 from . import backend
 
 import dbus
@@ -43,6 +43,7 @@ import operator
 import sys
 
 VERSION = 105  # (00.01.02) must be integer
+MAINLOOP = GLib.MainLoop()
 
 # Fake attributes, there is simulating real package attribute
 # used by get_attributes and others
@@ -933,11 +934,17 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
         if terminate:  # shall we quit
             if self._can_quit:
                 self._reset_base()
-                Gtk.main_quit()
+                self.mainloop_quit()
         else:
             self._watchdog_count += 1
             self.logger.debug("Watchdog : %i" % self._watchdog_count)
             return True
+
+    def mainloop_quit(self):
+        MAINLOOP.quit()
+
+    def mainloop_run(self):
+        MAINLOOP.run()
 
     def TransactionEvent(self, event, data):
         """Transaction event stub, overload in child class

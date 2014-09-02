@@ -24,7 +24,6 @@ import os
 os.environ['XDG_RUNTIME_DIR'] = '/root'
 
 from dnfdaemon.server import Logger
-from gi.repository import GLib
 
 import argparse
 import dbus
@@ -36,7 +35,6 @@ import logging
 DAEMON_ORG = 'org.baseurl.DnfSystem'
 DAEMON_INTERFACE = DAEMON_ORG
 logger = logging.getLogger('dnfdaemon.system')
-mainloop = GLib.MainLoop()
 
 
 #--------------------------------------------------------------- DBus Exception
@@ -104,7 +102,7 @@ class DnfDaemon(dnfdaemon.server.DnfDaemonBase):
         self.check_permission(sender)
         if self._can_quit:
             self._reset_base()
-            mainloop.quit()
+            self.mainloop_quit()
             return True
         else:
             return False
@@ -750,7 +748,7 @@ def main():
     yd = DnfDaemon()
     if not args.notimeout:
         yd._setup_watchdog()
-    mainloop.run()
+    yd.mainloop_run()
 
 
 if __name__ == '__main__':
