@@ -197,14 +197,14 @@ class TestAPIDevel(TestBaseReadonly):
 
     def test_PackageActions(self):
         """
-        Session: GetPackageWithAttributes & GetAttribute (action)
+        System: GetPackageWithAttributes & GetAttribute (action)
         """
         print()
         flt_dict = {'installed': ['remove'], 'updates': ['update'], 'obsoletes': [
             'obsolete'], 'available': ['install', 'remove', 'update', 'obsolete']}
         for flt in flt_dict.keys():
             now = time.time()
-            result = self.GetPackageWithAttributes(flt, ['summary', 'size'])
+            result = self.GetPackages(flt, ['summary', 'size'])
             print(
                 "%s, # = %s, time = %.3f" %
                 (flt, len(result), time.time() - now))
