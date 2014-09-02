@@ -528,7 +528,7 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
             self.TransactionEvent('run-transaction', NONE)
             display = RPMTransactionDisplay(self)  # RPM Display callback
             self._can_quit = False
-            rc, msgs = self.base.do_transaction(display=display)
+            self.base.do_transaction(display=display)
         except DownloadError as e:
             rc = 4  # Download errors
             if isinstance(e.errmap, dict):
