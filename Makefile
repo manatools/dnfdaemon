@@ -7,6 +7,7 @@ ORG_RO_NAME = org.baseurl.DnfSession
 SUBDIRS = python
 VERSION=$(shell awk '/Version:/ { print $$2 }' ${PKGNAME}.spec)
 TESTLIBS=python/:test/
+PYVER3 := $(shell python3 -c 'import sys; print("%.3s" %(sys.version))')
 
 all: subdirs
 	
@@ -46,33 +47,33 @@ selinux:
 
 # Run as root or you will get a password prompt 
 run-tests-system: FORCE
-	@sudo PYTHONPATH=$(TESTLIBS) nosetests-3.3 -v test/test-system-*.py
+	@sudo PYTHONPATH=$(TESTLIBS) nosetests-$(PYVER3) -v test/test-system-*.py
 
 # Run as root or you will get a password prompt 
 run-tests-system-verbose: FORCE
-	@sudo PYTHONPATH=$(TESTLIBS) nosetests-3.3 -v -s test/test-system-*.py
+	@sudo PYTHONPATH=$(TESTLIBS) nosetests-$(PYVER3) -v -s test/test-system-*.py
 
 # Run as root or you will get a password prompt 
 run-tests-system-rw: FORCE
-	@sudo PYTHONPATH=$(TESTLIBS) nosetests-3.3 -v test/test-system-rw.py
+	@sudo PYTHONPATH=$(TESTLIBS) nosetests-$(PYVER3) -v test/test-system-rw.py
 
 run-tests-system-ro: FORCE
-	@sudo PYTHONPATH=$(TESTLIBS) nosetests-3.3 -v test/test-system-ro.py
+	@sudo PYTHONPATH=$(TESTLIBS) nosetests-$(PYVER3) -v test/test-system-ro.py
 
 run-tests-session: FORCE
-	@PYTHONPATH=$(TESTLIBS) nosetests-3.3 -v test/test-session-api.py
+	@PYTHONPATH=$(TESTLIBS) nosetests-$(PYVER3) -v test/test-session-api.py
 
 run-tests-session-verbose: FORCE
-	@PYTHONPATH=$(TESTLIBS) nosetests-3.3 -v -s test/test-session-api.py
+	@PYTHONPATH=$(TESTLIBS) nosetests-$(PYVER3) -v -s test/test-session-api.py
 
 run-tests-unit: FORCE
-	@PYTHONPATH=$(TESTLIBS) nosetests-3.3 -v -s test/test_common.py
+	@PYTHONPATH=$(TESTLIBS) nosetests-$(PYVER3) -v -s test/test_common.py
 
 instdeps:
-	sudo yum install python-nose python3-gobject pygobject3	python3-nose
+	sudo dnf install python-nose python3-gobject pygobject3	python3-nose
 
 get-builddeps:
-	yum install perl-TimeDate gettext intltool rpmdevtools python-devel python3-devel python-sphinx python3-nose tito
+	sudo dnf install perl-TimeDate gettext intltool rpmdevtools python-devel python3-devel python-sphinx python3-nose tito
 	
 # needs perl-TimeDate for git2cl
 changelog:
