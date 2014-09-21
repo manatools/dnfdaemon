@@ -1,5 +1,9 @@
 2014-09-21  Tim Lauridsen <timlau@fedoraproject.org>
 
+	* ChangeLog, rel-eng/tito.props: updated ChangeLog
+
+2014-09-21  Tim Lauridsen <timlau@fedoraproject.org>
+
 	* ChangeLog, python/dnfdaemon/server/__init__.py,
 	rel-eng/packages/dnfdaemon: updated ChangeLog
 
