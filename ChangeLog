@@ -1,5 +1,19 @@
 2014-09-21  Tim Lauridsen <timlau@fedoraproject.org>
 
+	* dnfdaemon.spec, rel-eng/packages/dnfdaemon: Automatic commit of
+	package [dnfdaemon] release [0.3.0-1].
+
+2014-09-21  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* dnfdaemon.spec, rel-eng/packages/dnfdaemon: Automatic commit of
+	package [dnfdaemon] release [0.2.6-1].
+
+2014-09-21  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* ChangeLog: updated ChangeLog
+
+2014-09-21  Tim Lauridsen <timlau@fedoraproject.org>
+
 	* ChangeLog, rel-eng/tito.props: updated ChangeLog
 
 2014-09-21  Tim Lauridsen <timlau@fedoraproject.org>
