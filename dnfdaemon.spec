@@ -2,7 +2,7 @@
 %global dnf_version 0.6.1
 
 Name:           dnfdaemon
-Version:        0.2.6
+Version:        0.3.0
 Release:        1%{?dist}
 Summary:        DBus daemon for dnf package actions
 License:        GPLv2+
@@ -92,8 +92,9 @@ fi
 
 
 %changelog
-* Sun Sep 21 2014 Tim Lauridsen <timlau@fedoraproject.org> 0.2.6-1
+* Sun Sep 21 2014 Tim Lauridsen <timlau@fedoraproject.org> 0.3.0-1
 - bumped release
+
 * Mon Sep 01 2014 Tim Lauridsen <timlau@fedoraproject.org> 0.2.5-1
 - updated ChangeLog (timlau@fedoraproject.org)
 - Hack for GObjects dont blow up (timlau@fedoraproject.org)
