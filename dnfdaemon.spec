@@ -2,7 +2,7 @@
 %global dnf_version 0.6.1
 
 Name:           dnfdaemon
-Version:        0.3.0
+Version:        0.3.1
 Release:        1%{?dist}
 Summary:        DBus daemon for dnf package actions
 License:        GPLv2+
@@ -92,6 +92,9 @@ fi
 
 
 %changelog
+* Sun Sep 21 2014 Tim Lauridsen <timlau@fedoraproject.org> 0.3.1-1
+- updated ChangeLog (timlau@fedoraproject.org)
+
 * Sun Sep 21 2014 Tim Lauridsen <timlau@fedoraproject.org> 0.3.0-1
 - bumped release
 
