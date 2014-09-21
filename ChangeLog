@@ -1,3 +1,50 @@
+2014-09-21  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* Makefile: build: make target for run devel tests
+
+2014-09-04  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* python/dnfdaemon/client/__init__.py: fix: regex for detection of
+	Dbus Errors
+
+2014-09-04  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* Makefile: make: auto detect nosetest version to use when running
+	tests
+
+2014-09-03  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* python/dnfdaemon/client/__init__.py: Use GLib.MainLoop()
+
+2014-09-02  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* dnfdaemon.spec: bump dnf requirement to 0.6.1
+
+2014-09-02  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* python/dnfdaemon/__init__.py, python/dnfdaemon/server/__init__.py: 
+	dnf.base.do_transaction don't return anything in dnf 0.6.x
+
+2014-09-02  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* test/test-session-api.py: fix session test case after API changes
+
+
+2014-09-02  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* daemon/dnfdaemon-session.py, daemon/dnfdaemon-system.py,
+	python/dnfdaemon/server/__init__.py: handle the mainloop in
+	dnfdaemon.server
+
+2014-09-01  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* dnfdaemon.spec, rel-eng/packages/dnfdaemon: Automatic commit of
+	package [dnfdaemon] release [0.2.5-1].
+
+2014-09-01  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* ChangeLog: updated ChangeLog
+
 2014-09-01  Tim Lauridsen <timlau@fedoraproject.org>
 
 	* daemon/dnfdaemon-system.py: Hack for GObjects dont blow up
