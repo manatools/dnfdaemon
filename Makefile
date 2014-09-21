@@ -66,6 +66,9 @@ run-tests-session: FORCE
 run-tests-session-verbose: FORCE
 	@PYTHONPATH=$(TESTLIBS) nosetests-$(PYVER3) -v -s test/test-session-api.py
 
+run-tests-devel: FORCE
+	@PYTHONPATH=$(TESTLIBS) nosetests-$(PYVER3) -v -s test/unit-devel.py
+
 run-tests-unit: FORCE
 	@PYTHONPATH=$(TESTLIBS) nosetests-$(PYVER3) -v -s test/test_common.py
 
