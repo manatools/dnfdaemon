@@ -102,6 +102,7 @@ class RPMTransactionDisplay(TransactionDisplay):
 
         super(TransactionDisplay, self).__init__()
         self.base = base
+        self.do_verify = False
 
     def event(self, package, action, te_current, te_total, ts_current,
               ts_total):
@@ -129,6 +130,19 @@ class RPMTransactionDisplay(TransactionDisplay):
     def scriptout(self, msgs):
         """msgs is the messages that were output (if any)."""
         pass
+
+    def verify_tsi_package(self, pkg, count, total):
+        if not self.do_verify:
+            self.base.TransactionEvent('verify', "")
+            self.do_verify = True
+        if pkg:
+            # package can be both str or dnf package object
+            if not isinstance(pkg, str):
+                pkg_id = self.base._get_id(pkg)
+            else:
+                pkg_id = pkg
+            action = 'verify'
+            self.base.RPMProgress(pkg_id, action, 0, 0, count, total)
 
 
 class DownloadCallback:

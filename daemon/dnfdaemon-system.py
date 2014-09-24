@@ -642,7 +642,7 @@ class DnfDaemon(dnfdaemon.server.DnfDaemonBase):
 
         Steps are : start-run, download, pkg-to-download, signature-check,
                     run-test-transaction,
-        run-transaction, fail, end-run
+        run-transaction, verify, fail, end-run
 
         :param event: current step
         """
