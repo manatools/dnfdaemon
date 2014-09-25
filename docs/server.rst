@@ -381,7 +381,7 @@ Signals
         Signal with Transaction event information, telling the current step in the processing of
         the current transaction.
         
-        Steps are : start-run, download, pkg-to-download, signature-check, run-test-transaction, run-transaction, fail, end-run
+        Steps are : start-run, download, pkg-to-download, signature-check, run-test-transaction, run-transaction, verify, fail, end-run
         
         :param event: current step 
 
@@ -390,9 +390,8 @@ Signals
         
         signal with RPM Progress
         
-        :param package: A yum package object or simple string of a package name
-        :param action: A yum.constant transaction set state or in the obscure
-                       rpm repackage case it could be the string 'repackaging'
+        :param package: A package object or simple string of a package name
+        :param action: action current performed on the package: install, cleanup, remove etc.
         :param te_current: Current number of bytes processed in the transaction
                            element being processed
         :param te_total: Total number of bytes in the transaction element being
