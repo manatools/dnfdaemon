@@ -73,6 +73,14 @@ Misc methods
 
    Release the daemon Lock, if posible
 
+.. function:: SetWatchdogState(state)
+
+   Set the Watchdog state. 
+   if watchdog is enabled, then daemon will exit not used in 20s.
+   
+   :param state: True = Watchdog active, False = Watchdog disabled
+   :type state: boolean (b)
+
 Repository and config methods
 ------------------------------
 
@@ -121,28 +129,24 @@ Repository and config methods
    :return: did the update succed
    :rtype: boolean (b)
 
+.. py:function:: ExpireCache()
+
+   Expire the dnf cache, to force dnf to check for updated metadata.
+
+
 
 Package methods
 ----------------
 
 These methods is for getting packages and information about packages
 
-.. function:: GetPackages(pkg_filter)
 
-   get a list of packages matching the filter type
-   
-   :param pkg_filter: package filter ('installed','available','updates','obsoletes','recent','extras')
-   :type pkg_filter: string
-   :return: list of pkg_id's
-   :rtype: array of strings (as)
-   
-
-
-.. function:: GetPackageWithAttributes(pkg_filter, fields)
+.. function:: GetPackages(pkg_filter, fields)
 
    | Get a list of pkg list for a given package filter  
    | each pkg list contains [pkg_id, field,....] where field is a atrribute of the package object  
-   | Ex. summary, size etc.  
+   | Ex. summary, size etc.
+   | if no extra fields values are needed just use a empty array []
 	
    :param pkg_filter: package filter ('installed','available','updates','obsoletes','recent','extras')
    :type pkg_filter: string
@@ -413,9 +417,43 @@ Signals
         :param keyurl: Url to the GPG Key
         :param timestamp: GPG Timestamp
 
-.. note:: Under Development
+.. py:function::  ErrorMessage(self, error_msg)
+
+   An error message from the backend
+
+   :param error_msg: error message (s)
+
+
+.. py:function::  DownloadStart(self, num_files, num_bytes)
+
+   Starting a new parallel download batch
+
+   :param num_files: number of files to download
+   :param num_bytes: number of bytes to download 
+
+.. py:function:: DownloadProgress(self, name, frac, total_frac, total_files)
+
+   Progress for a single instance in the batch
+
+   :param name: name of package 
+   :param frac: fraction downloaded (0.0 -> 1.0) 
+   :param total_frac: fraction downloaded of whole batch(0.0 -> 1.0)
+   :param total_files: total files downloaded 
+
+.. py:function:: DownloadEnd(self, name, status, msg)
    
-   The progress signals for download progress is not documented yet
+   Download of af single instace ended
+
+   :param name: name of package 
+   :param status: download status
+   :param msg: error message, if status != ok
+
+.. py:function:: RepoMetaDataProgress(self, name, frac)
+   
+   Repository Metadata Download progress
+
+   :param name: repository id 
+   :param frac: fraction downloaded (0.0 -> 1.0)
 
    
 ==========================================
