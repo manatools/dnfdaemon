@@ -8,6 +8,7 @@ SUBDIRS = python
 VERSION=$(shell awk '/Version:/ { print $$2 }' ${PKGNAME}.spec)
 TESTLIBS=python/:test/
 PYVER3 := $(shell python3 -c 'import sys; print("%.3s" %(sys.version))')
+GITREV=$(shell git rev-parse HEAD)
 
 all: subdirs
 	
@@ -133,6 +134,10 @@ kill-both:
 	@-sudo killall -9 -r "dnfdaemon-system" &> /dev/null 
 	@-sudo killall -9 -r "dnfdaemon-session" &> /dev/null 
 	
+
+archive:
+	echo $(GITREV)
+	git archive $(GITREV) --prefix=$(PKGNAME) | xz > $(PKGNAME)-$(GITREV).tar.xz
 
 start-system:
 	@sudo PYTHONPATH=python/ daemon/dnfdaemon-system.py -d -v --notimeout

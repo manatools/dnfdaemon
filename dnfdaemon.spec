@@ -1,13 +1,18 @@
 %global dnf_org org.baseurl.Dnf
 %global dnf_version 0.6.1
+%global commit c3b24de3d440504211d026b177a45d1a34412b28
+%global shortcommit %(c=%{commit}; echo ${c:0:7})
+
+https://github.com/timlau/dnf-daemon/commit/c3b24de3d440504211d026b177a45d1a34412b28
 
 Name:           dnfdaemon
 Version:        0.3.1
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        DBus daemon for dnf package actions
 License:        GPLv2+
 URL:            https://github.com/timlau/dnf-daemon
-Source0:        https://github.com/timlau/dnf-daemon/archive/%{name}-%{version}.tar.gz
+Source0:        https://github.com/timlau/dnf-daemon/archive/%{commit}/dnf-daemon-%{commit}.tar.gz
+
 BuildArch:      noarch
 BuildRequires:  python3-devel
 Requires:       python3-dbus
@@ -21,7 +26,7 @@ Requires(postun):   policycoreutils-python
 Dbus daemon for performing package actions with the dnf package manager
 
 %prep
-%setup -q
+%setup -qn %{name}-%{commit}
 
 %build
 # Nothing to build
@@ -38,11 +43,6 @@ Requires:       python3-gobject
 %description -n python3-%{name}
 %{name} python support libs
 
-%files -n  python3-%{name}
-%{python3_sitelib}/%{name}/__*
-%{python3_sitelib}/%{name}/server/*
-
-
 %package -n python3-%{name}-client
 Summary:        Python 3 api for communicating with the dnf-daemon DBus service
 Group:          Applications/System
@@ -53,9 +53,6 @@ Requires:       python3-gobject
 %description -n python3-%{name}-client
 Python 3 api for communicating with the dnf-daemon DBus service
 
-%files -n  python3-%{name}-client
-%{python3_sitelib}/%{name}/client
-
 %package -n python-%{name}-client
 Summary:        Python 2 api for communicating with the dnf-daemon DBus service
 Group:          Applications/System
@@ -65,9 +62,6 @@ Requires:       pygobject3
 
 %description -n python-%{name}-client
 Python 2 api for communicating with the dnf-daemon DBus service
-
-%files -n  python-%{name}-client
-%{python_sitelib}/%{name}/
 
 # apply the right selinux file context
 # http://fedoraproject.org/wiki/PackagingDrafts/SELinux#File_contexts
@@ -90,8 +84,23 @@ fi
 # this should not be edited by the user, so no %%config
 %{_sysconfdir}/dbus-1/system.d/%{dnf_org}*
 
+%files -n  python3-%{name}
+%{python3_sitelib}/%{name}/__*
+%{python3_sitelib}/%{name}/server/*
+
+%files -n  python-%{name}-client
+%{python_sitelib}/%{name}/client
+
+%files -n  python3-%{name}-client
+%{python3_sitelib}/%{name}/client
 
 %changelog
+* Sun Sep 21 2014 Tim Lauridsen <timlau@fedoraproject.org> 0.3.1-2
+- fedora review cleanups
+- use fedora github source url policy
+- python-dnfdaemon-client should own %%{python_sitelib}/dnfdaemon/client
+- group %%files sections
+
 * Sun Sep 21 2014 Tim Lauridsen <timlau@fedoraproject.org> 0.3.1-1
 - updated ChangeLog (timlau@fedoraproject.org)
 
@@ -122,32 +131,4 @@ fi
 - api: merged GetPackages with GetPackageWithAttributes.
   (timlau@fedoraproject.org)
 
-* Fri May 09 2014 Tim Lauridsen <timlau@fedoraproject.org> 0.2.1-1
-- bumped release
 
-* Fri May 09 2014 Tim Lauridsen <timlau@fedoraproject.org> 0.2.0-1
-- bumped release to 0.2.0
-
-
-* Fri May 09 2014 Tim Lauridsen <timlau@fedoraproject.org> 0.1.6-1
-- bumped release
-* Sat May 03 2014 Tim Lauridsen <timlau@fedoraproject.org> 0.1.5-1
-- work with new dnf 0.5.0 API
-* Fri Apr 11 2014 Tim Lauridsen <timlau@fedoraproject.org> 0.1.4-1
-- new package built with tito
-
-* Tue Apr 01 2014 Tim Lauridsen <timlau@fedoraproject.org> 0.1.4-1
-- bumped release to 0.1.4
-
-* Sat Mar 29 2014 Tim Lauridsen <timlau@fedoraproject.org> 0.1.3-1
-- bumped release to 0.1.3
-
-* Mon Mar 24 2014 Tim Lauridsen <timlau@fedoraproject.org> 0.1.2-1
-- bumped release to 0.1.2
-- updated requirement to dnf-0.4.19
-
-* Tue Mar 11 2014 Tim Lauridsen <timlau@fedoraproject.org> 0.1.1-1
-- used python3, instead of python2 for dbus services
-
-* Sat Mar 08 2014 Tim Lauridsen <timlau@fedoraproject.org> 0.1.0-1
-- Initial rpm for dnfdaemon
