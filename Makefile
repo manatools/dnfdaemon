@@ -1,4 +1,5 @@
 PKGNAME = dnfdaemon
+APPNAME = $(PKGNAME)
 DATADIR=/usr/share
 SYSCONFDIR=/etc
 PKGDIR = $(DATADIR)/$(PKGNAME)
@@ -8,7 +9,16 @@ SUBDIRS = python
 VERSION=$(shell awk '/Version:/ { print $$2 }' ${PKGNAME}.spec)
 TESTLIBS=python/:test/
 PYVER3 := $(shell python3 -c 'import sys; print("%.3s" %(sys.version))')
-GITREV=$(shell git rev-parse HEAD)
+GITDATE=git$(shell date +%Y%m%d)
+VER_REGEX=\(^Version:\s*[0-9]*\.[0-9]*\.\)\(.*\)
+BUMPED_MINOR=${shell VN=`cat ${APPNAME}.spec | grep Version| sed  's/${VER_REGEX}/\2/'`; echo $$(($$VN + 1))}
+NEW_VER=${shell cat ${APPNAME}.spec | grep Version| sed  's/\(^Version:\s*\)\([0-9]*\.[0-9]*\.\)\(.*\)/\2${BUMPED_MINOR}/'}
+NEW_REL=0.1.${GITDATE}
+DIST=${shell rpm --eval "%{dist}"}
+GIT_MASTER=master
+CURDIR = ${shell pwd}
+BUILDDIR= $(CURDIR)/build
+
 
 all: subdirs
 	
@@ -79,27 +89,14 @@ instdeps:
 get-builddeps:
 	sudo dnf install perl-TimeDate gettext intltool rpmdevtools python-devel python3-devel python-sphinx python3-nose tito
 	
-# needs perl-TimeDate for git2cl
-changelog:
-	@git log --pretty --numstat --summary --after=2008-10-22 | tools/git2cl > ChangeLog
-	
 
 build-setup:
 	@rm -rf build/  &>/dev/null ||:
-	@mkdir -p build ||:
-	
-release:
-	$(MAKE) build-setup
-	$(MAKE) changelog
-	@git commit -a -m "updated ChangeLog"	
-	@tito tag
-	@git push
-	@git push --tags origin
-	@tito build --rpm  -o build/
-
-test-release:
-	$(MAKE) build-setup
-	tito build --rpm --test -o build/
+	@mkdir -p build/SOURCES ||:
+	@mkdir -p build/SRPMS ||:
+	@mkdir -p build/RPMS ||:
+	@mkdir -p build/BUILD ||:
+	@mkdir -p build/BUILDROOT ||:
 	
 test-repo-build:
 	@cd test/pkgs/ && ./build-rpms.sh
@@ -112,7 +109,57 @@ test-inst:
 	@sudo dnf install build/noarch/*.rpm
 	
 rpms:
-	tito build --rpm -o build/
+	$(MAKE) build-setup
+	$(MAKE) archive
+	@rpmbuild --define '_topdir $(BUILDDIR)' -ba $(PKGNAME).spec
+	
+archive:
+	git archive --prefix=$(PKGNAME)-$(VERSION)/ HEAD | xz > build/SOURCES/$(PKGNAME)-$(VERSION).tar.xz
+	@echo "The archive is in build/SOURCES/$(PKGNAME)-$(VERSION).tar.xz"
+	
+	
+# needs perl-TimeDate for git2cl
+changelog:
+	@git log --pretty --numstat --summary | tools/git2cl > ChangeLog
+	
+
+release:
+	@git commit -a -m "bumped version to $(VERSION)"
+	@$(MAKE) changelog
+	@git commit -a -m "updated ChangeLog"
+	@git push
+	@git tag -f -m "Added ${APPNAME}-${VERSION} release tag" ${APPNAME}-${VERSION}
+	@git push --tags origin
+	@$(MAKE) archive
+	@$(MAKE) rpm
+
+test-cleanup:	
+	@rm -rf ${APPNAME}-${VERSION}.test.tar.gz
+	@echo "Cleanup the git release-test local branch"
+	@git checkout -f
+	@git checkout ${GIT_MASTER}
+	@git branch -D release-test
+
+show-vars:
+	@echo ${GITDATE}
+	@echo ${BUMPED_MINOR}
+	@echo ${NEW_VER}-${NEW_REL}
+	
+test-release:
+	$(MAKE) build-setup
+	@git checkout -b release-test
+	# +1 Minor version and add 0.1-gitYYYYMMDD release
+	@cat ${APPNAME}.spec | sed  -e 's/${VER_REGEX}/\1${BUMPED_MINOR}/' -e 's/\(^Release:\s*\)\([0-9]*\)\(.*\)./\10.1.${GITDATE}%{?dist}/' > ${APPNAME}-test.spec ; mv ${APPNAME}-test.spec ${APPNAME}.spec
+	@git commit -a -m "bumped ${APPNAME} version ${NEW_VER}-${NEW_REL}"
+	# Make Changelog
+	@git log --pretty --numstat --summary | ./tools/git2cl > ChangeLog
+	@git commit -a -m "updated ChangeLog"
+	# Make archive
+	@rm -rf ${APPNAME}-${NEW_VER}.tar.gz
+	@git archive --format=tar --prefix=$(PKGNAME)-$(NEW_VER)/ HEAD | xz >${PKGNAME}-$(NEW_VER).tar.xz
+	# Build RPMS
+	@-rpmbuild --define '_topdir $(BUILDDIR)'-ta ${PKGNAME}-${NEW_VER}.tar.xz
+	@$(MAKE) test-cleanup
 	
 
 exit-session:
@@ -133,12 +180,8 @@ kill-both:
 	@-sudo killall -9 -r "dnfdaemon-session\.py" &> /dev/null 
 	@-sudo killall -9 -r "dnfdaemon-system" &> /dev/null 
 	@-sudo killall -9 -r "dnfdaemon-session" &> /dev/null 
+		
 	
-
-archive:
-	echo $(GITREV)
-	git archive $(GITREV) --prefix=$(PKGNAME) | xz > $(PKGNAME)-$(GITREV).tar.xz
-
 start-system:
 	@sudo PYTHONPATH=python/ daemon/dnfdaemon-system.py -d -v --notimeout
 

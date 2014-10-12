@@ -1,9 +1,5 @@
 %global dnf_org org.baseurl.Dnf
 %global dnf_version 0.6.1
-%global commit c3b24de3d440504211d026b177a45d1a34412b28
-%global shortcommit %(c=%{commit}; echo ${c:0:7})
-
-https://github.com/timlau/dnf-daemon/commit/c3b24de3d440504211d026b177a45d1a34412b28
 
 Name:           dnfdaemon
 Version:        0.3.1
@@ -11,7 +7,7 @@ Release:        2%{?dist}
 Summary:        DBus daemon for dnf package actions
 License:        GPLv2+
 URL:            https://github.com/timlau/dnf-daemon
-Source0:        https://github.com/timlau/dnf-daemon/archive/%{commit}/dnf-daemon-%{commit}.tar.gz
+Source0:        https://github.com/timlau/dnf-daemon/archive/%{name}-%{version}.tar.xz
 
 BuildArch:      noarch
 BuildRequires:  python3-devel
@@ -26,7 +22,7 @@ Requires(postun):   policycoreutils-python
 Dbus daemon for performing package actions with the dnf package manager
 
 %prep
-%setup -qn %{name}-%{commit}
+%setup -q
 
 %build
 # Nothing to build
@@ -89,6 +85,7 @@ fi
 %{python3_sitelib}/%{name}/server/*
 
 %files -n  python-%{name}-client
+%{python_sitelib}/%{name}/__*
 %{python_sitelib}/%{name}/client
 
 %files -n  python3-%{name}-client
