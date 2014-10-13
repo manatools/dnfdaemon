@@ -2,8 +2,8 @@
 %global dnf_version 0.6.1
 
 Name:           dnfdaemon
-Version:        0.3.1
-Release:        2%{?dist}
+Version:        0.3.2
+Release:        1%{?dist}
 Summary:        DBus daemon for dnf package actions
 License:        GPLv2+
 URL:            https://github.com/timlau/dnf-daemon
@@ -92,9 +92,9 @@ fi
 %{python3_sitelib}/%{name}/client
 
 %changelog
-* Sun Sep 21 2014 Tim Lauridsen <timlau@fedoraproject.org> 0.3.1-2
-- fedora review cleanups
-- use fedora github source url policy
+* Sun Sep 21 2014 Tim Lauridsen <timlau@fedoraproject.org> 0.3.2-1
+- bumped release
+- fedora review cleanupso
 - python-dnfdaemon-client should own %%{python_sitelib}/dnfdaemon/client
 - group %%files sections
 
