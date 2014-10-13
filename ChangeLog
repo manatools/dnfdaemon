@@ -1,3 +1,47 @@
+2014-10-13  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* dnfdaemon.spec: bumped version to 0.3.2
+
+2014-10-12  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* Makefile, dnfdaemon.spec: build: dont use tito anymore
+
+2014-10-12  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* Makefile, dnfdaemon.spec: build: fedora review cleanups
+
+2014-10-12  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* tools/dbusdoc/dnf-system.xml: remove dnf-system.xml from git
+
+2014-10-10  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* tools/dbusdoc/Makefile, tools/dbusdoc/build_api.py,
+	tools/dbusdoc/dnf-system.xml: doc: helper to make .rst formatted api
+	doc via dbus introspection
+
+2014-10-10  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* docs/server.rst: doc: update server api doc for system daemon
+
+2014-09-25  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* docs/server.rst: doc: add info about verify action
+
+2014-09-24  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* daemon/dnfdaemon-system.py, python/dnfdaemon/server/__init__.py: 
+	api: adding feedback for verifying packages
+
+2014-09-21  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* dnfdaemon.spec, rel-eng/packages/dnfdaemon: Automatic commit of
+	package [dnfdaemon] release [0.3.1-1].
+
+2014-09-21  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* ChangeLog: updated ChangeLog
+
 2014-09-21  Tim Lauridsen <timlau@fedoraproject.org>
 
 	* dnfdaemon.spec, rel-eng/packages/dnfdaemon: Automatic commit of
