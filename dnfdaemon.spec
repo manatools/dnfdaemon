@@ -3,7 +3,7 @@
 
 Name:           dnfdaemon
 Version:        0.3.2
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        DBus daemon for dnf package actions
 License:        GPLv2+
 URL:            https://github.com/timlau/dnf-daemon
@@ -15,7 +15,6 @@ Requires:       python3-gobject
 Requires:       python3-dbus
 Requires:       python3-dnf >= %{dnf_version}
 Requires:       polkit
-Requires:       python3-%{name} = %{version}-%{release}
 Requires(post):     policycoreutils-python
 Requires(postun):   policycoreutils-python
 
@@ -83,6 +82,9 @@ fi
 %{python3_sitelib}/%{name}/client
 
 %changelog
+* Wed Oct 15 2014 Tim Lauridsen <timlau@fedoraproject.org> 0.3.2-3
+- removed require python3-dnfdaemon from main package
+
 * Wed Oct 15 2014 Tim Lauridsen <timlau@fedoraproject.org> 0.3.2-2
 - include python3-dnfdaemon in the dnfdaemon main package
 - renamed python?-dnfdaemon-client to python?-dnfdaemon
