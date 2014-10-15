@@ -106,7 +106,7 @@ test-repo-build:
 
 test-inst:
 	$(MAKE) test-release
-	@sudo dnf install build/noarch/*.rpm
+	@sudo dnf install build/RPMS/noarch/*$(PKGNAME)*.rpm
 	
 rpms:
 	$(MAKE) build-setup
@@ -155,9 +155,9 @@ test-release:
 	@git commit -a -m "updated ChangeLog"
 	# Make archive
 	@rm -rf ${APPNAME}-${NEW_VER}.tar.gz
-	@git archive --format=tar --prefix=$(PKGNAME)-$(NEW_VER)/ HEAD | xz >${PKGNAME}-$(NEW_VER).tar.xz
-	# Build RPMS
-	@-rpmbuild --define '_topdir $(BUILDDIR)'-ta ${PKGNAME}-${NEW_VER}.tar.xz
+	@git archive --format=tar --prefix=$(PKGNAME)-$(NEW_VER)/ HEAD | xz >build/SOURCES/${PKGNAME}-$(NEW_VER).tar.xz
+	# Build RPMS 
+	@-rpmbuild --define '_topdir $(BUILDDIR)' -ba ${PKGNAME}.spec
 	@$(MAKE) test-cleanup
 	
 
