@@ -99,7 +99,7 @@ class DnfDaemon(dnfdaemon.server.DnfDaemonBase):
         Exit the daemon
         :param sender:
         """
-        self.check_permission_write(sender)
+        self.check_permission_read(sender)
         if self._can_quit:
             self._reset_base()
             self.mainloop_quit()
@@ -117,7 +117,7 @@ class DnfDaemon(dnfdaemon.server.DnfDaemonBase):
         Get the yum lock
         :param sender:
         """
-        self.check_permission_write(sender)
+        self.check_permission_read(sender)
         if not self._lock:
             self._lock = sender
             logger.info('LOCK: Locked by : %s' % sender)
@@ -135,7 +135,7 @@ class DnfDaemon(dnfdaemon.server.DnfDaemonBase):
         :param state: True = Watchdog active, False = Watchdog disabled
         :type state: boolean (b)
         """
-        self.check_permission_write(sender)
+        self.check_permission_read(sender)
         self._watchdog_disabled = not state
         return state
 
@@ -150,7 +150,7 @@ class DnfDaemon(dnfdaemon.server.DnfDaemonBase):
         :param filter: filter to limit the listed repositories
         :param sender:
         """
-        self.working_start(sender)
+        self.working_start(sender, write=False)
         repos = self.get_repositories(filter)
         return self.working_ended(repos)
 
@@ -165,7 +165,7 @@ class DnfDaemon(dnfdaemon.server.DnfDaemonBase):
         :param repo_ids: list of repo ids to enable
         :param sender:
         """
-        self.working_start(sender)
+        self.working_start(sender, write=False)
         self.set_enabled_repos(repo_ids)
         return self.working_ended()
 
@@ -181,7 +181,7 @@ class DnfDaemon(dnfdaemon.server.DnfDaemonBase):
         :param sender:
         :return: True if cache is populated without errors
         """
-        self.working_start(sender)
+        self.working_start(sender, write=False)
         rc = self.expire_cache()
         return self.working_ended(rc)
 
@@ -197,7 +197,7 @@ class DnfDaemon(dnfdaemon.server.DnfDaemonBase):
         :param setting: name of setting (debuglevel etc..)
         :param sender:
         """
-        self.working_start(sender)
+        self.working_start(sender, write=False)
         value = self.get_config(setting)
         return self.working_ended(value)
 
@@ -213,7 +213,7 @@ class DnfDaemon(dnfdaemon.server.DnfDaemonBase):
         :param value: value to set
         :param sender:
         """
-        self.working_start(sender)
+        self.working_start(sender, write=False)
         rc = self.set_option(setting, value)
         return self.working_ended(rc)
 
@@ -229,7 +229,7 @@ class DnfDaemon(dnfdaemon.server.DnfDaemonBase):
         :param repo_id:
         :param sender:
         """
-        self.working_start(sender)
+        self.working_start(sender, write=False)
         value = self.get_repo(repo_id)
         return self.working_ended(value)
 
@@ -244,7 +244,7 @@ class DnfDaemon(dnfdaemon.server.DnfDaemonBase):
         :param pkg_filter: pkg pkg_filter string ('installed','updates' etc)
         :param sender:
         """
-        self.working_start(sender)
+        self.working_start(sender, write=False)
         value = self.get_packages(pkg_filter, fields)
         return self.working_ended(value)
 
@@ -261,7 +261,7 @@ class DnfDaemon(dnfdaemon.server.DnfDaemonBase):
         :param attrs: list of package attributes to get
         :param sender:
         """
-        self.working_start(sender)
+        self.working_start(sender, write=False)
         values = self.get_packages_by_name_with_attr(name, attrs, newest_only)
         return self.working_ended(values)
 
@@ -279,7 +279,7 @@ class DnfDaemon(dnfdaemon.server.DnfDaemonBase):
                      changelog etc..)
         :param sender:
         """
-        self.working_start(sender)
+        self.working_start(sender, write=False)
         value = self.get_attribute(pkg_id, attr)
         return self.working_ended(value)
 
@@ -297,7 +297,7 @@ class DnfDaemon(dnfdaemon.server.DnfDaemonBase):
         :return: list of (pkg_id, state, installed) pairs
         :rtype: json encoded string
         """
-        self.working_start(sender)
+        self.working_start(sender, write=False)
         value = self.get_history_transaction_pkgs(tid)
         return self.working_ended(value)
 
@@ -317,7 +317,7 @@ class DnfDaemon(dnfdaemon.server.DnfDaemonBase):
         :return: a list of (transaction is, date-time) pairs
         :type sender: json encoded string
         """
-        self.working_start(sender)
+        self.working_start(sender, write=False)
         value = self.get_history_by_days(start_days, end_days)
         return self.working_ended(value)
 
@@ -334,7 +334,7 @@ class DnfDaemon(dnfdaemon.server.DnfDaemonBase):
         :return: list of (tid,isodates)
         :type sender: json encoded string
         """
-        self.working_start(sender)
+        self.working_start(sender, write=False)
         value = self.history_search(pattern)
         return self.working_ended(value)
 
@@ -345,7 +345,7 @@ class DnfDaemon(dnfdaemon.server.DnfDaemonBase):
                          sender_keyword='sender')
     def Unlock(self, sender=None):
         """ release the lock"""
-        self.check_permission_write(sender)
+        self.check_permission_read(sender)
         if self.check_lock(sender):
             self._reset_base()
             logger.info('UNLOCK: Lock Release by %s' % self._lock)
@@ -477,7 +477,7 @@ class DnfDaemon(dnfdaemon.server.DnfDaemonBase):
         :param action: the action to perform ( install, update, remove,
                        obsolete, reinstall, downgrade, localinstall )
         """
-        self.working_start(sender)
+        self.working_start(sender, write=False)
         value = self.add_transaction(pkg_id, action)
         return self.working_ended(value)
 
@@ -490,7 +490,7 @@ class DnfDaemon(dnfdaemon.server.DnfDaemonBase):
         """
         Clear the transactopm
         """
-        self.working_start(sender)
+        self.working_start(sender, write=False)
         self.clear_transaction()
         return self.working_ended()
 
@@ -503,7 +503,7 @@ class DnfDaemon(dnfdaemon.server.DnfDaemonBase):
         """
         Return the members of the current transaction
         """
-        self.working_start(sender)
+        self.working_start(sender, write=False)
         value = self.get_transaction()
         return self.working_ended(value)
 
@@ -516,7 +516,7 @@ class DnfDaemon(dnfdaemon.server.DnfDaemonBase):
         """
         Resolve dependencies of current transaction
         """
-        self.working_start(sender)
+        self.working_start(sender, write=False)
         value = self.build_transaction()
         return self.working_ended(value)
 
@@ -553,7 +553,7 @@ class DnfDaemon(dnfdaemon.server.DnfDaemonBase):
         :param newest_only: return only the newest version of a package
         :param tags: seach pkgtags
         """
-        self.working_start(sender)
+        self.working_start(sender, write=False)
         result = self.search_with_attr(
             fields, keys, attrs, match_all, newest_only, tags)
         return self.working_ended(result)
@@ -567,7 +567,7 @@ class DnfDaemon(dnfdaemon.server.DnfDaemonBase):
         """
         Return a category/group tree
         """
-        self.working_start(sender)
+        self.working_start(sender, write=False)
         value = self.get_groups()
         return self.working_ended(value)
 
@@ -584,7 +584,7 @@ class DnfDaemon(dnfdaemon.server.DnfDaemonBase):
         :param fields: list of package attributes to include in list
         :param sender:
         """
-        self.working_start(sender)
+        self.working_start(sender, write=False)
         value = self.get_group_pkgs(grp_id, grp_flt, fields)
         return self.working_ended(value)
 
@@ -683,8 +683,11 @@ class DnfDaemon(dnfdaemon.server.DnfDaemonBase):
 #=========================================================================
 # Helper methods
 #=========================================================================
-    def working_start(self, sender):
-        self.check_permission_write(sender)
+    def working_start(self, sender, write=True):
+        if write:
+            self.check_permission_write(sender)
+        else:
+            self.check_permission_read(sender)
         self.check_lock(sender)
         self._is_working = True
         self._watchdog_count = 0
