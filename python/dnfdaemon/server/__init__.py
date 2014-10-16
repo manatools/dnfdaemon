@@ -178,7 +178,8 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
 
     def __init__(self):
         self.logger = logging.getLogger('dnfdaemon.base')
-        self.authorized_sender = set()
+        self.authorized_sender_read = set()
+        self.authorized_sender_write = set()
         self._lock = None
         self._base = None
         self._can_quit = True

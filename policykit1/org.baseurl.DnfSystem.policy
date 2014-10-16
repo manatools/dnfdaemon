@@ -5,13 +5,22 @@
 <policyconfig>
   <vendor>Yum</vendor>
   <vendor_url>http://dnf.baseurl.org/</vendor_url>
-  <action id="org.baseurl.DnfSystem">
+  <action id="org.baseurl.DnfSystem.write">
     <description>dnf</description>
-    <message>Application requesting dnf to search/modify system packages</message>
+    <message>Application requesting dnf to modify system packages</message>
     <defaults>
       <allow_any>auth_admin</allow_any>
       <allow_inactive>no</allow_inactive>
       <allow_active>auth_admin_keep</allow_active>
+    </defaults>
+  </action>
+  <action id="org.baseurl.DnfSystem.read">
+    <description>dnf</description>
+    <message>Application requesting dnf to read system packages</message>
+    <defaults>
+      <allow_any>yes</allow_any>
+      <allow_inactive>no</allow_inactive>
+      <allow_active>yes</allow_active>
     </defaults>
   </action>
 </policyconfig>

@@ -99,7 +99,7 @@ class DnfDaemon(dnfdaemon.server.DnfDaemonBase):
         Exit the daemon
         :param sender:
         """
-        self.check_permission(sender)
+        self.check_permission_write(sender)
         if self._can_quit:
             self._reset_base()
             self.mainloop_quit()
@@ -117,7 +117,7 @@ class DnfDaemon(dnfdaemon.server.DnfDaemonBase):
         Get the yum lock
         :param sender:
         """
-        self.check_permission(sender)
+        self.check_permission_write(sender)
         if not self._lock:
             self._lock = sender
             logger.info('LOCK: Locked by : %s' % sender)
@@ -135,7 +135,7 @@ class DnfDaemon(dnfdaemon.server.DnfDaemonBase):
         :param state: True = Watchdog active, False = Watchdog disabled
         :type state: boolean (b)
         """
-        self.check_permission(sender)
+        self.check_permission_write(sender)
         self._watchdog_disabled = not state
         return state
 
@@ -345,7 +345,7 @@ class DnfDaemon(dnfdaemon.server.DnfDaemonBase):
                          sender_keyword='sender')
     def Unlock(self, sender=None):
         """ release the lock"""
-        self.check_permission(sender)
+        self.check_permission_write(sender)
         if self.check_lock(sender):
             self._reset_base()
             logger.info('UNLOCK: Lock Release by %s' % self._lock)
@@ -531,7 +531,7 @@ class DnfDaemon(dnfdaemon.server.DnfDaemonBase):
         :param max_err: maximum download errors before bail out
         """
         self.working_start(sender)
-        self.check_permission(sender)
+        self.check_permission_write(sender)
         self.check_lock(sender)
         result = self.run_transaction(max_err)
         return self.working_ended(result)
@@ -684,7 +684,7 @@ class DnfDaemon(dnfdaemon.server.DnfDaemonBase):
 # Helper methods
 #=========================================================================
     def working_start(self, sender):
-        self.check_permission(sender)
+        self.check_permission_write(sender)
         self.check_lock(sender)
         self._is_working = True
         self._watchdog_count = 0
@@ -703,18 +703,24 @@ class DnfDaemon(dnfdaemon.server.DnfDaemonBase):
         else:
             raise LockedError('dnf is locked by another application')
 
-    def check_permission(self, sender):
-        """ Check for senders permission to run root stuff"""
-        if sender in self.authorized_sender:
+    def check_permission_write(self, sender):
+        """ Check for senders permission to update system packages"""
+        if sender in self.authorized_sender_write:
             return
         else:
-            self._check_permission(sender)
-            self.authorized_sender.add(sender)
+            self._check_permission(sender, 'org.baseurl.DnfSystem.write')
+            self.authorized_sender_write.add(sender)
 
-    def _check_permission(self, sender):
-        """
-        check senders permissions using PolicyKit1
-        :param sender:
+    def check_permission_read(self, sender):
+        """ Check for senders permission to read system packages"""
+        if sender in self.authorized_sender_read:
+            return
+        else:
+            self._check_permission(sender, 'org.baseurl.DnfSystem.read')
+            self.authorized_sender_read.add(sender)
+
+    def _check_permission(self, sender, action):
+        """ Check senders permissions using PolicyKit1
         """
         if not sender:
             raise ValueError('sender == None')
@@ -724,7 +730,7 @@ class DnfDaemon(dnfdaemon.server.DnfDaemonBase):
             '/org/freedesktop/PolicyKit1/Authority')
         obj = dbus.Interface(obj, 'org.freedesktop.PolicyKit1.Authority')
         (granted, _, details) = obj.CheckAuthorization(
-            ('system-bus-name', {'name': sender}), DAEMON_ORG, {},
+            ('system-bus-name', {'name': sender}), action, {},
             dbus.UInt32(1), '', timeout=600)
         if not granted:
             raise AccessDeniedError('Session is not authorized')
