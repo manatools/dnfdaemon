@@ -1,3 +1,38 @@
+2014-10-17  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* dnfdaemon.spec, python/dnfdaemon/server/__init__.py: bumped
+	version to 0.3.3
+
+2014-10-16  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* daemon/dnfdaemon-system.py: make methods use read or write
+	PolicyKit rules
+
+2014-10-16  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* daemon/dnfdaemon-system.py,
+	policykit1/org.baseurl.DnfSystem.policy,
+	python/dnfdaemon/server/__init__.py: split PolicyKit action in a
+	read & write rule
+
+2014-10-15  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* dnfdaemon.spec: removed circular deps
+
+2014-10-15  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* Makefile, dnfdaemon.spec, rel-eng/packages/.readme,
+	rel-eng/packages/dnfdaemon, rel-eng/tito.props: build: fedora review
+	changes
+
+2014-10-13  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* Makefile, dnfdaemon.spec: build: cleanup Makefile & spec
+
+2014-10-13  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* ChangeLog: updated ChangeLog
+
 2014-10-13  Tim Lauridsen <timlau@fedoraproject.org>
 
 	* dnfdaemon.spec: bumped version to 0.3.2
