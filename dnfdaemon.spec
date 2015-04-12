@@ -1,5 +1,5 @@
 %global dnf_org org.baseurl.Dnf
-%global dnf_version 0.6.1
+%global dnf_version 0.6.5
 
 Name:           dnfdaemon
 Version:        0.3.4
@@ -84,6 +84,7 @@ fi
 %changelog
 * Sun Apr 12 2015 Tim Lauridsen <timlau@fedoraproject.org> 0.3.4-1
 - bumped release
+- require dnf-0.6.5
 
 * Fri Oct 17 2014 Tim Lauridsen <timlau@fedoraproject.org> 0.3.3-1
 - bumped release
