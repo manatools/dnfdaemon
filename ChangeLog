@@ -1,5 +1,13 @@
 2015-04-12  Tim Lauridsen <timlau@fedoraproject.org>
 
+	* dnfdaemon.spec: bumped version to 0.3.4
+
+2015-04-12  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* ChangeLog: updated ChangeLog
+
+2015-04-12  Tim Lauridsen <timlau@fedoraproject.org>
+
 	* dnfdaemon.spec, python/dnfdaemon/client/__init__.py: bumped
 	version to 0.3.4
 
