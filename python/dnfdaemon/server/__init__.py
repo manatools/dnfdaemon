@@ -42,7 +42,7 @@ import logging
 import operator
 import sys
 
-VERSION = 303  # (00.01.02) must be integer
+VERSION = 304  # (00.01.02) must be integer
 MAINLOOP = GLib.MainLoop()
 
 # Fake attributes, there is simulating real package attribute
@@ -490,7 +490,7 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
             elif action == 'obsolete':
                 rc = self.base.package_upgrade(po)
             elif action == 'reinstall':
-                rc = self.base.package_install(po)
+                rc = self.base.package_reinstall(po)
             elif action == 'downgrade':
                 rc = self.base.package_downgrade(po)
             elif action == 'localinstall':
@@ -704,7 +704,8 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
                 ('update', tx_list['update']),
                 ('remove', tx_list['remove']),
                 ('reinstall', tx_list['reinstall']),
-                    ('downgrade', tx_list['downgrade'])]:
+                ('downgrade', tx_list['downgrade']),
+                ('obsolete', tx_list['obsolete'])]:
 
                 for tsi in pkglist:
                     po = _active_pkg(tsi)
@@ -728,7 +729,8 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
     def _make_trans_dict(self):
         """Get a dict of action & packages from the current transaction"""
         b = {}
-        for t in ('downgrade', 'remove', 'install', 'reinstall', 'update'):
+        for t in ('downgrade', 'remove', 'install', 'reinstall', 'update',
+                  'obsolete'):
             b[t] = []
         # Resolve to get the Transaction object popolated
         try:
@@ -739,12 +741,16 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
             output = e.value.split('. ')
         if rc:
             for tsi in self.base.transaction:
+                print(tsi.op_type, tsi.installed, tsi.erased, tsi.obsoleted)
                 if tsi.op_type == dnf.transaction.DOWNGRADE:
                     b['downgrade'].append(tsi)
                 elif tsi.op_type == dnf.transaction.ERASE:
                     b['remove'].append(tsi)
                 elif tsi.op_type == dnf.transaction.INSTALL:
-                    b['install'].append(tsi)
+                    if tsi.obsoleted:  # this is an obsolete, not an install
+                        b['obsolete'].append(tsi)
+                    else:
+                        b['install'].append(tsi)
                 elif tsi.op_type == dnf.transaction.REINSTALL:
                     b['reinstall'].append(tsi)
                 elif tsi.op_type == dnf.transaction.UPGRADE:

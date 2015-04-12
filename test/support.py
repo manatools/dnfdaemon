@@ -51,7 +51,7 @@ def repo_dir():
     return os.path.join(this_dir, 'test_data/repos')
 
 COMPS_PATH = os.path.join(repo_dir(), 'main_comps.xml')
-LOCAL_RPM = os.path.join(repo_dir(), 'local-pkg-1.0-1.fc20.noarch.rpm')
+LOCAL_RPM = os.path.join(repo_dir(), 'local-pkg-1.0-1.fc22.noarch.rpm')
 
 # mock objects
 

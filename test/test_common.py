@@ -8,6 +8,8 @@ import json
 import logging
 from unittest import mock
 
+TEST_LOCAL_PKG = 'local-pkg,0,1.0,1.fc22,noarch,@commandline'
+
 
 class DnfBaseMock(backend.DnfBase):
 
@@ -296,8 +298,8 @@ class TestCommonInstall(TestCommonBase):
         # install local rpm
         res = self.daemon.install(support.LOCAL_RPM)
         self.assertEqual(json.loads(res),
-            [True, [['install', [['local-pkg,0,1.0,1.fc20,noarch,@commandline',
-             2512.0, []]]]]])
+            [True, [['install', [[TEST_LOCAL_PKG,
+             6520.0, []]]]]])
 
     def test_remove(self):
         cmds = 'bar'
@@ -342,8 +344,8 @@ class TestCommonTransaction(TestCommonBase):
         pkg_id = support.LOCAL_RPM
         res = self.daemon.add_transaction(pkg_id, 'localinstall')
         self.assertEqual(json.loads(res),
-            [True, [['install', [['local-pkg,0,1.0,1.fc20,noarch,@commandline',
-             2512.0, []]]]]])
+            [True, [['install', [[TEST_LOCAL_PKG,
+             6520.0, []]]]]])
 
     def test_add_transaction_remove(self):
         pkg_id = 'bar,0,1.0,1,noarch,@System'
@@ -377,8 +379,7 @@ class TestCommonTransaction(TestCommonBase):
     def test_add_transaction_already_installed(self):
         pkg_id = 'foo,0,2.0,1,noarch,main'
         res = self.daemon.add_transaction(pkg_id, 'install')
-        self.assertEqual(json.loads(res),
-            [True, [['reinstall', [['foo,0,2.0,1,noarch,main', 0.0, []]]]]])
+        self.assertEqual(json.loads(res), [False, []])
 
     def test_transaction_misc(self):
         pkg_id = 'petzoo,0,1.0,1,noarch,main'
@@ -419,4 +420,4 @@ class TestCommonTransaction(TestCommonBase):
         self.assertEqual(json.loads(res),
             [True, [['install', [['petzoo,0,1.0,1,noarch,main', 0.0, []]]]]])
         res = self.daemon.run_transaction(max_err=10)
-        self.assertEqual(json.loads(res), [True, ['no message']])
+        self.assertEqual(json.loads(res), [0, []])
