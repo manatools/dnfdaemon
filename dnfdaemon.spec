@@ -1,9 +1,9 @@
 %global dnf_org org.baseurl.Dnf
-%global dnf_version 0.6.5
+%global dnf_version 0.6.3
 
 Name:           dnfdaemon
 Version:        0.3.4
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        DBus daemon for dnf package actions
 License:        GPLv2+
 URL:            https://github.com/timlau/dnf-daemon
@@ -84,7 +84,7 @@ fi
 %changelog
 * Sun Apr 12 2015 Tim Lauridsen <timlau@fedoraproject.org> 0.3.4-1
 - bumped release
-- require dnf-0.6.5
+- require dnf-0.6.3
 
 * Fri Oct 17 2014 Tim Lauridsen <timlau@fedoraproject.org> 0.3.3-1
 - bumped release
