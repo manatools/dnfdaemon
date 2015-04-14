@@ -14,6 +14,7 @@
 =Pkg: bar-dep-err 1.0 1 noarch
 =Req: not-found-dep >= 1-0
 =Pkg: bar-new 2.0 1 noarch
-=Obs: bar-old
+=Obs: bar-old 1.0 1 noarch
+=Obs: old-bar 1.0 1 noarch
 =Pkg: petzoo 1.0 1 noarch
 

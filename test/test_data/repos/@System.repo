@@ -5,4 +5,6 @@
 =Pkg: foo 2.0 1 noarch
 =Sum foo-2.0 test package
 =Pkg: bar-old 1.0 1 noarch
-
+=Sum bar-old test package
+=Pkg: old-bar 1.0 1 noarch
+=Sum old-bar test package

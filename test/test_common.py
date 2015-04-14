@@ -46,9 +46,12 @@ class TestPackages(support.TestCase):
         base = support.MockBase('main')
         pkgs = backend.Packages(base)
         inst = list(map(str, pkgs.installed))
+        print
+        print(inst)
         self.assertEqual(inst, ['bar-1.0-1.noarch',
                                 'foo-2.0-1.noarch',
-                                'bar-old-1.0-1.noarch'])
+                                'bar-old-1.0-1.noarch',
+                                'old-bar-1.0-1.noarch'])
         avail = list(map(str, pkgs.available))
         self.assertEqual(avail, ['bar-2.0-1.noarch',
                                  'foo-dep-err-1.0-1.noarch',
@@ -71,7 +74,8 @@ class TestMultilpleUpdates(support.TestCase):
         inst = list(map(str, pkgs.installed))
         self.assertEqual(inst, ['bar-1.0-1.noarch',
                                 'foo-2.0-1.noarch',
-                                'bar-old-1.0-1.noarch'])
+                                'bar-old-1.0-1.noarch',
+                                'old-bar-1.0-1.noarch'])
         avail = list(map(str, pkgs.get_all(showdups=True)))
         self.assertEqual(avail, ['bar-1.5-1.noarch',
                                  'bar-2.0-1.noarch'])
@@ -100,9 +104,11 @@ class TestDnfBase(support.TestCase):
         """Test search (dups)"""
         found = self.base.search(['name'], ['foo'], showdups=True)
         res = list(map(str, found))
+        print(res)
+
         self.assertEqual(res, ['foo-2.0-1.noarch',
-                               'foo-dep-err-1.0-1.noarch',
                                'foo-2.0-1.noarch',
+                               'foo-dep-err-1.0-1.noarch',
                                'foo-1.0-1.noarch'])
 
 
@@ -147,13 +153,15 @@ class TestCommonMisc(TestCommonBase):
         self.assertEqual(json.loads(pkgs),
             [['bar,0,1.0,1,noarch,@System', 0],
              ['foo,0,2.0,1,noarch,@System', 0],
-             ['bar-old,0,1.0,1,noarch,@System', 0]])
+             ['bar-old,0,1.0,1,noarch,@System', 0],
+             ['old-bar,0,1.0,1,noarch,@System', 0]])
 
         pkgs = self.daemon.get_packages('installed', [])
         self.assertEqual(json.loads(pkgs),
             ['bar,0,1.0,1,noarch,@System',
              'foo,0,2.0,1,noarch,@System',
-             'bar-old,0,1.0,1,noarch,@System'])
+             'bar-old,0,1.0,1,noarch,@System',
+             'old-bar,0,1.0,1,noarch,@System'])
 
     def test_get_attribute(self):
         pkg_id = 'bar,0,2.0,1,noarch,main'
@@ -187,6 +195,7 @@ class TestCommonMisc(TestCommonBase):
         self.assertEqual(json.loads(found),
             ['bar,0,1.0,1,noarch,@System',
              'bar-old,0,1.0,1,noarch,@System',
+             'old-bar,0,1.0,1,noarch,@System',
              'bar,0,1.0,1,noarch,main',
              'bar-old,0,1.0,1,noarch,main',
              'bar,0,2.0,1,noarch,main',
@@ -206,6 +215,7 @@ class TestCommonMisc(TestCommonBase):
                                               tags)
         self.assertEqual(json.loads(found),
             ['bar-old,0,1.0,1,noarch,@System',
+             'old-bar,0,1.0,1,noarch,@System',
              'bar,0,2.0,1,noarch,main',
              'bar-dep-err,0,1.0,1,noarch,main',
              'bar-new,0,2.0,1,noarch,main'])
@@ -312,6 +322,22 @@ class TestCommonInstall(TestCommonBase):
         res = self.daemon.update(cmds)
         self.assertEqual(json.loads(res),
             [True, [['update', [['bar,0,2.0,1,noarch,main', 0.0, []]]]]])
+
+    def test_update_obsolete(self):
+        cmds = 'bar-new'
+        res = self.daemon.update(cmds)
+        expected = [True, [['obsolete', [['bar-new,0,2.0,1,noarch,main',
+                    0.0, ['bar-old,0,1.0,1,noarch,@System',
+                          'old-bar,0,1.0,1,noarch,@System']]]]]]
+        self.assertEqual(json.loads(res), expected)
+
+    def test_install_obsolete(self):
+        cmds = 'bar-new'
+        res = self.daemon.install(cmds)
+        expected = [True, [['obsolete', [['bar-new,0,2.0,1,noarch,main',
+                    0.0, ['bar-old,0,1.0,1,noarch,@System',
+                          'old-bar,0,1.0,1,noarch,@System']]]]]]
+        self.assertEqual(json.loads(res), expected)
 
     def test_downgrade(self):
         cmds = 'foo'
