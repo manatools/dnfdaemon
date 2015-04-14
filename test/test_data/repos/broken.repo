@@ -1,0 +1,7 @@
+=Ver: 2.0
+#
+=Pkg: broken 1.0 1 noarch
+=Req: dep01 >= 1-0
+=Pkg: dep01 1.0 1 noarch
+=Req: not-found-dep01 >= 1-0
+

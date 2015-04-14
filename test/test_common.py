@@ -13,8 +13,8 @@ TEST_LOCAL_PKG = 'local-pkg,0,1.0,1.fc22,noarch,@commandline'
 
 class DnfBaseMock(backend.DnfBase):
 
-    def __init__(self, parent):
-        self._base = support.MockBase('main')
+    def __init__(self, parent, repo='main'):
+        self._base = support.MockBase(repo)
         self.parent = mock.MagicMock()
         self.md_progress = backend.MDProgress(parent)
         self.progress = backend.Progress(parent, max_err=100)
@@ -125,6 +125,35 @@ class TestCommonBase(support.TestCase):
         self._base = None
         self.daemon = dnfdaemon.server.DnfDaemonBase()
         self.daemon._base = self._get_base()
+
+
+class TestBrokenDeps(TestCommonBase):
+
+    def _get_base(self, reset=False, load_sack=True):
+        if not self._base or reset:
+            self._base = DnfBaseMock(self, repo='broken')
+            if load_sack:
+                self._base.setup_base()
+        return self._base
+
+    def test_broken(self):
+        print()
+        res = json.loads(self.daemon.get_packages('available', []))
+        self.assertEqual(res, ['broken,0,1.0,1,noarch,broken',
+                              'dep01,0,1.0,1,noarch,broken'])
+        rc, msgs = json.loads(self.daemon.install('broken'))
+        print(rc, msgs)
+        self.assertEqual(False, rc)
+        self.assertEqual(['nothing provides not-found-dep01 >= '
+                          '1-0 needed by dep01-1.0-1.noarch'], msgs)
+
+    def test_add_transaction_install_broken(self):
+        # install pkg with broken deps
+        pkg_id = 'broken,0,1.0,1,noarch,main'
+        res = self.daemon.add_transaction(pkg_id, 'install')
+        self.assertEqual(json.loads(res),
+            [False, ['nothing provides not-found-dep01 >= 1-0 '
+                     'needed by dep01-1.0-1.noarch']])
 
 
 class TestCommonMisc(TestCommonBase):
