@@ -1,3 +1,39 @@
+2015-04-15  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* dnfdaemon.spec, python/dnfdaemon/server/__init__.py: bumped
+	version to 0.3.5
+
+2015-04-15  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* python/dnfdaemon/server/__init__.py,
+	python/dnfdaemon/server/backend.py, test/test_common.py,
+	test/test_data/repos/main.repo: fix: use same cachedir as dnf cli
+	cleanup some unit tests and removed some debug printing
+
+2015-04-15  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* python/dnfdaemon/server/backend.py: fix not using same cachedir
+	than dnf cli
+
+2015-04-14  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* test/test_common.py, test/test_data/repos/broken.repo: Adding
+	testcases for installing a package with broken deps
+
+2015-04-14  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* test/test_common.py, test/test_data/repos/@System.repo,
+	test/test_data/repos/main.repo: added unit test for package with
+	multiple obsoletes
+
+2015-04-13  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* dnfdaemon.spec: require dnf 0.6.3, not 0.6.5
+
+2015-04-12  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* ChangeLog: updated ChangeLog
+
 2015-04-12  Tim Lauridsen <timlau@fedoraproject.org>
 
 	* dnfdaemon.spec: bumped version to 0.3.4
