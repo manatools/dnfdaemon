@@ -46,7 +46,6 @@ class TestPackages(support.TestCase):
         base = support.MockBase('main')
         pkgs = backend.Packages(base)
         inst = list(map(str, pkgs.installed))
-        print
         self.assertEqual(inst, ['bar-1.0-1.noarch',
                                 'foo-2.0-1.noarch',
                                 'bar-old-1.0-1.noarch',
@@ -67,7 +66,6 @@ class TestMultilpleUpdates(support.TestCase):
 
     def test_packages(self):
         """Test multiple updates for same pkg"""
-        print()
         base = support.MockBase('updates')
         pkgs = backend.Packages(base)
         inst = list(map(str, pkgs.installed))
@@ -354,7 +352,7 @@ class TestCommonInstall(TestCommonBase):
     def test_update_obsolete(self):
         cmds = 'bar-new'
         res = self.daemon.update(cmds)
-        expected = [True, [['obsolete', [['bar-new,0,2.0,1,noarch,main',
+        expected = [True, [['install', [['bar-new,0,2.0,1,noarch,main',
                     0.0, ['bar-old,0,1.0,1,noarch,@System',
                           'old-bar,0,1.0,1,noarch,@System']]]]]]
         self.assertEqual(json.loads(res), expected)
@@ -362,7 +360,7 @@ class TestCommonInstall(TestCommonBase):
     def test_install_obsolete(self):
         cmds = 'bar-new'
         res = self.daemon.install(cmds)
-        expected = [True, [['obsolete', [['bar-new,0,2.0,1,noarch,main',
+        expected = [True, [['install', [['bar-new,0,2.0,1,noarch,main',
                     0.0, ['bar-old,0,1.0,1,noarch,@System',
                           'old-bar,0,1.0,1,noarch,@System']]]]]]
         self.assertEqual(json.loads(res), expected)
