@@ -64,8 +64,7 @@ class DnfBase(dnf.Base):
     def packages(self):
         return self._packages
 
-    def cachedir_fit(self):
-        conf = self.conf
+    def cachedir_fit(self, conf):
         subst = conf.substitutions
         # this is not public API, same procedure as dnf cli
         suffix = dnf.conf.parser.substitute(dnf.const.CACHEDIR_SUFFIX, subst)
@@ -75,8 +74,7 @@ class DnfBase(dnf.Base):
     def setup_cache(self):
         """Setup the dnf cache, same as dnf cli"""
         conf = self.conf
-        conf.substitutions['releasever'] = dnf.rpm.detect_releasever('/')
-        conf.cachedir, self._system_cachedir = self.cachedir_fit()
+        conf.cachedir, self._system_cachedir = self.cachedir_fit(conf)
         logger.debug("cachedir: %s", conf.cachedir)
 
     def set_max_error(self, max_err):
