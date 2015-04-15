@@ -741,7 +741,7 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
             output = e.value.split('. ')
         if rc:
             for tsi in self.base.transaction:
-                print(tsi.op_type, tsi.installed, tsi.erased, tsi.obsoleted)
+                #print(tsi.op_type, tsi.installed, tsi.erased, tsi.obsoleted)
                 if tsi.op_type == dnf.transaction.DOWNGRADE:
                     b['downgrade'].append(tsi)
                 elif tsi.op_type == dnf.transaction.ERASE:

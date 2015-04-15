@@ -44,7 +44,8 @@ class DnfBase(dnf.Base):
         super(DnfBase, self).__init__()
         self.parent = parent
         self.md_progress = MDProgress(parent)
-        self.setup_cache()
+        RELEASEVER = dnf.rpm.detect_releasever(self.conf.installroot)
+        self.conf.substitutions['releasever'] = RELEASEVER
         self.read_all_repos()
         self.progress = Progress(parent, max_err=100)
         self.repos.all().set_progress_bar(self.md_progress)
@@ -63,19 +64,6 @@ class DnfBase(dnf.Base):
     @property
     def packages(self):
         return self._packages
-
-    def cachedir_fit(self, conf):
-        subst = conf.substitutions
-        # this is not public API, same procedure as dnf cli
-        suffix = dnf.conf.parser.substitute(dnf.const.CACHEDIR_SUFFIX, subst)
-        cli_cache = dnf.conf.CliCache(conf.cachedir, suffix)
-        return cli_cache.cachedir, cli_cache.system_cachedir
-
-    def setup_cache(self):
-        """Setup the dnf cache, same as dnf cli"""
-        conf = self.conf
-        conf.cachedir, self._system_cachedir = self.cachedir_fit(conf)
-        logger.debug("cachedir: %s", conf.cachedir)
 
     def set_max_error(self, max_err):
         """Setup a new progress object with a new
