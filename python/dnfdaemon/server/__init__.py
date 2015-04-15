@@ -42,7 +42,7 @@ import logging
 import operator
 import sys
 
-VERSION = 305  # (00.01.02) must be integer
+VERSION = 306  # (00.01.02) must be integer
 MAINLOOP = GLib.MainLoop()
 
 # Fake attributes, there is simulating real package attribute
