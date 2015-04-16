@@ -5,7 +5,6 @@ import dnfdaemon.server.backend as backend
 
 import test.support as support
 import json
-import logging
 from unittest import mock
 
 TEST_LOCAL_PKG = 'local-pkg,0,1.0,1.fc22,noarch,@commandline'
@@ -42,7 +41,7 @@ class DnfBaseMock(backend.DnfBase):
 class TestPackages(support.TestCase):
 
     def test_packages(self):
-        """Test Packages()"""
+        """Test the backend packages"""
         base = support.MockBase('main')
         pkgs = backend.Packages(base)
         inst = list(map(str, pkgs.installed))
@@ -101,8 +100,6 @@ class TestDnfBase(support.TestCase):
         """Test search (dups)"""
         found = self.base.search(['name'], ['foo'], showdups=True)
         res = list(map(str, found))
-        #print(res)
-
         self.assertEqual(res, ['foo-2.0-1.noarch',
                                'foo-2.0-1.noarch',
                                'foo-dep-err-1.0-1.noarch',
@@ -134,18 +131,17 @@ class TestBrokenDeps(TestCommonBase):
         return self._base
 
     def test_broken(self):
-        print()
+        """Test install of packages with broken deps"""
         res = json.loads(self.daemon.get_packages('available', []))
         self.assertEqual(res, ['broken,0,1.0,1,noarch,broken',
                               'dep01,0,1.0,1,noarch,broken'])
         rc, msgs = json.loads(self.daemon.install('broken'))
-        #print(rc, msgs)
         self.assertEqual(False, rc)
         self.assertEqual(['nothing provides not-found-dep01 >= '
                           '1-0 needed by dep01-1.0-1.noarch'], msgs)
 
     def test_add_transaction_install_broken(self):
-        # install pkg with broken deps
+        """Test add_transaction  of packages with broken deps"""
         pkg_id = 'broken,0,1.0,1,noarch,main'
         res = self.daemon.add_transaction(pkg_id, 'install')
         self.assertEqual(json.loads(res),
@@ -272,7 +268,6 @@ class TestCommonGroups(TestCommonBase):
 
     def test_get_groups(self):
         res = self.daemon.get_groups()
-        #print(json.loads(res))
         self.assertEqual(json.loads(res),
             [[["Base System", "Base System",
                "Various core pieces of the system."],
@@ -313,13 +308,10 @@ class TestCommonGroups(TestCommonBase):
         """Test group_remove"""
         cmds = "inst-grp"
         prst = self.daemon.base.group_persistor
-        #print(json.dumps(prst.db.dct))
         p_grp = prst.group(cmds)
         self.assertTrue(p_grp.installed)
-        res = self.daemon.group_remove(cmds)
-        #print(json.loads(res))
+        self.daemon.group_remove(cmds)
         self.assertFalse(p_grp.installed)
-        #print(json.dumps(prst.db.dct))
 
 
 class TestCommonInstall(TestCommonBase):
@@ -454,7 +446,6 @@ class TestCommonTransaction(TestCommonBase):
             [True, [['install', [['petzoo,0,1.0,1,noarch,main', 0.0, []]]]]])
         # test _get_transaction()
         trans = self.daemon.build_transaction()
-        #print(json.loads(trans))
         self.assertEqual(json.loads(trans),
             [True, [['install', [['petzoo,0,1.0,1,noarch,main', 0.0, []]]]]])
 
