@@ -4,6 +4,7 @@ import dnfdaemon.server
 import dnfdaemon.server.backend as backend
 
 import test.support as support
+import hawkey
 import json
 from unittest import mock
 
@@ -59,6 +60,32 @@ class TestPackages(support.TestCase):
         self.assertEqual(upds, ['bar-2.0-1.noarch'])
         obs = list(map(str, pkgs.obsoletes))
         self.assertEqual(obs, ['bar-new-2.0-1.noarch'])
+
+
+class TestAdvisory(support.TestCase):
+
+    def test_advisory(self):
+        """Test package advisories. """
+        po = support.MockPackage('bar-2.0-1.noarch')
+        updinfo = backend.UpdateInfo(po)
+        adv_list = updinfo.advisories_list()
+        print("\n", adv_list)
+        self.assertEqual(len(adv_list), 2)
+        adv = adv_list[0]
+        # check main fields
+        self.assertEqual(adv['id'], 'FEDORA-2015-1234')
+        self.assertEqual(adv['description'],
+                         'Advisory Description\nfoobar feature was added')
+        self.assertEqual(adv['type'], hawkey.ADVISORY_BUGFIX)
+        self.assertEqual(adv['title'], 'Advisory Title')
+        self.assertEqual(adv['filenames'], ['bar-2.0-1.noarch.rpm'])
+        # check references
+        ref = adv['references'][0]
+        self.assertEqual(ref, [hawkey.REFERENCE_BUGZILLA,
+                               '1234567',
+                               'The foobar bug has been fixed',
+                               'https://bugzilla.redhat.com'
+                               '/show_bug.cgi?id=1234567'])
 
 
 class TestMultilpleUpdates(support.TestCase):
@@ -197,7 +224,7 @@ class TestCommonMisc(TestCommonBase):
         # FIXME: updateinfo, changelog, filelist not supported
         # in dnf yet, so they just return None for now.FA
         attr = self.daemon.get_attribute(pkg_id, 'updateinfo')
-        self.assertEqual(json.loads(attr), None)
+        self.assertEqual(json.loads(attr), [])
         attr = self.daemon.get_attribute(pkg_id, 'changelog')
         self.assertEqual(json.loads(attr), None)
         attr = self.daemon.get_attribute(pkg_id, 'filelist')

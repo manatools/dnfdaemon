@@ -766,7 +766,8 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
         # TODO : updateinfo is not supported in DNF yet
         # https://bugzilla.redhat.com/show_bug.cgi?id=850912
         if po:
-            value = None
+            updinfo = backend.UpdateInfo(po)
+            value = updinfo.advisories_list()
         else:
             value = None
         return value

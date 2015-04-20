@@ -31,11 +31,13 @@ import dnf.subject
 import dnf.transaction
 import dnf.yum
 import hawkey
+import itertools
 import logging
 import sys
 
 logger = logging.getLogger('dnfdaemon.base.dnf')
 
+UPDINFO_MAIN = ['id', 'title', 'type', 'description', 'filenames']
 
 class DnfBase(dnf.Base):
     """An extended version of the dnf.Base class."""
@@ -307,3 +309,34 @@ class Progress(dnf.callback.DownloadProgress):
                          (self.last_pct,
                           self.download_files,
                           self.total_files))
+
+
+class UpdateInfo:
+    """Wrapper class for dnf update advisories on a given po."""
+
+    UPDINFO_MAIN = ['id', 'title', 'type', 'description', 'filenames']
+
+    def __init__(self, po):
+        self.po = po
+
+    @staticmethod
+    def advisories_iter(po):
+        return itertools.chain(po.get_advisories(hawkey.LT),
+                               po.get_advisories(hawkey.GT | hawkey.EQ))
+
+    def advisories_list(self):
+        """list containing advisory information."""
+        results = []
+        for adv in self.advisories_iter(self.po):
+            e = {}
+            # main fields
+            for field in UpdateInfo.UPDINFO_MAIN:
+                e[field] = getattr(adv, field)
+            # references
+            refs = []
+            for ref in adv.references:
+                ref_tuple = [ref.type, ref.id, ref.title, ref.url]
+                refs.append(ref_tuple)
+            e['references'] = refs
+            results.append(e)
+        return results

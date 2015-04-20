@@ -52,7 +52,6 @@ def repo_dir():
 
 COMPS_PATH = os.path.join(repo_dir(), 'main_comps.xml')
 LOCAL_RPM = os.path.join(repo_dir(), 'local-pkg-1.0-1.fc22.noarch.rpm')
-
 # mock objects
 
 
@@ -156,6 +155,24 @@ class HistoryStub(dnf.yum.history.YumHistory):
         return tuple(limited)
 
 
+class FakeAdvisoryRef(object):
+    def __init__(self, ref_id, ref_type=hawkey.REFERENCE_BUGZILLA):
+        self.id = ref_id
+        self.type = ref_type
+        self.title = 'The foobar bug has been fixed'
+        self.url = 'https://bugzilla.redhat.com/show_bug.cgi?id=' + self.id
+
+
+class FakeAdvisory(object):
+    def __init__(self, pkg):
+        self.id = 'FEDORA-2015-1234'
+        self.description = "Advisory Description\nfoobar feature was added"
+        self.type = hawkey.ADVISORY_BUGFIX
+        self.title = 'Advisory Title'
+        self.filenames = ['%s.rpm' % pkg]
+        self.references = [FakeAdvisoryRef('1234567')]
+
+
 class MockPackage(object):
     def __init__(self, nevra, repo=None):
         self.baseurl = None
@@ -180,6 +197,9 @@ class MockPackage(object):
 
     def returnIdSum(self):
         return self.chksum
+
+    def get_advisories(self, h_filter):
+        return [FakeAdvisory(self.str)]
 
 
 class MockRepo(dnf.repo.Repo):
