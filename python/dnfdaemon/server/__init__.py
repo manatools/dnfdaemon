@@ -763,8 +763,6 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
 
     def _get_update_info(self, po):
         """Get update info for a package."""
-        # TODO : updateinfo is not supported in DNF yet
-        # https://bugzilla.redhat.com/show_bug.cgi?id=850912
         if po:
             updinfo = backend.UpdateInfo(po)
             value = updinfo.advisories_list()

@@ -321,6 +321,7 @@ class UpdateInfo:
 
     @staticmethod
     def advisories_iter(po):
+        # FIXME: hawkey.package.get_advisories() is not public API
         return itertools.chain(po.get_advisories(hawkey.LT),
                                po.get_advisories(hawkey.GT | hawkey.EQ))
 
