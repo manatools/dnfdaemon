@@ -333,6 +333,8 @@ class UpdateInfo:
             # main fields
             for field in UpdateInfo.UPDINFO_MAIN:
                 e[field] = getattr(adv, field)
+            dt = getattr(adv, 'updated')
+            e['updated'] = dt.isoformat(' ')
             # references
             refs = []
             for ref in adv.references:
