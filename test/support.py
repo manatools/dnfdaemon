@@ -18,6 +18,7 @@
 from __future__ import absolute_import
 from __future__ import unicode_literals
 
+import datetime
 import dnf
 import dnf.cli.cli
 import dnf.cli.demand
@@ -171,7 +172,7 @@ class FakeAdvisory(object):
         self.title = 'Advisory Title'
         self.filenames = ['%s.rpm' % pkg]
         self.references = [FakeAdvisoryRef('1234567')]
-
+        self.updated = datetime.datetime(2015, 12, 2, 11, 12, 13)
 
 class MockPackage(object):
     def __init__(self, nevra, repo=None):
@@ -200,6 +201,10 @@ class MockPackage(object):
 
     def get_advisories(self, h_filter):
         return [FakeAdvisory(self.str)]
+
+    @property
+    def files(self):
+        return ['/usr/bin/foobar', '/etc/foobar.conf']
 
 
 class MockRepo(dnf.repo.Repo):

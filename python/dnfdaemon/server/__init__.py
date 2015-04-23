@@ -772,9 +772,8 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
 
     def _get_filelist(self, po):
         """Get filelist for a package."""
-        # TODO : filelist is not supported in DNF yet
         if po:
-            value = None
+            value = po.files
         else:
             value = None
         return value

@@ -3,9 +3,11 @@
 import dnfdaemon.server
 import dnfdaemon.server.backend as backend
 
+import datetime
 import test.support as support
 import hawkey
 import json
+import time
 from unittest import mock
 
 TEST_LOCAL_PKG = 'local-pkg,0,1.0,1.fc22,noarch,@commandline'
@@ -79,6 +81,8 @@ class TestAdvisory(support.TestCase):
         self.assertEqual(adv['type'], hawkey.ADVISORY_BUGFIX)
         self.assertEqual(adv['title'], 'Advisory Title')
         self.assertEqual(adv['filenames'], ['bar-2.0-1.noarch.rpm'])
+        self.assertEqual(adv['updated'], "2015-12-02 11:12:13")
+
         # check references
         ref = adv['references'][0]
         self.assertEqual(ref, [hawkey.REFERENCE_BUGZILLA,
@@ -228,7 +232,7 @@ class TestCommonMisc(TestCommonBase):
         attr = self.daemon.get_attribute(pkg_id, 'changelog')
         self.assertEqual(json.loads(attr), None)
         attr = self.daemon.get_attribute(pkg_id, 'filelist')
-        self.assertEqual(json.loads(attr), None)
+        self.assertEqual(json.loads(attr), [])
 
     def test_search_with_attr_all(self):
         """Test search_with_attr (all)"""
