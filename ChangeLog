@@ -1,3 +1,39 @@
+2015-04-26  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* dnfdaemon.spec: bumped version to 0.3.7
+
+2015-04-23  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* python/dnfdaemon/server/__init__.py, test/support.py,
+	test/test_common.py: add support for pkg filelist  Added test for
+	updateinfo updated
+
+2015-04-23  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* python/dnfdaemon/server/backend.py: Added issued date to
+	updateinfo
+
+2015-04-21  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* python/dnfdaemon/server/__init__.py,
+	python/dnfdaemon/server/backend.py: added/removed some FIXME/TODO
+	comments
+
+2015-04-20  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* python/dnfdaemon/server/__init__.py,
+	python/dnfdaemon/server/backend.py, test/support.py,
+	test/test_common.py: Adding support for UpdateInfo (dnf update
+	advisories)
+
+2015-04-16  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* test/test_common.py: cleanup unit test for print() statements
+
+2015-04-15  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* ChangeLog: updated ChangeLog
+
 2015-04-15  Tim Lauridsen <timlau@fedoraproject.org>
 
 	* dnfdaemon.spec, python/dnfdaemon/server/__init__.py: bumped
