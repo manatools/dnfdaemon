@@ -20,7 +20,7 @@ Common stuff for the dnfdaemon dbus services
 """
 
 from datetime import datetime
-from dnf.exceptions import DownloadError
+from dnf.exceptions import DownloadError, Error
 from dnf.yum.rpmtrans import TransactionDisplay
 from gi.repository import GLib
 from . import backend
@@ -191,6 +191,11 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
         # time to daemon is closed when locked and not working
         self._timeout_locked = 600
         self._obsoletes_list = None     # Cache for obsoletes
+        self._gpg_confirm = {}  # store confirmed gpg key import confirmations
+
+    # this must be overloaded in the parent class
+    def GPGImport(self, pkg_id, userid, hexkeyid, keyurl, timestamp):
+        print(pkg_id, userid, hexkeyid, keyurl, timestamp)
 
     @property
     def base(self):
@@ -540,6 +545,8 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
                 self.TransactionEvent('pkg-to-download', data)
                 self.TransactionEvent('download', NONE)
                 self.base.download_packages(to_dnl, self.base.progress)
+                self.TransactionEvent('gpgcheck', NONE)
+                self._check_gpg_signatures(to_dnl)
             self.TransactionEvent('run-transaction', NONE)
             display = RPMTransactionDisplay(self)  # RPM Display callback
             self._can_quit = False
@@ -557,11 +564,14 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
             else:
                 msgs = [str(e)]
                 print("DEBUG:", msgs)
+        except Error as e:
+            rc = 5
+            msgs = [str(e)]
+            print("DEBUG:", msgs)
         self._can_quit = True
         self._reset_base()
         self.TransactionEvent('end-run', NONE)
         result = json.dumps((rc, msgs))
-        # FIXME: It should not be needed to call .success_finish()
         return result
 
     def get_history_by_days(self, start, end):
@@ -642,7 +652,26 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
             return False
         pass
 
-    def handle_gpg_import(self, gpg_info):
+#=========================================================================
+# Helper methods
+#=========================================================================
+    def _check_gpg_signatures(self, pkgs):
+        ''' The the signatures of the downloaded packages '''
+        for po in pkgs:
+            # FIXME: Base.sigCheckPkg not public dnf api
+            result, errmsg = self.base.sigCheckPkg(po)
+            if result == 0:
+                # Verified ok, or verify not req'd
+                continue
+            elif result == 1:
+                # FIXME: Base.getKeyForPackage not public dnf api
+                self.base.getKeyForPackage(po,
+                                           fullaskcb=self._handle_gpg_import)
+            else:
+                raise dnf.exceptions.Error(errmsg)
+        return 0
+
+    def _handle_gpg_import(self, gpg_info):
         """Callback for handling af user confirmation of gpg key import.
 
         :param gpg_info: dict with info about gpg key
@@ -659,12 +688,9 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
         # the gpg key has not been confirmed by the user
         if not hexkeyid in self._gpg_confirm:
             self._gpg_confirm[hexkeyid] = False
+            # signal defined in the D-BUS parent class
             self.GPGImport(pkg_id, userid, hexkeyid, keyurl, timestamp)
         return self._gpg_confirm[hexkeyid]
-
-#=========================================================================
-# Helper methods
-#=========================================================================
 
     def _get_po_by_name(self, name, newest_only):
         """Get packages matching a name pattern.

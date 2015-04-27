@@ -56,24 +56,12 @@ class NotImplementedError(dbus.DBusException):
 
 #------------------------------------------------------------ Callback handlers
 
-
-class DaemonBase():
-
-    def __init__(self, daemon):
-        self._daemon = daemon
-
-    def _checkSignatures(self, pkgs, callback):
-        """ The the signatures of the downloaded packages """
-        return 0
-
-
 class DnfDaemon(dnfdaemon.server.DnfDaemonBase):
 
     def __init__(self):
         dnfdaemon.server.DnfDaemonBase.__init__(self)
         bus_name = dbus.service.BusName(DAEMON_ORG, bus=dbus.SystemBus())
         dbus.service.Object.__init__(self, bus_name, '/')
-        self._gpg_confirm = {}
 
 #=========================================================================
 # DBus Methods
