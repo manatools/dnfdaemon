@@ -563,11 +563,11 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
                 msgs = error_msgs
             else:
                 msgs = [str(e)]
-                print("DEBUG:", msgs)
+                #print("DEBUG:", msgs)
         except Error as e:
             rc = 1
             msgs = [str(e)]
-            print("DEBUG:", msgs)
+            #print("DEBUG:", msgs)
         self._can_quit = True
         self._reset_base()
         self.TransactionEvent('end-run', NONE)
@@ -679,7 +679,7 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
         {"po": ..,  "userid": .., "hexkeyid": .., "keyurl": ..,
           "fingerprint": .., "timestamp": ..)
         """
-        print(gpg_info)
+        #print(gpg_info)
         pkg_id = self._get_id(gpg_info['po'])
         userid = gpg_info['userid']
         hexkeyid = gpg_info['hexkeyid']
