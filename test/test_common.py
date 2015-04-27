@@ -288,6 +288,17 @@ class TestCommonMisc(TestCommonBase):
             ["foo-dep-err,0,1.0,1,noarch,main",
              "bar-dep-err,0,1.0,1,noarch,main"])
 
+    def test_get_actions(self):
+        """Test package actions"""
+        attrs = ['action']
+        pkgs = self.daemon.get_packages_by_name_with_attr('foo',
+                                                           attrs, False)
+        self.assertEqual(json.loads(pkgs),
+            [['foo,0,2.0,1,noarch,@System', 'remove'],
+             ['foo,0,1.0,1,noarch,main', 'downgrade']
+            ])
+
+
 
 class TestCommonGroups(TestCommonBase):
 

@@ -940,7 +940,7 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
                     ipkgs = q.installed().filter(name=po.name).run()
                     if ipkgs:
                         ipkg = ipkgs[0]
-                        if po.evr_gt(ipkg):
+                        if ipkg.evr_gt(po):  # inst po > po => downgrade
                             action = 'downgrade'
         return action
 
