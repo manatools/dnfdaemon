@@ -545,7 +545,7 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
                 self.TransactionEvent('pkg-to-download', data)
                 self.TransactionEvent('download', NONE)
                 self.base.download_packages(to_dnl, self.base.progress)
-                self.TransactionEvent('gpgcheck', NONE)
+                self.TransactionEvent('signature-check', NONE)
                 self._check_gpg_signatures(to_dnl)
             self.TransactionEvent('run-transaction', NONE)
             display = RPMTransactionDisplay(self)  # RPM Display callback
@@ -565,7 +565,7 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
                 msgs = [str(e)]
                 print("DEBUG:", msgs)
         except Error as e:
-            rc = 5
+            rc = 1
             msgs = [str(e)]
             print("DEBUG:", msgs)
         self._can_quit = True
@@ -660,6 +660,7 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
         for po in pkgs:
             # FIXME: Base.sigCheckPkg not public dnf api
             result, errmsg = self.base.sigCheckPkg(po)
+            logger.debug('checking signature for : %s, %s', str(po), result)
             if result == 0:
                 # Verified ok, or verify not req'd
                 continue
