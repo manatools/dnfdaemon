@@ -863,10 +863,16 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
         """Get available downgrades for a given <name.arch>."""
         pkg_ids = []
         q = self.base.sack.query()
-        avail = q.available().filter(name=pkg.name, arch=pkg.arch).run()
-        for apkg in avail:
-            if pkg.evr_gt(apkg):
-                pkg_ids.append(self._get_id(apkg))
+        inst = q.installed().filter(name=pkg.name, arch=pkg.arch).run()
+        if inst:
+            if pkg.evr_eq(inst[0]):  # if pkg is installed, return downgrades
+                avail = q.available().filter(name=pkg.name, arch=pkg.arch)
+                for apkg in avail:
+                    if pkg.evr_gt(apkg):
+                        pkg_ids.append(self._get_id(apkg))
+            elif pkg.evr_lt(inst[0]):  # if pkg < inst, return installed pkg
+                pkg_ids.append(self._get_id(inst[0]))
+        logger.debug('downgrades for %s : %s', str(pkg), str(pkg_ids))
         return pkg_ids
 
     def _get_pkgtags(self, po):
