@@ -495,7 +495,9 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
             elif action == 'obsolete':
                 rc = self.base.package_install(po)
             elif action == 'reinstall':
-                rc = self.base.package_reinstall(po)
+                po = self._get_po_available(pkg_id)
+                if po:
+                    rc = self.base.package_reinstall(po)
             elif action == 'downgrade':
                 rc = self.base.package_downgrade(po)
             elif action == 'localinstall':
@@ -909,6 +911,18 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
                 return f[0]
             else:
                 return None
+
+    def _get_po_available(self, id):
+        """ """
+        n, e, v, r, a, repo_id = id.split(',')
+        q = self.base.sack.query()
+        f = q.available()
+        f = f.filter(name=n, version=v, release=r, arch=a)
+        if len(f) > 0:
+            return f[0]
+        else:
+            return None
+
 
     def _get_id(self, pkg):
         """Get a package id from a given package."""
