@@ -145,7 +145,23 @@ class Packages:
     @property
     def updates(self):
         """Get available updates."""
-        return self.query.upgrades().latest().run()
+        pkgs = []
+        try:
+            # we have to do upgrade_all & resolve
+            # to make sure pkgs exclude by repo priority etc
+            # get handled.
+            self._base.upgrade_all()
+            self._base.resolve(allow_erasing=True)
+        except dnf.exceptions.DepsolveError as e:
+            self.logger.debug(str(e))
+            return pkgs
+        # return install/upgrade type pkgs from transaction
+        for tsi in self._base.transaction:
+            #print(tsi.op_type, tsi.installed, tsi.erased, tsi.obsoleted)
+            if tsi.op_type == dnf.transaction.UPGRADE or \
+               tsi.op_type == dnf.transaction.INSTALL:
+                pkgs.append(tsi.installed)
+        return pkgs
 
     @property
     def all(self):
