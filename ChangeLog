@@ -1,3 +1,56 @@
+2015-05-06  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* dnfdaemon.spec, python/dnfdaemon/server/__init__.py: bumped
+	version to 0.3.8
+
+2015-05-05  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* python/dnfdaemon/server/backend.py: fix: make fetching of
+	available updates better  Make repo priority and other excluding
+	work.  (Rhbug: 1217155)
+
+2015-04-28  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* python/dnfdaemon/server/__init__.py: fix: reinstall in
+	add_transaction, should always use the available po, not the
+	installed one.
+
+2015-04-27  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* python/dnfdaemon/server/__init__.py: fix: fake attribute
+	'downgrades' return installed package if the main package is a
+	downgrade
+
+2015-04-27  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* Makefile: build: makefile targets for reinstall and updates test
+	builds
+
+2015-04-27  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* python/dnfdaemon/server/__init__.py, test/test_common.py: fix:
+	downgrades return wrong action  Added unit test for actions
+
+2015-04-27  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* python/dnfdaemon/server/__init__.py: cleanup: some debug printing
+
+
+2015-04-27  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* python/dnfdaemon/server/__init__.py: fix: return the right return
+	code when gpgkey import verification is needed.  fix: use the right
+	TransactionEvent for signature check
+
+2015-04-27  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* daemon/dnfdaemon-system.py, python/dnfdaemon/server/__init__.py: 
+	add basics for handling gpg checks
+
+2015-04-26  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* ChangeLog: updated ChangeLog
+
 2015-04-26  Tim Lauridsen <timlau@fedoraproject.org>
 
 	* dnfdaemon.spec: bumped version to 0.3.7
