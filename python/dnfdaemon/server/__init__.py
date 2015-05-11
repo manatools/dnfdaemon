@@ -695,13 +695,13 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
             self.GPGImport(pkg_id, userid, hexkeyid, keyurl, timestamp)
         return self._gpg_confirm[hexkeyid]
 
-    def _get_po_by_name(self, name, newest_only):
+    def _get_po_by_name(self, name, newest_only, ignore_case=True):
         """Get packages matching a name pattern.
 
         :param name: name pattern
         :param newest_only: True = get newest packages only
         """
-        subj = dnf.subject.Subject(name)
+        subj = dnf.subject.Subject(name, ignore_case=ignore_case)
         qa = subj.get_best_query(self.base.sack, with_provides=False)
         if newest_only:
             qa = qa.latest()
