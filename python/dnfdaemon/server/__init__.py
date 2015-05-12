@@ -37,6 +37,8 @@ import dnf.comps
 import dnf.subject
 import dnf.transaction
 import dnf.yum
+import functools
+import hawkey
 import json
 import logging
 import operator
@@ -881,13 +883,23 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
         q = self.base.sack.query()
         for req in requires:
             req_str = str(req)
-            if 'solvable:' in req_str:
+            if 'solvable:' in req_str or 'rpmlib(' in req_str:
                 continue
-            providers = self.by_provides(self.sack, [req_str], q)
+            providers = self.by_provides(self.base.sack, [req_str], q)
             req_dict[req_str] = []
             for prov in providers.latest().run():
                 req_dict[req_str].append(self._get_id(prov))
         return req_dict
+
+    @staticmethod
+    def by_provides(sack, pattern, query):
+        """Get a query for matching given provides."""
+        try:
+            reldeps = list(map(functools.partial(hawkey.Reldep, sack),
+                               pattern))
+        except hawkey.ValueException:
+            return query.filter(empty=True)
+        return query.filter(provides=reldeps)
 
     def _get_downgrades(self, pkg):
         """Get available downgrades for a package"""
