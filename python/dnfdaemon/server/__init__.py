@@ -48,7 +48,7 @@ MAINLOOP = GLib.MainLoop()
 # Fake attributes, there is simulating real package attribute
 # used by get_attributes and others
 FAKE_ATTR = ['downgrades', 'action', 'pkgtags',
-             'changelog', 'filelist', 'updateinfo']
+             'changelog', 'filelist', 'updateinfo', 'requires']
 
 NONE = json.dumps(None)
 
@@ -860,9 +860,26 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
             return self._get_update_info(po)
         elif attr == 'filelist':
             return self._get_filelist(po)
+        elif attr == 'requires':
+            return self._get_requires(po)
+
+    def _get_requires(self, pkg):
+        """Get requirements and providers for a package. """
+        req_dict = {}
+        requires = pkg.requires
+        q = self.base.sack.query()
+        for req in requires:
+            req_str = str(req)
+            if 'solvable:' in req_str:
+                continue
+            providers = self.by_provides(self.sack, [req_str], q)
+            req_dict[req_str] = []
+            for prov in providers.latest().run():
+                req_dict[req_str].append(self._get_id(prov))
+        return req_dict
 
     def _get_downgrades(self, pkg):
-        """Get available downgrades for a given <name.arch>."""
+        """Get available downgrades for a package"""
         pkg_ids = []
         q = self.base.sack.query()
         inst = q.installed().filter(name=pkg.name, arch=pkg.arch).run()

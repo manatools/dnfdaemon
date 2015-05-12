@@ -233,6 +233,8 @@ class TestCommonMisc(TestCommonBase):
         self.assertEqual(json.loads(attr), None)
         attr = self.daemon.get_attribute(pkg_id, 'filelist')
         self.assertEqual(json.loads(attr), [])
+        attr = self.daemon.get_attribute(pkg_id, 'requires')
+        self.assertEqual(json.loads(attr), {})
 
     def test_search_with_attr_all(self):
         """Test search_with_attr (all)"""
