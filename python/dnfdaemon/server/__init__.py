@@ -87,6 +87,14 @@ def Logger(func):
     newFunc.__dict__.update(func.__dict__)
     return newFunc
 
+# Exceptions
+
+
+class GPGError(Exception):
+    def __init__(self, message):
+        # Call the base class constructor with the parameters it needs
+        super(GPGError, self).__init__(message)
+
 
 # FIXME: TransactionDisplay is not public API
 class RPMTransactionDisplay(TransactionDisplay):
@@ -566,8 +574,11 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
             else:
                 msgs = [str(e)]
                 #print("DEBUG:", msgs)
-        except Error as e:
-            rc = 1
+        except GPGError as e:  # GPG errors
+            msgs = [str(e)]
+            #print("DEBUG:", msgs)
+        except Error as e: # Other transaction errors
+            rc = 2
             msgs = [str(e)]
             #print("DEBUG:", msgs)
         self._can_quit = True
@@ -671,7 +682,7 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
                 self.base.getKeyForPackage(po,
                                            fullaskcb=self._handle_gpg_import)
             else:
-                raise dnf.exceptions.Error(errmsg)
+                raise GPGError(errmsg)
         return 0
 
     def _handle_gpg_import(self, gpg_info):
