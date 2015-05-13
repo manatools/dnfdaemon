@@ -283,10 +283,12 @@ class Progress(dnf.callback.DownloadProgress):
 
     def end(self, payload, status, msg):
         # payload download complete
+        logger.debug('download status : {} - {}'.format(status, str(payload)))
         if status in [dnf.callback.STATUS_OK,
-                      dnf.callback.STATUS_ALREADY_EXISTS]:
+                      dnf.callback.STATUS_ALREADY_EXISTS,
+                      dnf.callback.STATUS_DRPM]:
             self.download_files += 1
-        else:
+        elif status == dnf.callback.STATUS_FAILED:
             pload = str(payload)
             if pload in self._dnl_errors:
                 self._dnl_errors[pload].append(msg)
