@@ -255,8 +255,7 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
     def get_groups(self):
         """Get available comps categories & groups"""
         all_groups = []
-        if not self.base.comps:  # lazy load the comps metadata
-            self.base.read_comps()
+        self._load_comps()
         for category in self.base.comps.categories_iter():
             cat = (category.name, category.ui_name, category.ui_description)
             cat_grps = []
@@ -374,6 +373,7 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
         group package type.
         """
         pkgs = []
+        self._load_comps()
         grp = self.base.comps.group_by_pattern(grp_id)
         if grp:
             if grp_flt == 'all':
@@ -721,10 +721,14 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
         pkgs = self.base.packages.filter_packages(qa)
         return pkgs
 
-    def _find_group(self, pattern):
-        """ Find comps.Group object by pattern."""
+    def _load_comps(self):
+        ''' Lazy load the group metadata'''
         if not self.base.comps:  # lazy load the comps metadata
             self.base.read_comps()
+
+    def _find_group(self, pattern):
+        """ Find comps.Group object by pattern."""
+        self._load_comps()
         grp = self.base.comps.group_by_pattern(pattern)
         return grp
 
