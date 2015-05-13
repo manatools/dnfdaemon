@@ -175,6 +175,8 @@ class TestBrokenDeps(TestCommonBase):
         """Test add_transaction  of packages with broken deps"""
         pkg_id = 'broken,0,1.0,1,noarch,main'
         res = self.daemon.add_transaction(pkg_id, 'install')
+        self.assertEqual(json.loads(res), [True, []])
+        res = self.daemon.build_transaction()
         self.assertEqual(json.loads(res),
             [False, ['nothing provides not-found-dep01 >= 1-0 '
                      'needed by dep01-1.0-1.noarch']])
@@ -419,6 +421,8 @@ class TestCommonTransaction(TestCommonBase):
     def test_add_transaction_install(self):
         pkg_id = 'petzoo,0,1.0,1,noarch,main'
         res = self.daemon.add_transaction(pkg_id, 'install')
+        self.assertEqual(json.loads(res), [True, []])
+        res = self.daemon.build_transaction()
         self.assertEqual(json.loads(res),
             [True, [['install', [['petzoo,0,1.0,1,noarch,main', 0.0, []]]]]])
         # install no existing pkg_id
@@ -431,6 +435,8 @@ class TestCommonTransaction(TestCommonBase):
     def test_add_transaction_install_local(self):
         pkg_id = support.LOCAL_RPM
         res = self.daemon.add_transaction(pkg_id, 'localinstall')
+        self.assertEqual(json.loads(res), [True, []])
+        res = self.daemon.build_transaction()
         self.assertEqual(json.loads(res),
             [True, [['install', [[TEST_LOCAL_PKG,
              6520.0, []]]]]])
@@ -438,24 +444,32 @@ class TestCommonTransaction(TestCommonBase):
     def test_add_transaction_remove(self):
         pkg_id = 'bar,0,1.0,1,noarch,@System'
         res = self.daemon.add_transaction(pkg_id, 'remove')
+        self.assertEqual(json.loads(res), [True, []])
+        res = self.daemon.build_transaction()
         self.assertEqual(json.loads(res),
             [True, [['remove', [['bar,0,1.0,1,noarch,@System', 0.0, []]]]]])
 
     def test_add_transaction_update(self):
         pkg_id = 'bar,0,2.0,1,noarch,main'
         res = self.daemon.add_transaction(pkg_id, 'update')
+        self.assertEqual(json.loads(res), [True, []])
+        res = self.daemon.build_transaction()
         self.assertEqual(json.loads(res),
             [True, [['update', [['bar,0,2.0,1,noarch,main', 0.0, []]]]]])
 
     def test_add_transaction_downgrade(self):
         pkg_id = 'foo,0,1.0,1,noarch,main'
         res = self.daemon.add_transaction(pkg_id, 'downgrade')
+        self.assertEqual(json.loads(res), [True, []])
+        res = self.daemon.build_transaction()
         self.assertEqual(json.loads(res),
             [True, [['downgrade', [['foo,0,1.0,1,noarch,main', 0.0, []]]]]])
 
     def test_add_transaction_reinstall(self):
         pkg_id = 'foo,0,2.0,1,noarch,main'
         res = self.daemon.add_transaction(pkg_id, 'reinstall')
+        self.assertEqual(json.loads(res), [True, []])
+        res = self.daemon.build_transaction()
         self.assertEqual(json.loads(res),
             [True, [['reinstall', [['foo,0,2.0,1,noarch,main', 0.0, []]]]]])
 
@@ -467,28 +481,32 @@ class TestCommonTransaction(TestCommonBase):
     def test_add_transaction_already_installed(self):
         pkg_id = 'foo,0,2.0,1,noarch,main'
         res = self.daemon.add_transaction(pkg_id, 'install')
+        self.assertEqual(json.loads(res), [True, []])
+        res = self.daemon.build_transaction()
         self.assertEqual(json.loads(res), [False, []])
 
     def test_transaction_misc(self):
         pkg_id = 'petzoo,0,1.0,1,noarch,main'
         res = self.daemon.add_transaction(pkg_id, 'install')
+        self.assertEqual(json.loads(res), [True, []])
+        res = self.daemon.build_transaction()
         self.assertEqual(json.loads(res),
             [True, [['install', [['petzoo,0,1.0,1,noarch,main', 0.0, []]]]]])
         # test _get_transaction()
         trans = self.daemon.get_transaction()
+        res = self.daemon.build_transaction()
         self.assertEqual(json.loads(trans),
             [True, [['install', [['petzoo,0,1.0,1,noarch,main', 0.0, []]]]]])
         # test _clear_transaction()
         self.daemon.clear_transaction()
         trans = self.daemon.get_transaction()
+        res = self.daemon.build_transaction()
         self.assertEqual(json.loads(trans), [False, []])
 
     def test_build_transaction(self):
         pkg_id = 'petzoo,0,1.0,1,noarch,main'
         res = self.daemon.add_transaction(pkg_id, 'install')
-        self.assertEqual(json.loads(res),
-            [True, [['install', [['petzoo,0,1.0,1,noarch,main', 0.0, []]]]]])
-        # test _get_transaction()
+        self.assertEqual(json.loads(res), [True, []])
         trans = self.daemon.build_transaction()
         self.assertEqual(json.loads(trans),
             [True, [['install', [['petzoo,0,1.0,1,noarch,main', 0.0, []]]]]])
@@ -496,6 +514,8 @@ class TestCommonTransaction(TestCommonBase):
     def test_get_packages_to_download(self):
         pkg_id = 'petzoo,0,1.0,1,noarch,main'
         res = self.daemon.add_transaction(pkg_id, 'install')
+        self.assertEqual(json.loads(res), [True, []])
+        res = self.daemon.build_transaction()
         self.assertEqual(json.loads(res),
             [True, [['install', [['petzoo,0,1.0,1,noarch,main', 0.0, []]]]]])
         pkgs = self.daemon._get_packages_to_download()
@@ -504,6 +524,8 @@ class TestCommonTransaction(TestCommonBase):
     def test_run_transaction(self):
         pkg_id = 'petzoo,0,1.0,1,noarch,main'
         res = self.daemon.add_transaction(pkg_id, 'install')
+        self.assertEqual(json.loads(res), [True, []])
+        res = self.daemon.build_transaction()
         self.assertEqual(json.loads(res),
             [True, [['install', [['petzoo,0,1.0,1,noarch,main', 0.0, []]]]]])
         res = self.daemon.run_transaction(max_err=10)

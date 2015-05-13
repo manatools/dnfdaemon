@@ -517,11 +517,12 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
                 logger.error("unknown action : %s", action)
         # ignore if the package is not installed
         except dnf.exceptions.PackagesNotInstalledError:
-            self.logger.warning("package not installed : ", str(po))
-            self.ErrorMessage("package not installed : ", str(po))
+            msg = "package not installed : %s" % str(po)
+            self.logger.warning(msg)
+            self.ErrorMessage(msg)
+            value = json.dumps((False, [msg]))
         if rc:
-            value = json.dumps(self._get_transaction_list())
-            #value = json.dumps(self._get_goal_list())
+            value = json.dumps((True, []))
         return value
 
     def clear_transaction(self):
