@@ -202,6 +202,7 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
         self._timeout_locked = 600
         self._obsoletes_list = None     # Cache for obsoletes
         self._gpg_confirm = {}  # store confirmed gpg key import confirmations
+        self._config_options = {}
 
     # this must be overloaded in the parent class
     def GPGImport(self, pkg_id, userid, hexkeyid, keyurl, timestamp):
@@ -658,6 +659,7 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
         if hasattr(self.base.conf, option):
             setattr(self.base.conf, option, value)
             self.logger.debug("Setting Option %s = %s" % (option, value))
+            self._config_options[option] = value
             for repo in self.base.repos.iter_enabled():
                 if hasattr(repo, option):
                     setattr(repo, option, value)
@@ -1013,6 +1015,10 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
         """Get a cached dnf.Base object."""
         if not self._base or reset:
             self._base = backend.DnfBase(self)
+            for option in self._config_options:
+                value = self._config_options[option]
+                setattr(self._base.conf, option, value)
+                self.logger.debug("Setting Option %s = %s" % (option, value))
             if load_sack:
                 self._base.setup_base()
         return self._base
