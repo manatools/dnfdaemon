@@ -106,15 +106,15 @@ test-repo-build:
 
 test-inst:
 	$(MAKE) test-release
-	@sudo dnf install build/RPMS/noarch/*$(PKGNAME)*.rpm
+	@sudo dnf install --setopt=installonly_limit=0  build/RPMS/noarch/*$(PKGNAME)*.rpm
 
 test-reinst:
 	$(MAKE) test-release
-	@sudo dnf reinstall build/RPMS/noarch/*$(PKGNAME)*.rpm
+	@sudo dnf reinstall --setopt=installonly_limit=0 build/RPMS/noarch/*$(PKGNAME)*.rpm
 	
 test-upd:
 	$(MAKE) test-release
-	@sudo dnf update build/RPMS/noarch/*$(PKGNAME)*.rpm
+	@sudo dnf update --setopt=installonly_limit=0 build/RPMS/noarch/*$(PKGNAME)*.rpm
 
 rpms:
 	$(MAKE) build-setup
