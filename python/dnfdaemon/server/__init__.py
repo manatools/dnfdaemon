@@ -656,10 +656,10 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
     def set_option(self, option, value):
         """Set an DNF config option to a given value."""
         value = json.loads(value)
+        self.logger.debug("Setting Option %s = %s" % (option, value))
+        self._config_options[option] = value
         if hasattr(self.base.conf, option):
             setattr(self.base.conf, option, value)
-            self.logger.debug("Setting Option %s = %s" % (option, value))
-            self._config_options[option] = value
             for repo in self.base.repos.iter_enabled():
                 if hasattr(repo, option):
                     setattr(repo, option, value)
@@ -1014,11 +1014,13 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
     def _get_base(self, reset=False, load_sack=True):
         """Get a cached dnf.Base object."""
         if not self._base or reset:
+            logger.debug('setup DnfBase')
             self._base = backend.DnfBase(self)
             for option in self._config_options:
                 value = self._config_options[option]
                 setattr(self._base.conf, option, value)
-                self.logger.debug("Setting Option %s = %s" % (option, value))
+                self.logger.debug("setting cached option %s = %s" %
+                                  (option, value))
             if load_sack:
                 self._base.setup_base()
         return self._base

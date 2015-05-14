@@ -60,6 +60,7 @@ class DnfBase(dnf.Base):
 
     def setup_base(self):
         """Setup dnf Sack and init packages helper"""
+        logger.debug('setup DnfBase sack')
         self.fill_sack()
         self._packages = Packages(self)
 
