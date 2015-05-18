@@ -494,13 +494,11 @@ class TestCommonTransaction(TestCommonBase):
             [True, [['install', [['petzoo,0,1.0,1,noarch,main', 0.0, []]]]]])
         # test _get_transaction()
         trans = self.daemon.get_transaction()
-        res = self.daemon.build_transaction()
         self.assertEqual(json.loads(trans),
             [True, [['install', [['petzoo,0,1.0,1,noarch,main', 0.0, []]]]]])
         # test _clear_transaction()
         self.daemon.clear_transaction()
-        trans = self.daemon.get_transaction()
-        res = self.daemon.build_transaction()
+        trans = self.daemon.build_transaction()
         self.assertEqual(json.loads(trans), [False, []])
 
     def test_build_transaction(self):

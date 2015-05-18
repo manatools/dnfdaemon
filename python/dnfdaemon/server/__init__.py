@@ -532,13 +532,18 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
 
     def get_transaction(self):
         """Get the current transaction."""
-        value = json.dumps(self._get_transaction_list())
+        trans = self._get_transaction()
+        if trans:
+            rc = True
+        else:
+            rc = False
+        value = json.dumps((rc, trans))
         return value
 
     def build_transaction(self):
         """Resolve dependencies of current transaction."""
         self.TransactionEvent('start-build', NONE)
-        value = json.dumps(self._get_transaction_list())
+        value = json.dumps(self._build_transaction())
         self.TransactionEvent('end-build', NONE)
         return value
 
@@ -769,43 +774,61 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
                 to_dnl.append(tsi.installed)
         return to_dnl
 
-    def _get_transaction_list(self):
+    def _build_transaction(self):
         """Get a list of the current transaction."""
+        rc, output = self._resolve_transaction()
+        if rc:
+            return rc, self._get_transaction()
+        else:  # Error in depsolve, return error msgs
+            return rc, output
+
+    def _get_transaction(self):
+        """Get current transaxtion"""
         out_list = []
         sublist = []
-        rc, tx_list = self._make_trans_dict()
-        if rc:
-            for (action, pkglist) in [
-                ('install', tx_list['install']),
-                ('update', tx_list['update']),
-                ('remove', tx_list['remove']),
-                ('reinstall', tx_list['reinstall']),
-                ('downgrade', tx_list['downgrade'])]:
-
-                for tsi in pkglist:
-                    po = _active_pkg(tsi)
-                    (n, a, e, v, r) = po.pkgtup
-                    size = float(po.size)
-                    # build a list of obsoleted packages
-                    alist = []
-                    for obs_po in tsi.obsoleted:
-                        alist.append(self._get_id(obs_po))
-                    if alist:
-                        logger.debug(repr(alist))
-                    el = (self._get_id(po), size, alist)
-                    sublist.append(el)
-                if pkglist:
-                    out_list.append([action, sublist])
-                    sublist = []
-            return rc, out_list
-        else:  # Error in depsolve, return error msgs
-            return rc, tx_list
-
-    def _make_trans_dict(self):
-        """Get a dict of action & packages from the current transaction"""
-        b = {}
+        tx_list = {}
         for t in ('downgrade', 'remove', 'install', 'reinstall', 'update'):
-            b[t] = []
+            tx_list[t] = []
+        if self.base.transaction:
+            for tsi in self.base.transaction:
+                #print(tsi.op_type, tsi.installed, tsi.erased, tsi.obsoleted)
+                if tsi.op_type == dnf.transaction.DOWNGRADE:
+                    tx_list['downgrade'].append(tsi)
+                elif tsi.op_type == dnf.transaction.ERASE:
+                    tx_list['remove'].append(tsi)
+                elif tsi.op_type == dnf.transaction.INSTALL:
+                    tx_list['install'].append(tsi)
+                elif tsi.op_type == dnf.transaction.REINSTALL:
+                    tx_list['reinstall'].append(tsi)
+                elif tsi.op_type == dnf.transaction.UPGRADE:
+                    tx_list['update'].append(tsi)
+        # build action tree
+        for (action, pkglist) in [
+            ('install', tx_list['install']),
+            ('update', tx_list['update']),
+            ('remove', tx_list['remove']),
+            ('reinstall', tx_list['reinstall']),
+            ('downgrade', tx_list['downgrade'])]:
+
+            for tsi in pkglist:
+                po = _active_pkg(tsi)
+                (n, a, e, v, r) = po.pkgtup
+                size = float(po.size)
+                # build a list of obsoleted packages
+                alist = []
+                for obs_po in tsi.obsoleted:
+                    alist.append(self._get_id(obs_po))
+                if alist:
+                    logger.debug(repr(alist))
+                el = (self._get_id(po), size, alist)
+                sublist.append(el)
+            if pkglist:
+                out_list.append([action, sublist])
+                sublist = []
+        return out_list
+
+
+    def _resolve_transaction(self):
         # Resolve to get the Transaction object popolated
         try:
             rc = self.base.resolve(allow_erasing=True)
@@ -813,22 +836,7 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
         except dnf.exceptions.DepsolveError as e:
             rc = False
             output = e.value.split('. ')
-        if rc:
-            for tsi in self.base.transaction:
-                #print(tsi.op_type, tsi.installed, tsi.erased, tsi.obsoleted)
-                if tsi.op_type == dnf.transaction.DOWNGRADE:
-                    b['downgrade'].append(tsi)
-                elif tsi.op_type == dnf.transaction.ERASE:
-                    b['remove'].append(tsi)
-                elif tsi.op_type == dnf.transaction.INSTALL:
-                    b['install'].append(tsi)
-                elif tsi.op_type == dnf.transaction.REINSTALL:
-                    b['reinstall'].append(tsi)
-                elif tsi.op_type == dnf.transaction.UPGRADE:
-                    b['update'].append(tsi)
-            return rc, b
-        else:
-            return rc, output
+        return rc, output
 
     def _get_obsoletes(self):
         """Cache a list of obsoletes."""
