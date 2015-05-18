@@ -697,6 +697,18 @@ class Client(DnfDaemonBase):
         value = self._run_dbus_async('GetHistoryPackages', '(i)', tid)
         return json.loads(value)
 
+    def HistoryUndo(self, tid):
+        """Undo a given dnf history transaction id
+
+        Args:
+            tid: history transaction id
+
+        Returns:
+            (rc, messages)
+        """
+        value = self._run_dbus_async('HistoryUndo', '(i)', tid)
+        return json.loads(value)
+
     def ConfirmGPGImport(self, hexkeyid, confirmed):
         '''Confirm import of at GPG Key by yum
 

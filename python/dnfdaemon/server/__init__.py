@@ -637,6 +637,32 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
         value = json.dumps(self._get_id_time_list(result))
         return value
 
+    def history_undo(self, tid):
+        """Undo a given history transaction id."""
+        # FIXME: Base.history is not public api
+        # https://bugzilla.redhat.com/show_bug.cgi?id=1079526
+        result = (0, [])
+        old = self.base.history.old([tid])
+        if old is None:
+            result = (1, ['Failed history undo'])
+        else:
+            old = old[0]
+            history = dnf.history.open_history(self.base.history)
+            try:
+                # FIXME: Base.history_undo_operations is not public api
+                self.base.history_undo_operations(
+                     history.transaction_nevra_ops(old.tid))
+            except dnf.exceptions.PackagesNotInstalledError as err:
+                result = (1, ['An operation cannot be undone : %s' % str(err)])
+            except dnf.exceptions.PackagesNotAvailableError as err:
+                result = (1, ['An operation cannot be undone : %s' % str(err)])
+            except dnf.exceptions.MarkingError:
+                result = (1, ['An operation cannot be undone : Marking Error'])
+            else:
+                result = (2, ['Undoing transaction %u' % (old.tid,)])
+        value = json.dumps(result)
+        return value
+
     def get_history_transaction_pkgs(self, tid):
         """Get the package transactions for given transaction id."""
         # FIXME: Base.history is not public api

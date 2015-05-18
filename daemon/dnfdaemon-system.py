@@ -291,6 +291,20 @@ class DnfDaemon(dnfdaemon.server.DnfDaemonBase):
 
     @Logger
     @dbus.service.method(DAEMON_INTERFACE,
+                         in_signature='i',
+                         out_signature='s',
+                         sender_keyword='sender')
+    def HistoryUndo(self, tid, sender=None):
+        """Get packages from a given yum history transaction id.
+
+        tid: history transaction id
+        """
+        self.working_start(sender, write=False)
+        value = self.history_undo(tid)
+        return self.working_ended(value)
+
+    @Logger
+    @dbus.service.method(DAEMON_INTERFACE,
                          in_signature='ii',
                          out_signature='s',
                          sender_keyword='sender')
