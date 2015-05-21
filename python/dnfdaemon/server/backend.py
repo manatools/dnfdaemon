@@ -280,6 +280,8 @@ class Progress(dnf.callback.DownloadProgress):
         self.total_size = float(total_size)
         self.download_files = 0
         self.download_size = 0.0
+        self.max_err = total_files / 2
+        logger.debug('setting max_err to : %d', self.max_err)
         self.parent.downloadStart(total_files, total_size)
 
     def end(self, payload, status, msg):
@@ -293,9 +295,14 @@ class Progress(dnf.callback.DownloadProgress):
             pload = str(payload)
             if pload in self._dnl_errors:
                 self._dnl_errors[pload].append(msg)
+                # if more than 10 error on a single payload, increase total errors.
+                if len(self._dnl_errors[pload]) > 10:
+                    self._err_count += 1
+                    logger.debug('dnl error # = %d', self._err_count)
             else:
                 self._dnl_errors[pload] = [msg]
-            self._err_count += 1
+                self._err_count += 1  # count only once per file to dnl
+                logger.debug('dnl error # = %d', self._err_count)
             if self._err_count > self.max_err:
                 raise dnf.exceptions.DownloadError(self._dnl_errors)
         self.parent.downloadEnd(str(payload), status, msg)

@@ -4,6 +4,7 @@ import dnfdaemon.server
 import dnfdaemon.server.backend as backend
 
 import datetime
+import dnf.callback
 import test.support as support
 import hawkey
 import json
@@ -39,6 +40,108 @@ class DnfBaseMock(backend.DnfBase):
 
     def close(self):
         pass
+
+
+class TestProgress(support.TestCase):
+
+    result = """DownloadStart(1, 10240)
+DownloadProgress('foobar0-1.0-1.noarch', 0.1, 0.1, 0)
+DownloadProgress('foobar0-1.0-1.noarch', 0.2, 0.2, 0)
+DownloadProgress('foobar0-1.0-1.noarch', 0.3, 0.3, 0)
+DownloadProgress('foobar0-1.0-1.noarch', 0.4, 0.4, 0)
+DownloadProgress('foobar0-1.0-1.noarch', 0.5, 0.5, 0)
+DownloadProgress('foobar0-1.0-1.noarch', 0.6, 0.6, 0)
+DownloadProgress('foobar0-1.0-1.noarch', 0.7, 0.7, 0)
+DownloadProgress('foobar0-1.0-1.noarch', 0.8, 0.8, 0)
+DownloadProgress('foobar0-1.0-1.noarch', 0.9, 0.9, 0)
+DownloadProgress('foobar0-1.0-1.noarch', 1.0, 1.0, 0)
+DownloadEnd('foobar0-1.0-1.noarch', None, 'done')"""
+
+    def _get_pload(self, num):
+        return support.Payload('foobar{}-1.0-1.noarch'.format(num), 10 * 1024)
+
+    def _simulate_download(self, progress, fnum):
+        pload = self._get_pload(fnum)
+        done = 0
+        for fnum in range(0, 10):
+            progress.progress(pload, done)
+            done += 1024
+        progress.progress(pload, 10 * 1024)
+        progress.end(pload, dnf.callback.STATUS_OK, "done")
+
+    def test_progress_single_file(self):
+        """Test progress for downloading one file."""
+        daemon = support.DaemonStub()
+        progress = backend.Progress(daemon, 10)
+        num_files = 1
+        num_bytes = 1024 * 10 * num_files
+        progress.start(num_files, num_bytes)
+        for fnum in range(0, num_files):
+            self._simulate_download(progress, fnum)
+        self.assertEqual('\n'.join(daemon.get_calls()), TestProgress.result)
+
+    def test_progress_multiple_files(self):
+        """Test progress for downloading multiple files."""
+        daemon = support.DaemonStub()
+        progress = backend.Progress(daemon, 10)
+        num_files = 10
+        num_bytes = 1024 * 10 * num_files
+        progress.start(num_files, num_bytes)
+        for fnum in range(0, num_files):
+            self._simulate_download(progress, fnum)
+        calls = daemon.get_calls()
+        self.assertEqual(len(calls), (num_files * 11) + 1)
+        self.assertEqual(calls[0], "DownloadStart(%s, %s)" % (num_files, num_bytes))
+        self.assertEqual(calls[-1],
+                         "DownloadEnd('foobar%d-1.0-1.noarch', None, 'done')"
+                         % (num_files - 1))
+
+    def test_progress_mirrors(self):
+        """Test progress for skipping mirrors."""
+        daemon = support.DaemonStub()
+        progress = backend.Progress(daemon, 10)
+        pload = self._get_pload(0)
+        done = 0
+        progress.start(1, 1024 * 10)
+        progress.progress(pload, done)
+        # simulate mirror skip
+        for fnum in range(0, 5):
+            progress.end(pload, dnf.callback.STATUS_MIRROR, "new mirror")
+        for fnum in range(0, 10):
+            progress.progress(pload, done)
+            done += 1024
+        progress.progress(pload, 10 * 1024)
+        progress.end(pload, dnf.callback.STATUS_OK, "done")
+        # mirror skip is not errors
+        self.assertEqual(progress._err_count, 0)
+        self.assertEqual(progress.download_files, 1)
+        calls = daemon.get_calls()
+        # print("\n".join(calls))
+        # check for mirror skip signals
+        for ndx in range(1, 6):
+            self.assertEqual(calls[ndx],
+                             "DownloadEnd('foobar0-1.0-1.noarch', 3, 'new mirror')")
+
+    def test_progress_max_err(self):
+        """Test progress for failed downloads"""
+        #print()
+        daemon = support.DaemonStub()
+        progress = backend.Progress(daemon, 10)
+        num_files = 10
+        num_bytes = 1024 * 10 * num_files
+        max_err = int(num_files / 2)
+        progress.start(num_files, num_bytes)
+        self.assertEqual(progress.max_err, max_err)
+        try:
+            for fnum in range(0, num_files):
+                pload = self._get_pload(fnum)
+                progress.end(pload, dnf.callback.STATUS_FAILED,
+                             "error in dnl : %d" % fnum)
+        except dnf.exceptions.DownloadError:
+            pass
+        self.assertEqual(progress._err_count, max_err + 1)
+        #calls = daemon.get_calls()
+        #print("\n".join(calls))
 
 
 class TestPackages(support.TestCase):

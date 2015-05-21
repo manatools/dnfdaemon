@@ -331,4 +331,44 @@ class TestCase(unittest.TestCase):
         return self.assertTrue(string.startswith(what))
 
 
+class DaemonStub:
 
+    def __init__(self):
+        self._calls = []
+
+    def add_call(self, msg):
+        self._calls.append(msg)
+
+    def get_calls(self):
+        return self._calls
+
+    def downloadStart(self, *args):
+        """ Starting a new parallel download batch """
+        msg = 'DownloadStart%s' % repr(args)
+        self.add_call(msg)
+
+    def downloadProgress(self, *args):
+        """ Progress for a single instance in the batch """
+        msg = 'DownloadProgress%s' % repr(args)
+        self.add_call(msg)
+
+    def downloadEnd(self, *args):
+        """ Download of af single instace ended """
+        msg = 'DownloadEnd%s' % repr(args)
+        self.add_call(msg)
+
+
+class Payload(object):
+
+    def __init__(self, fn, size):
+        self.fn = fn
+        self.size = size
+
+    def __str__(self):
+        """Nice, human-readable representation. :api"""
+        return self.fn
+
+    @property
+    def download_size(self):
+        """Total size of the download. :api"""
+        return self.size
