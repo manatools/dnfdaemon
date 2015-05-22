@@ -524,18 +524,15 @@ class DnfDaemon(dnfdaemon.server.DnfDaemonBase):
 
     @Logger
     @dbus.service.method(DAEMON_INTERFACE,
-                         in_signature='i',
+                         in_signature='',
                          out_signature='s',
                          sender_keyword='sender')
-    def RunTransaction(self, max_err, sender=None):
-        """
-        Run the current yum transaction
-        :param max_err: maximum download errors before bail out
-        """
+    def RunTransaction(self, sender=None):
+        """Run the current yum transaction."""
         self.working_start(sender)
         self.check_permission_write(sender)
         self.check_lock(sender)
-        result = self.run_transaction(max_err)
+        result = self.run_transaction()
         return self.working_ended(result)
 
     @Logger

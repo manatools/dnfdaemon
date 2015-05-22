@@ -547,14 +547,13 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
         self.TransactionEvent('end-build', NONE)
         return value
 
-    def run_transaction(self, max_err):
+    def run_transaction(self):
         """Apply the current transaction to the system.
 
         It will download the needed packages and apply actions in the
         current transaction to the system
         """
         self.TransactionEvent('start-run', NONE)
-        self.base.set_max_error(max_err)
         rc = 0
         msgs = []
         to_dnl = self._get_packages_to_download()

@@ -20,7 +20,7 @@ class DnfBaseMock(backend.DnfBase):
         self._base = support.MockBase(repo)
         self.parent = mock.MagicMock()
         self.md_progress = backend.MDProgress(parent)
-        self.progress = backend.Progress(parent, max_err=100)
+        self.progress = backend.Progress(parent)
         self._packages = None
 
     def setup_base(self):
@@ -72,7 +72,7 @@ DownloadEnd('foobar0-1.0-1.noarch', None, 'done')"""
     def test_progress_single_file(self):
         """Test progress for downloading one file."""
         daemon = support.DaemonStub()
-        progress = backend.Progress(daemon, 10)
+        progress = backend.Progress(daemon)
         num_files = 1
         num_bytes = 1024 * 10 * num_files
         progress.start(num_files, num_bytes)
@@ -83,7 +83,7 @@ DownloadEnd('foobar0-1.0-1.noarch', None, 'done')"""
     def test_progress_multiple_files(self):
         """Test progress for downloading multiple files."""
         daemon = support.DaemonStub()
-        progress = backend.Progress(daemon, 10)
+        progress = backend.Progress(daemon)
         num_files = 10
         num_bytes = 1024 * 10 * num_files
         progress.start(num_files, num_bytes)
@@ -99,7 +99,7 @@ DownloadEnd('foobar0-1.0-1.noarch', None, 'done')"""
     def test_progress_mirrors(self):
         """Test progress for skipping mirrors."""
         daemon = support.DaemonStub()
-        progress = backend.Progress(daemon, 10)
+        progress = backend.Progress(daemon)
         pload = self._get_pload(0)
         done = 0
         progress.start(1, 1024 * 10)
@@ -126,10 +126,10 @@ DownloadEnd('foobar0-1.0-1.noarch', None, 'done')"""
         """Test progress for failed downloads"""
         #print()
         daemon = support.DaemonStub()
-        progress = backend.Progress(daemon, 10)
+        progress = backend.Progress(daemon)
         num_files = 10
         num_bytes = 1024 * 10 * num_files
-        max_err = int(num_files / 2)
+        max_err = int(num_files / 2) + 1
         progress.start(num_files, num_bytes)
         self.assertEqual(progress.max_err, max_err)
         try:
@@ -140,7 +140,11 @@ DownloadEnd('foobar0-1.0-1.noarch', None, 'done')"""
         except dnf.exceptions.DownloadError:
             pass
         self.assertEqual(progress._err_count, max_err + 1)
-        #calls = daemon.get_calls()
+        calls = daemon.get_calls()
+        self.assertEqual(calls[-1],
+                             "DownloadEnd('foobar5-1.0-1.noarch'"
+                             ", 1, 'error in dnl : 5')")
+
         #print("\n".join(calls))
 
 
@@ -629,5 +633,5 @@ class TestCommonTransaction(TestCommonBase):
         res = self.daemon.build_transaction()
         self.assertEqual(json.loads(res),
             [True, [['install', [['petzoo,0,1.0,1,noarch,main', 0.0, []]]]]])
-        res = self.daemon.run_transaction(max_err=10)
+        res = self.daemon.run_transaction()
         self.assertEqual(json.loads(res), [0, []])

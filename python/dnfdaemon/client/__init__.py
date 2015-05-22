@@ -650,14 +650,13 @@ class Client(DnfDaemonBase):
         '''Get a list of pkg ids for the current availabe updates '''
         return json.loads(self._run_dbus_async('BuildTransaction'))
 
-    def RunTransaction(self, max_err=100):
+    def RunTransaction(self):
         ''' Get a list of pkg ids for the current availabe updates
 
         Args:
             max_err: maximun number of download error before we bail out
         '''
-        return json.loads(self._run_dbus_async('RunTransaction', '(i)',
-                          max_err))
+        return json.loads(self._run_dbus_async('RunTransaction'))
 
     def GetHistoryByDays(self, start_days, end_days):
         '''Get History transaction in a interval of days from today

@@ -39,6 +39,7 @@ logger = logging.getLogger('dnfdaemon.base.dnf')
 
 UPDINFO_MAIN = ['id', 'title', 'type', 'description', 'filenames']
 
+
 class DnfBase(dnf.Base):
     """An extended version of the dnf.Base class."""
 
@@ -49,7 +50,7 @@ class DnfBase(dnf.Base):
         RELEASEVER = dnf.rpm.detect_releasever(self.conf.installroot)
         self.conf.substitutions['releasever'] = RELEASEVER
         self.read_all_repos()
-        self.progress = Progress(parent, max_err=100)
+        self.progress = Progress(parent)
         self.repos.all().set_progress_bar(self.md_progress)
         self._packages = None
 
@@ -67,12 +68,6 @@ class DnfBase(dnf.Base):
     @property
     def packages(self):
         return self._packages
-
-    def set_max_error(self, max_err):
-        """Setup a new progress object with a new
-        max number of download errors.
-        """
-        self.progress = Progress(self.parent, max_err=max_err)
 
     def search(self, fields, values, match_all=True, showdups=False):
         """Search in a list of package attributes for a list of keys.
@@ -262,10 +257,10 @@ class MDProgress(dnf.callback.DownloadProgress):
 class Progress(dnf.callback.DownloadProgress):
     """Package Download callback handler"""
 
-    def __init__(self, parent, max_err):
+    def __init__(self, parent):
         super(Progress, self).__init__()
         self.parent = parent
-        self.max_err = max_err
+        self.max_err = 1
         self.total_files = 0
         self.total_size = 0.0
         self.download_files = 0
@@ -280,7 +275,7 @@ class Progress(dnf.callback.DownloadProgress):
         self.total_size = float(total_size)
         self.download_files = 0
         self.download_size = 0.0
-        self.max_err = total_files / 2
+        self.max_err = int(total_files / 2) + 1
         logger.debug('setting max_err to : %d', self.max_err)
         self.parent.downloadStart(total_files, total_size)
 
