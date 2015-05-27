@@ -1,3 +1,105 @@
+2015-05-27  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* dnfdaemon.spec, python/dnfdaemon/client/__init__.py,
+	python/dnfdaemon/server/__init__.py: bumped version to 0.3.9
+
+2015-05-27  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* Makefile: build: remove python-sphinx from get-builds make target
+
+
+2015-05-22  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* daemon/dnfdaemon-system.py, docs/server.rst,
+	python/dnfdaemon/client/__init__.py,
+	python/dnfdaemon/server/__init__.py,
+	python/dnfdaemon/server/backend.py, test/test_common.py: auto calc
+	max download errors, disable the manual setting via RunTransaction
+
+2015-05-21  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* python/dnfdaemon/server/backend.py, test/support.py,
+	test/test_common.py: added automatic calc of max errors + unit test
+
+
+2015-05-19  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* python/dnfdaemon/server/__init__.py: HistoryUndo should return
+	boolean, not int
+
+2015-05-18  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* python/dnfdaemon/server/__init__.py, test/test_common.py: 
+	GetTransaction should only return current transaction
+	BuildTransaction should resolve and return current transaction
+
+2015-05-18  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* daemon/dnfdaemon-system.py, python/dnfdaemon/client/__init__.py,
+	python/dnfdaemon/server/__init__.py: added HistoryUndo to undo a
+	history transaction  (timlau/yumex-dnf#7)
+
+2015-05-14  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* python/dnfdaemon/server/__init__.py,
+	python/dnfdaemon/server/backend.py: Apply cached config before sack
+	is loaded
+
+2015-05-14  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* python/dnfdaemon/server/__init__.py: config settings should be
+	remember until daemon is closed.  (timlau/yumex-dnf#24)
+
+2015-05-14  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* Makefile: build: use --setopt=installonly_limit=0 on dnf cmds
+
+2015-05-13  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* python/dnfdaemon/server/backend.py: make download error handling
+	better  drpm and mirror switch is not errors
+
+2015-05-13  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* python/dnfdaemon/server/__init__.py, test/test_common.py: 
+	optimize: AddTransaction should not resolve
+
+2015-05-13  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* python/dnfdaemon/server/__init__.py: fix: traceback is
+	GetGroupPackages is called before GetGroups  (RhBug: # 1221030)
+
+2015-05-12  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* python/dnfdaemon/server/__init__.py: add missing part for
+	get_attribute('requires')  (timlau\yumex-dnf#8)
+
+2015-05-12  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* python/dnfdaemon/server/__init__.py: separate gpgcheck issues and
+	other transaction errors
+
+2015-05-12  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* python/dnfdaemon/server/__init__.py, test/test_common.py: added
+	requires fake attributes  It returns a {} with requirement strings
+	and a list of providing packages. (timlau/yumex-dnf#8)
+
+2015-05-12  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* python/dnfdaemon/server/backend.py: only get real updates and
+	installonlypkgs in GetPackages('updates'), not other installs pulled
+	in by the depsolve.
+
+2015-05-11  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* python/dnfdaemon/server/__init__.py: make search for packages case
+	in-sensitive by default.
+
+2015-05-06  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* ChangeLog: updated ChangeLog
+
 2015-05-06  Tim Lauridsen <timlau@fedoraproject.org>
 
 	* dnfdaemon.spec, python/dnfdaemon/server/__init__.py: bumped
