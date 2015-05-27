@@ -87,7 +87,7 @@ instdeps:
 	sudo dnf install python-nose python3-gobject pygobject3	python3-nose
 
 get-builddeps:
-	sudo dnf install perl-TimeDate gettext intltool rpmdevtools python-devel python3-devel python-sphinx python3-nose tito
+	sudo dnf install perl-TimeDate gettext intltool rpmdevtools python-devel python3-devel python3-nose tito
 	
 
 build-setup:
