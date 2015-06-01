@@ -104,7 +104,7 @@ import re
 import weakref
 import logging
 
-__VERSION__ = "0.3.9"
+CLIENT_API_VERSION = 1
 
 logger = logging.getLogger("dnfdaemon.client")
 
@@ -137,6 +137,11 @@ class LockedError(DaemonError):
 
 class TransactionError(DaemonError):
     'The yum transaction failed'
+
+
+class APIVersionError(DaemonError):
+    'The yum transaction failed'
+
 
 #
 # Helper Classes
@@ -190,6 +195,7 @@ class DnfDaemonBase:
         self.dbus_org = org
         self.dbus_interface = interface
         self.daemon = self._get_daemon(bus, org, interface)
+        self.running_api_version = 0
         logger.debug("%s daemon loaded - version :  %s" %
                      (interface, self.daemon.GetVersion()))
 
@@ -197,7 +203,12 @@ class DnfDaemonBase:
         ''' Get the daemon dbus proxy object'''
         try:
             proxy = bus.get(org, "/", interface)
-            proxy.GetVersion()  # Get daemon version, to check if it is alive
+            # Get daemon version, to check if it is alive
+            self.running_api_version = proxy.GetVersion()
+            if self.running_api_version < CLIENT_API_VERSION:
+                raise APIVersionError('Client API : %d < Server API : %s' %
+                                      (CLIENT_API_VERSION,
+                                      self.running_api_version))
             # Connect the Dbus signal handler
             proxy.connect('g-signal', WeakMethod(self, '_on_g_signal'))
             return proxy

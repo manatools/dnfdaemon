@@ -44,7 +44,7 @@ import logging
 import operator
 import sys
 
-VERSION = 309  # (00.01.02) must be integer
+API_VERSION = 1  # API Version must be bumped at API changes
 MAINLOOP = GLib.MainLoop()
 
 # Fake attributes, there is simulating real package attribute

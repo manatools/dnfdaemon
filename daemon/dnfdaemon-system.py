@@ -75,7 +75,7 @@ class DnfDaemon(dnfdaemon.server.DnfDaemonBase):
         """
         Get the daemon version
         """
-        return dnfdaemon.server.VERSION
+        return dnfdaemon.server.API_VERSION
 
     @Logger
     @dbus.service.method(DAEMON_INTERFACE,
