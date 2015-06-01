@@ -125,6 +125,14 @@ DBUS_ERR_RE = re.compile('.*GDBus.Error:([\w\.]*): (.*)$')
 
 class DaemonError(Exception):
     'Error from the backend'
+    def __init__(self, msg=None):
+        self.msg = msg
+
+    def __str__(self):
+        if self.msg:
+            return self.msg
+        else:
+            return ""
 
 
 class AccessDeniedError(DaemonError):
