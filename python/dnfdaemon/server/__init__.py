@@ -585,7 +585,7 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
         except GPGError as e:  # GPG errors
             msgs = [str(e)]
             #print("DEBUG:", msgs)
-        except Error as e: # Other transaction errors
+        except Error as e:  # Other transaction errors
             rc = 2
             msgs = [str(e)]
             #print("DEBUG:", msgs)
@@ -831,7 +831,6 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
                 sublist = []
         return out_list
 
-
     def _resolve_transaction(self):
         # Resolve to get the Transaction object popolated
         try:
@@ -1007,7 +1006,6 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
             return f[0]
         else:
             return None
-
 
     def _get_id(self, pkg):
         """Get a package id from a given package."""
