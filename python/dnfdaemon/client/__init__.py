@@ -195,7 +195,6 @@ class DnfDaemonBase:
         self.dbus_org = org
         self.dbus_interface = interface
         self.daemon = self._get_daemon(bus, org, interface)
-        self.running_api_version = 0
         logger.debug("%s daemon loaded - version :  %s" %
                      (interface, self.daemon.GetVersion()))
 
