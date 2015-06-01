@@ -204,8 +204,8 @@ class DnfDaemonBase:
             proxy = bus.get(org, "/", interface)
             # Get daemon version, to check if it is alive
             self.running_api_version = proxy.GetVersion()
-            if self.running_api_version < CLIENT_API_VERSION:
-                raise APIVersionError('Client API : %d < Server API : %s' %
+            if not self.running_api_version == CLIENT_API_VERSION:
+                raise APIVersionError('Client API : %d <> Server API : %s' %
                                       (CLIENT_API_VERSION,
                                       self.running_api_version))
             # Connect the Dbus signal handler

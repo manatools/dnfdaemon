@@ -62,6 +62,8 @@ class DnfDaemon(dnfdaemon.server.DnfDaemonBase):
         dnfdaemon.server.DnfDaemonBase.__init__(self)
         bus_name = dbus.service.BusName(DAEMON_ORG, bus=dbus.SystemBus())
         dbus.service.Object.__init__(self, bus_name, '/')
+        logger.debug('Starting %s: API Version : %d', DAEMON_ORG,
+                                              dnfdaemon.server.API_VERSION)
 
 #=========================================================================
 # DBus Methods
