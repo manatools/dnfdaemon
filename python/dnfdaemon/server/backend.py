@@ -49,6 +49,7 @@ class DnfBase(dnf.Base):
         self.md_progress = MDProgress(parent)
         RELEASEVER = dnf.rpm.detect_releasever(self.conf.installroot)
         self.conf.substitutions['releasever'] = RELEASEVER
+        self.conf.read()  # read the dnf.conf
         self.read_all_repos()
         self.progress = Progress(parent)
         self.repos.all().set_progress_bar(self.md_progress)
@@ -290,7 +291,8 @@ class Progress(dnf.callback.DownloadProgress):
             pload = str(payload)
             if pload in self._dnl_errors:
                 self._dnl_errors[pload].append(msg)
-                # if more than 10 error on a single payload, increase total errors.
+                # if more than 10 error on a single payload,
+                # increase total errors.
                 if len(self._dnl_errors[pload]) > 10:
                     self._err_count += 1
                     logger.debug('dnl error # = %d', self._err_count)
