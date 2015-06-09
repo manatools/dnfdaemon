@@ -104,7 +104,7 @@ import re
 import weakref
 import logging
 
-CLIENT_API_VERSION = 1
+CLIENT_API_VERSION = 2
 
 logger = logging.getLogger("dnfdaemon.client")
 

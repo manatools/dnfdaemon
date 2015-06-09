@@ -44,7 +44,7 @@ import logging
 import operator
 import sys
 
-API_VERSION = 1  # API Version must be bumped at API changes
+API_VERSION = 2  # API Version must be bumped at API changes
 MAINLOOP = GLib.MainLoop()
 
 # Fake attributes, there is simulating real package attribute
@@ -339,7 +339,7 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
         """
         value = []
         if pkg_filter in ['installed', 'available', 'updates', 'obsoletes',
-                          'recent', 'extras']:
+                          'recent', 'extras', 'updates_all']:
             pkgs = getattr(self.base.packages, pkg_filter)
             value = [self._get_po_list(po, attrs) for po in pkgs]
         return json.dumps(value)

@@ -165,6 +165,10 @@ class Packages:
         return pkgs
 
     @property
+    def updates_all(self):
+        return self.query.upgrades().latest().run()
+
+    @property
     def all(self):
         """Get all packages installed and available.
 
