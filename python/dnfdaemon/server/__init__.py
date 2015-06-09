@@ -203,6 +203,7 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
         self._obsoletes_list = None     # Cache for obsoletes
         self._gpg_confirm = {}  # store confirmed gpg key import confirmations
         self._config_options = {}
+        self._enabled_repos = []
 
     # this must be overloaded in the parent class
     def GPGImport(self, pkg_id, userid, hexkeyid, keyurl, timestamp):
@@ -321,14 +322,9 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
 
     def set_enabled_repos(self, repo_ids):
         """Enable a list of repos, disable the ones not in list"""
+        self._enabled_repos = repo_ids
         self._reset_base()
         self._get_base(reset=True, load_sack=False)
-        for repo in self.base.repos.all():
-            if repo.id in repo_ids:
-                logger.debug("  enabled : %s ", repo.id)
-                repo.enable()
-            else:
-                repo.disable()
         self._base.setup_base()  # load the sack with the current enabled repos
 
     def get_packages(self, pkg_filter, attrs):
@@ -1057,6 +1053,14 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
                 setattr(self._base.conf, option, value)
                 self.logger.debug("setting cached option %s = %s" %
                                   (option, value))
+            if self._enabled_repos:
+                for repo in self._base.repos.all():
+                    if repo.id in self._enabled_repos:
+                        logger.debug("  enabled : %s ", repo.id)
+                        repo.enable()
+                    else:
+                        repo.disable()
+                        pass
             if load_sack:
                 self._base.setup_base()
         return self._base
