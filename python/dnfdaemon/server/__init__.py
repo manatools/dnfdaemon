@@ -207,7 +207,8 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
 
     # this must be overloaded in the parent class
     def GPGImport(self, pkg_id, userid, hexkeyid, keyurl, timestamp):
-        print(pkg_id, userid, hexkeyid, keyurl, timestamp)
+        #print(pkg_id, userid, hexkeyid, keyurl, timestamp)
+        pass
 
     @property
     def base(self):
@@ -607,7 +608,7 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
         while i < len(history):
             ht = history[i]
             i += 1
-            print("DBG: ", ht, ht.end_timestamp)
+            #print("DBG: ", ht, ht.end_timestamp)
             if not ht.end_timestamp:
                 continue
             tm = datetime.fromtimestamp(ht.end_timestamp)
@@ -650,10 +651,10 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
             history = dnf.history.open_history(self.base.history)
             try:
                 # FIXME: Base.history_undo_operations is not public api
-                print(len(history.transaction_nevra_ops(old.tid)))
+                #print(len(history.transaction_nevra_ops(old.tid)))
                 self.base.history_undo_operations(
                      history.transaction_nevra_ops(old.tid))
-                print(self.get_transaction())
+                #print(self.get_transaction())
             except dnf.exceptions.PackagesNotInstalledError as err:
                 result = (False, ['An operation cannot be undone : %s' %
                                   str(err)])

@@ -305,41 +305,49 @@ class DnfDaemonBase:
 #
 
     def on_TransactionEvent(self, event, data):
-        print("TransactionEvent : %s" % event)
-        if data:
-            print("Data :\n", data)
+        #print("TransactionEvent : %s" % event)
+        #if data:
+            #print("Data :\n", data)
+        pass
 
     def on_RPMProgress(
             self, package, action, te_current, te_total, ts_current, ts_total):
-        print("RPMProgress : %s %s" % (action, package))
+        #print("RPMProgress : %s %s" % (action, package))
+        pass
 
     def on_GPGImport(self, pkg_id, userid, hexkeyid, keyurl, timestamp):
-        values = (pkg_id, userid, hexkeyid, keyurl, timestamp)
-        print("on_GPGImport : %s" % (repr(values)))
+        #values = (pkg_id, userid, hexkeyid, keyurl, timestamp)
+        #print("on_GPGImport : %s" % (repr(values)))
+        pass
 
     def on_DownloadStart(self, num_files, num_bytes):
         ''' Starting a new parallel download batch '''
-        values = (num_files, num_bytes)
-        print("on_DownloadStart : %s" % (repr(values)))
+        #values = (num_files, num_bytes)
+        #print("on_DownloadStart : %s" % (repr(values)))
+        pass
 
     def on_DownloadProgress(self, name, frac, total_frac, total_files):
         ''' Progress for a single instance in the batch '''
-        values = (name, frac, total_frac, total_files)
-        print("on_DownloadProgress : %s" % (repr(values)))
+        #values = (name, frac, total_frac, total_files)
+        #print("on_DownloadProgress : %s" % (repr(values)))
+        pass
 
     def on_DownloadEnd(self, name, status, msg):
         ''' Download of af single instace ended '''
-        values = (name, status, msg)
-        print("on_DownloadEnd : %s" % (repr(values)))
+        #values = (name, status, msg)
+        #print("on_DownloadEnd : %s" % (repr(values)))
+        pass
 
     def on_RepoMetaDataProgress(self, name, frac):
         ''' Repository Metadata Download progress '''
-        values = (name, frac)
-        print("on_RepoMetaDataProgress : %s" % (repr(values)))
+        #values = (name, frac)
+        #print("on_RepoMetaDataProgress : %s" % (repr(values)))
+        pass
 
     def on_ErrorMessage(self, msg):
         ''' Error message from daemon service '''
-        print("on_ErrorMessage : %s" % (msg))
+        #print("on_ErrorMessage : %s" % (msg))
+        pass
 
 #
 # API Methods
@@ -530,7 +538,7 @@ class ClientReadOnly(DnfDaemonBase):
         if signal == "RepoMetaDataProgress":
             self.on_RepoMetaDataProgress(*args)
         else:
-            print("Unhandled Signal : " + signal, " Param: ", args)
+            logger.error("Unhandled Signal : " + signal, " Param: ", args)
 
 
 class Client(DnfDaemonBase):
@@ -559,7 +567,7 @@ class Client(DnfDaemonBase):
         elif signal == "ErrorMessage":
             self.on_ErrorMessage(*args)
         else:
-            print("Unhandled Signal : " + signal, " Param: ", args)
+            logger.error("Unhandled Signal : " + signal, " Param: ", args)
 
 #
 # API Methods
