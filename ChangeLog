@@ -1,3 +1,54 @@
+2015-09-30  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* dnfdaemon.spec: bumped version to 0.3.10
+
+2015-06-09  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* python/dnfdaemon/server/__init__.py: fix: remember enable repos,
+	when resetting base
+
+2015-06-09  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* python/dnfdaemon/client/__init__.py,
+	python/dnfdaemon/server/__init__.py,
+	python/dnfdaemon/server/backend.py: Add support for getting all
+	available updates, using 'update_all' filter.
+
+2015-06-03  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* python/dnfdaemon/server/backend.py: read settings from dnf.conf on
+	local system
+
+2015-06-01  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* python/dnfdaemon/server/__init__.py: cleanup: pep8 fixes
+
+2015-06-01  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* python/dnfdaemon/client/__init__.py: Client API exception can
+	contain a message
+
+2015-06-01  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* daemon/dnfdaemon-system.py, python/dnfdaemon/client/__init__.py: 
+	fix: server & client API much match
+
+2015-06-01  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* python/dnfdaemon/client/__init__.py: fix: don't reset API version
+	to 0
+
+2015-06-01  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* daemon/dnfdaemon-session.py, daemon/dnfdaemon-system.py,
+	python/dnfdaemon/client/__init__.py,
+	python/dnfdaemon/server/__init__.py: added check for daemon API
+	version  (timlau/yumex-dnf#43)
+
+2015-05-27  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* ChangeLog: updated ChangeLog
+
 2015-05-27  Tim Lauridsen <timlau@fedoraproject.org>
 
 	* dnfdaemon.spec, python/dnfdaemon/client/__init__.py,
