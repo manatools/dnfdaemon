@@ -15,8 +15,14 @@ Requires:       python3-gobject
 Requires:       python3-dbus
 Requires:       python3-dnf >= %{dnf_version}
 Requires:       polkit
+
+%if 0%{?fedora} >= 23
 Requires(post):     policycoreutils-python-utils
 Requires(postun):   policycoreutils-python-utils
+%else
+Requires(post):     policycoreutils-python
+Requires(postun):   policycoreutils-python
+%endif
 
 %description
 Dbus daemon for performing package actions with the dnf package manager
