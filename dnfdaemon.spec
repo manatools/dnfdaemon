@@ -2,8 +2,8 @@
 %global dnf_version 0.6.3
 
 Name:           dnfdaemon
-Version:        0.3.10
-Release:        2%{?dist}
+Version:        0.3.11
+Release:        1%{?dist}
 Summary:        DBus daemon for dnf package actions
 License:        GPLv2+
 URL:            https://github.com/timlau/dnf-daemon
@@ -88,6 +88,9 @@ fi
 %{python3_sitelib}/%{name}/client
 
 %changelog
+* Wed Nov 18 2015 Tim Lauridsen <timlau@fedoraproject.org> 0.3.11
+- bumped release
+
 * Wed Sep 30 2015 Tim Lauridsen <timlau@fedoraproject.org> 0.3.10-2
 - updated req. policycoreutils-python to policycoreutils-python-utils
 
