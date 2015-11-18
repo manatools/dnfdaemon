@@ -1,3 +1,47 @@
+2015-11-18  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* dnfdaemon.spec: bumped version to 0.3.11
+
+2015-11-18  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* python/dnfdaemon/server/__init__.py: fix problems with gpgkey
+	import  (fixes timlau/yumex-dnf#71)
+
+2015-10-09  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* dnfdaemon.spec: policycoreutils-python ->
+	policycoreutils-python-utils only for f23 and later
+
+2015-10-05  Tim Lauridsen <tla@rasmil.dk>
+
+	Merge pull request #1 from genodeftest/patch-1  Remove
+	deprecated python option `-tt`
+
+2015-10-02  Christian Stadelmann <dev@genodeftest.de>
+
+	* daemon/dnfdaemon-system.py: Remove deprecated python option `-tt`
+
+
+2015-10-02  Christian Stadelmann <dev@genodeftest.de>
+
+	* daemon/dnfdaemon-session.py: Remove deprecated python option `-tt`
+
+
+2015-09-30  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* python/dnfdaemon/client/__init__.py,
+	python/dnfdaemon/server/__init__.py: Remove some logging noise from
+	print statements (#52)
+
+2015-09-30  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* dnfdaemon.spec: require policycoreutils-python-utils instead of
+	policycoreutils-python  RHBZ #1246612
+
+2015-09-30  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* ChangeLog: updated ChangeLog
+
 2015-09-30  Tim Lauridsen <timlau@fedoraproject.org>
 
 	* dnfdaemon.spec: bumped version to 0.3.10
