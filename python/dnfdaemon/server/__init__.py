@@ -580,6 +580,7 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
                 msgs = [str(e)]
                 #print("DEBUG:", msgs)
         except GPGError as e:  # GPG errors
+            rc = 1
             msgs = [str(e)]
             #print("DEBUG:", msgs)
         except Error as e:  # Other transaction errors
@@ -716,8 +717,11 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
                 continue
             elif result == 1:
                 # FIXME: Base.getKeyForPackage not public dnf api
-                self.base.getKeyForPackage(po,
+                try:
+                    self.base.getKeyForPackage(po,
                                            fullaskcb=self._handle_gpg_import)
+                except dnf.exceptions.Error as e:
+                    raise GPGError(str(e))
             else:
                 raise GPGError(errmsg)
         return 0
