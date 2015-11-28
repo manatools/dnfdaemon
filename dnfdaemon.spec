@@ -2,8 +2,8 @@
 %global dnf_version 0.6.3
 
 Name:           dnfdaemon
-Version:        0.3.11
-Release:        2%{?dist}
+Version:        0.3.12
+Release:        1%{?dist}
 Summary:        DBus daemon for dnf package actions
 License:        GPLv2+
 URL:            https://github.com/timlau/dnf-daemon
@@ -99,8 +99,8 @@ fi
 %{python3_sitelib}/%{name}/client
 
 %changelog
-* Sat Nov 28 2015 Tim Lauridsen <timlau@fedoraproject.org> 0.3.11-2
-- added systemd service
+* Sat Nov 28 2015 Tim Lauridsen <timlau@fedoraproject.org> 0.3.12-1
+- added systemd service 
 
 * Wed Nov 18 2015 Tim Lauridsen <timlau@fedoraproject.org> 0.3.11-1
 - bumped release
