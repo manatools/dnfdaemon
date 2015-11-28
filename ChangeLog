@@ -1,3 +1,17 @@
+2015-11-28  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* dnfdaemon.spec: bumped version to 0.3.12
+
+2015-11-28  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* Makefile, dbus/dnfdaemon.service,
+	dbus/org.baseurl.DnfSystem.service, dnfdaemon.spec: Added systemd
+	service for org.baseurl.DnfSystem
+
+2015-11-18  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* ChangeLog: updated ChangeLog
+
 2015-11-18  Tim Lauridsen <timlau@fedoraproject.org>
 
 	* dnfdaemon.spec: bumped version to 0.3.11
