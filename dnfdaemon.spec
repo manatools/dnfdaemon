@@ -3,7 +3,7 @@
 
 Name:           dnfdaemon
 Version:        0.3.11
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        DBus daemon for dnf package actions
 License:        GPLv2+
 URL:            https://github.com/timlau/dnf-daemon
@@ -11,6 +11,7 @@ Source0:        https://github.com/timlau/dnf-daemon/releases/download/%{name}-%
 
 BuildArch:      noarch
 BuildRequires:  python3-devel
+BuildRequires:  systemd
 Requires:       python3-gobject
 Requires:       python3-dbus
 Requires:       python3-dnf >= %{dnf_version}
@@ -23,6 +24,10 @@ Requires(postun):   policycoreutils-python-utils
 Requires(post):     policycoreutils-python
 Requires(postun):   policycoreutils-python
 %endif
+
+Requires(post): systemd
+Requires(preun): systemd
+Requires(postun): systemd
 
 %description
 Dbus daemon for performing package actions with the dnf package manager
@@ -62,17 +67,23 @@ Python 2 api for communicating with the dnf-daemon DBus service
 %post
 semanage fcontext -a -t rpm_exec_t '%{_datadir}/%{name}/%{name}-system' 2>/dev/null || :
 restorecon -R %{_datadir}/%{name}/%{name}-system || :
+%systemd_post %{name}.service
 
 %postun
 if [ $1 -eq 0 ] ; then  # final removal
 semanage fcontext -d -t rpm_exec_t '%{_datadir}/%{name}/%{name}-system' 2>/dev/null || :
 fi
+%systemd_postun %{name}.service
+
+%preun
+%systemd_preun %{name}.service
 
 %files
 %doc README.md ChangeLog COPYING
 %{_datadir}/dbus-1/system-services/%{dnf_org}*
 %{_datadir}/dbus-1/services/%{dnf_org}*
 %{_datadir}/%{name}/
+%{_unitdir}/%{name}.service
 %{_datadir}/polkit-1/actions/%{dnf_org}*
 # this should not be edited by the user, so no %%config
 %{_sysconfdir}/dbus-1/system.d/%{dnf_org}*
@@ -88,7 +99,10 @@ fi
 %{python3_sitelib}/%{name}/client
 
 %changelog
-* Wed Nov 18 2015 Tim Lauridsen <timlau@fedoraproject.org> 0.3.11
+* Sat Nov 28 2015 Tim Lauridsen <timlau@fedoraproject.org> 0.3.11-2
+- added systemd service
+
+* Wed Nov 18 2015 Tim Lauridsen <timlau@fedoraproject.org> 0.3.11-1
 - bumped release
 
 * Wed Sep 30 2015 Tim Lauridsen <timlau@fedoraproject.org> 0.3.10-2

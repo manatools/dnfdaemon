@@ -35,7 +35,9 @@ install:
 	mkdir -p $(DESTDIR)$(SYSCONFDIR)/dbus-1/system.d
 	mkdir -p $(DESTDIR)$(DATADIR)/polkit-1/actions
 	mkdir -p $(DESTDIR)$(PKGDIR)
+	mkdir -p $(DESTDIR)/usr/lib/systemd/system
 	install -m644 dbus/$(ORG_NAME).service $(DESTDIR)$(DATADIR)/dbus-1/system-services/.				
+	install -m644 dbus/dnfdaemon.service $(DESTDIR)/usr/lib/systemd/system/.				
 	install -m644 dbus/$(ORG_RO_NAME).service $(DESTDIR)$(DATADIR)/dbus-1/services/.				
 	install -m644 dbus/$(ORG_NAME).conf $(DESTDIR)$(SYSCONFDIR)/dbus-1/system.d/.				
 	install -m644 policykit1/$(ORG_NAME).policy $(DESTDIR)$(DATADIR)/polkit-1/actions/.				

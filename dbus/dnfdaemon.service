@@ -1,0 +1,8 @@
+[Unit]
+Description=Package management dnf daemon
+
+[Service]
+Type=dbus
+BusName=org.baseurl.DnfSystem
+User=root
+ExecStart=/usr/share/dnfdaemon/dnfdaemon-system
