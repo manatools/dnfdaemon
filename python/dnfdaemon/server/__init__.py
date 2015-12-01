@@ -21,7 +21,7 @@ Common stuff for the dnfdaemon dbus services
 
 from datetime import datetime
 from dnf.exceptions import DownloadError, Error
-from dnf.yum.rpmtrans import TransactionDisplay
+
 from gi.repository import GLib
 from . import backend
 
@@ -98,23 +98,23 @@ class GPGError(Exception):
         super(GPGError, self).__init__(message)
 
 
-# FIXME: TransactionDisplay is not public API
-class RPMTransactionDisplay(TransactionDisplay):
+class TransactionProgress(dnf.callback.TransactionProgress):
 
     def __init__(self, base):
-        self.actions = {self.PKG_CLEANUP: 'cleanup',
-                        self.PKG_DOWNGRADE: 'downgrade',
-                        self.PKG_ERASE: 'erase',
-                        self.PKG_INSTALL: 'install',
-                        self.PKG_OBSOLETE: 'obsolete',
-                        self.PKG_REINSTALL: 'reinstall',
-                        self.PKG_UPGRADE: 'update'}
+        self.actions = {dnf.callback.PKG_CLEANUP: 'cleanup',
+                        dnf.callback.PKG_DOWNGRADE: 'downgrade',
+                        dnf.callback.PKG_REMOVE: 'erase',
+                        dnf.callback.PKG_INSTALL: 'install',
+                        dnf.callback.PKG_OBSOLETE: 'obsolete',
+                        dnf.callback.PKG_REINSTALL: 'reinstall',
+                        dnf.callback.PKG_UPGRADE: 'update',
+                        dnf.callback.PKG_VERIFY: 'verify'}
 
-        super(TransactionDisplay, self).__init__()
+        super(dnf.callback.TransactionProgress, self).__init__()
         self.base = base
         self.do_verify = False
 
-    def event(self, package, action, te_current, te_total, ts_current,
+    def progress(self, package, action, te_current, te_total, ts_current,
               ts_total):
         """
         @param package: A yum package object or simple string of a package name
@@ -136,23 +136,6 @@ class RPMTransactionDisplay(TransactionDisplay):
                 action = self.actions[action]
             self.base.RPMProgress(
                 pkg_id, action, te_current, te_total, ts_current, ts_total)
-
-    def scriptout(self, msgs):
-        """msgs is the messages that were output (if any)."""
-        pass
-
-    def verify_tsi_package(self, pkg, count, total):
-        if not self.do_verify:
-            self.base.TransactionEvent('verify', "")
-            self.do_verify = True
-        if pkg:
-            # package can be both str or dnf package object
-            if not isinstance(pkg, str):
-                pkg_id = self.base._get_id(pkg)
-            else:
-                pkg_id = pkg
-            action = 'verify'
-            self.base.RPMProgress(pkg_id, action, 0, 0, count, total)
 
 
 class DownloadCallback:
@@ -563,7 +546,7 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
                 self.TransactionEvent('signature-check', NONE)
                 self._check_gpg_signatures(to_dnl)
             self.TransactionEvent('run-transaction', NONE)
-            display = RPMTransactionDisplay(self)  # RPM Display callback
+            display = TransactionProgress(self)  # RPM Display callback
             self._can_quit = False
             self.base.do_transaction(display=display)
         except DownloadError as e:
