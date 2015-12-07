@@ -108,7 +108,7 @@ CLIENT_API_VERSION = 2
 
 logger = logging.getLogger("dnfdaemon.client")
 
-from gi.repository import Gio, GObject, GLib
+from gi.repository import Gio, GLib
 
 ORG = 'org.baseurl.DnfSystem'
 INTERFACE = ORG
@@ -288,7 +288,7 @@ class DnfDaemonBase:
         func = getattr(self.daemon, cmd)
         # timeout = infinite
         func(*args, result_handler=self._return_handler,
-             user_data=data, timeout=GObject.G_MAXINT)
+             user_data=data, timeout=GLib.G_MAXINT)
         data['main_loop'].run()
         result = self._get_result(data)
         return result
