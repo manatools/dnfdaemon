@@ -15,7 +15,7 @@ BUMPED_MINOR=${shell VN=`cat ${APPNAME}.spec | grep Version| sed  's/${VER_REGEX
 NEW_VER=${shell cat ${APPNAME}.spec | grep Version| sed  's/\(^Version:\s*\)\([0-9]*\.[0-9]*\.\)\(.*\)/\2${BUMPED_MINOR}/'}
 NEW_REL=0.1.${GITDATE}
 DIST=${shell rpm --eval "%{dist}"}
-GIT_MASTER=master
+GIT_MASTER=develop
 CURDIR = ${shell pwd}
 BUILDDIR= $(CURDIR)/build
 
@@ -132,15 +132,22 @@ archive:
 changelog:
 	@git log --pretty --numstat --summary | tools/git2cl > ChangeLog
 	
+release-branch:
+	@git branch -m ${GIT_MASTER} release-${VERSION}
 
-release:
+release-publish:
+	@git checkout release-${VERSION}
 	@git commit -a -m "bumped version to $(VERSION)"
 	@$(MAKE) changelog
 	@git commit -a -m "updated ChangeLog"
-	@git push
+	@git checkout release-devel
+	@git merge --no-ff release-${VERSION} -m "merge ${APPNAME}-${VERSION} release"
 	@git tag -f -m "Added ${APPNAME}-${VERSION} release tag" ${APPNAME}-${VERSION}
 	@git push --tags origin
 	@$(MAKE) rpms
+
+release-cleanup:	
+	@git branch -D release-${VERSION}
 
 test-cleanup:	
 	@rm -rf ${APPNAME}-${VERSION}.test.tar.gz
