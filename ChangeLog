@@ -1,3 +1,27 @@
+2016-04-29  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* dnfdaemon.spec: bumped version to 0.3.13
+
+2015-12-15  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* Makefile: change the release Makefile target to the gitflow model
+
+
+2015-12-07  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* python/dnfdaemon/client/__init__.py: fix: dreprecated
+	GObject.G_MAXINT in rawhide
+
+2015-12-01  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* dnfdaemon.spec, python/dnfdaemon/server/__init__.py: use public
+	API for RPM transaction progress (dnf >= 1.1.0)  (Fixes
+	timlau/yumex-dnf:#65)
+
+2015-11-28  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* ChangeLog: updated ChangeLog
+
 2015-11-28  Tim Lauridsen <timlau@fedoraproject.org>
 
 	* dnfdaemon.spec: bumped version to 0.3.12
