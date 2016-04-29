@@ -1,5 +1,22 @@
 2016-04-29  Tim Lauridsen <timlau@fedoraproject.org>
 
+	* dnfdaemon.spec: bumped version to 0.3.14
+
+2016-04-29  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* python/dnfdaemon/client/__init__.py: fallback to use
+	GObject.G_MAXINT
+
+2016-04-29  Tim Lauridsen <timlau@fedoraproject.org>
+
+	Merge branch 'release-0.3.13' into develop
+
+2016-04-29  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* ChangeLog: updated ChangeLog
+
+2016-04-29  Tim Lauridsen <timlau@fedoraproject.org>
+
 	* dnfdaemon.spec: bumped version to 0.3.13
 
 2015-12-15  Tim Lauridsen <timlau@fedoraproject.org>
