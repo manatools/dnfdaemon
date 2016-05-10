@@ -227,10 +227,13 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
 
     def expire_cache(self):
         """Expire the dnf cache."""
-
         try:
             self.base.expire_cache()
-            self.base.reset(sack=True)
+            self.base.reset(sack=True, repos=True)
+            #FIXME: Workaround for dnf.Base.reset in hawkey 6.0.3
+            # https://bugzilla.redhat.com/show_bug.cgi?id=1332067
+            self.base.read_all_repos()
+            self.base.repos.all().set_progress_bar(self.base.md_progress)
             self.base.setup_base()
             return True
         except dnf.exceptions.RepoError as e:

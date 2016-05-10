@@ -64,6 +64,7 @@ class DnfBase(dnf.Base):
         """Setup dnf Sack and init packages helper"""
         logger.debug('setup DnfBase sack')
         self.fill_sack()
+        logger.debug('setup packages')
         self._packages = Packages(self)
 
     @property
@@ -150,7 +151,7 @@ class Packages:
             self._base.upgrade_all()
             self._base.resolve(allow_erasing=True)
         except dnf.exceptions.DepsolveError as e:
-            self.logger.debug(str(e))
+            logger.debug(str(e))
             return pkgs
         # return install/upgrade type pkgs from transaction
         for tsi in self._base.transaction:
@@ -160,8 +161,7 @@ class Packages:
             elif tsi.op_type == dnf.transaction.INSTALL:
                 po = tsi.installed
                 # action is INSTALL, then it should be a installonlypkg
-                if po.name in self._base.conf.installonlypkgs:
-                    pkgs.append(po)
+                pkgs.append(po)
         return pkgs
 
     @property
