@@ -64,6 +64,7 @@ class DnfBase(dnf.Base):
         """Setup dnf Sack and init packages helper"""
         logger.debug('setup DnfBase sack')
         self.fill_sack()
+        logger.debug('setup packages')
         self._packages = Packages(self)
 
     @property
