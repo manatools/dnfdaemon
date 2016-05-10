@@ -1,3 +1,27 @@
+2016-05-10  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* dnfdaemon.spec: bumped version to 0.3.15
+
+2016-05-10  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* python/dnfdaemon/server/backend.py: Show all kernel packages as
+	updates
+
+2016-05-10  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* python/dnfdaemon/server/__init__.py,
+	python/dnfdaemon/server/backend.py: workaround for
+	dnf.Base.reset(sack=True) in hawkey 6.0.3
+	https://bugzilla.redhat.com/show_bug.cgi?id=1332067
+
+2016-04-29  Tim Lauridsen <timlau@fedoraproject.org>
+
+	Merge branch 'release-0.3.14' into develop
+
+2016-04-29  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* ChangeLog: updated ChangeLog
+
 2016-04-29  Tim Lauridsen <timlau@fedoraproject.org>
 
 	* dnfdaemon.spec: bumped version to 0.3.14
