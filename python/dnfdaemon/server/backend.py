@@ -19,6 +19,8 @@
 dnf base and callbacks for dnfdaemon dbus services
 """
 from time import time
+from dnf.i18n import _, ucd
+from dnf.yum import misc
 
 import dnf
 import dnf.const
@@ -34,6 +36,7 @@ import hawkey
 import itertools
 import logging
 import sys
+import os
 
 logger = logging.getLogger('dnfdaemon.base.dnf')
 
@@ -104,6 +107,161 @@ class DnfBase(dnf.Base):
             return self.sack.query().filter(hawkey.ICASE, **fdict)
         else:
             return self.sack.query().filter(**fdict)
+
+###############################################################################
+# code copied from dnf for non public API related
+#
+# FIXME: this is copied from dnf/base.py, because there is no public
+#        API to handle gpg signatures.
+###############################################################################
+    def _sig_check_pkg(self, po):
+        """Verify the GPG signature of the given package object.
+
+        :param po: the package object to verify the signature of
+        :return: (result, error_string)
+           where result is::
+
+              0 = GPG signature verifies ok or verification is not required.
+              1 = GPG verification failed but installation of the right GPG key
+                    might help.
+              2 = Fatal GPG verification error, give up.
+        """
+        if po.from_cmdline:
+            check = self.conf.localpkg_gpgcheck
+            hasgpgkey = 0
+        else:
+            repo = self.repos[po.repoid]
+            check = repo.gpgcheck
+            hasgpgkey = not not repo.gpgkey
+
+        if check:
+            root = self.conf.installroot
+            ts = dnf.rpm.transaction.initReadOnlyTransaction(root)
+            sigresult = dnf.rpm.miscutils.checkSig(ts, po.localPkg())
+            localfn = os.path.basename(po.localPkg())
+            del ts
+            if sigresult == 0:
+                result = 0
+                msg = ''
+
+            elif sigresult == 1:
+                if hasgpgkey:
+                    result = 1
+                else:
+                    result = 2
+                msg = _('Public key for %s is not installed') % localfn
+
+            elif sigresult == 2:
+                result = 2
+                msg = _('Problem opening package %s') % localfn
+
+            elif sigresult == 3:
+                if hasgpgkey:
+                    result = 1
+                else:
+                    result = 2
+                result = 1
+                msg = _('Public key for %s is not trusted') % localfn
+
+            elif sigresult == 4:
+                result = 2
+                msg = _('Package %s is not signed') % localfn
+
+        else:
+            result = 0
+            msg = ''
+
+        return result, msg
+
+    def _get_key_for_package(self, po, askcb=None, fullaskcb=None):
+        """Retrieve a key for a package. If needed, use the given
+        callback to prompt whether the key should be imported.
+
+        :param po: the package object to retrieve the key of
+        :param askcb: Callback function to use to ask permission to
+           import a key.  The arguments *askck* should take are the
+           package object, the userid of the key, and the keyid
+        :param fullaskcb: Callback function to use to ask permission to
+           import a key.  This differs from *askcb* in that it gets
+           passed a dictionary so that we can expand the values passed.
+        :raises: :class:`dnf.exceptions.Error` if there are errors
+           retrieving the keys
+        """
+        repo = self.repos[po.repoid]
+        keyurls = repo.gpgkey
+        key_installed = False
+
+        def _prov_key_data(msg):
+            msg += _('Failing package is: %s') % (po) + '\n '
+            msg += _('GPG Keys are configured as: %s') % \
+                    (', '.join(repo.gpgkey) + '\n')
+            return '\n\n\n' + msg
+
+        user_cb_fail = False
+        for keyurl in keyurls:
+            keys = dnf.crypto.retrieve(keyurl, repo)
+
+            for info in keys:
+                ts = self._rpmconn.readonly_ts
+                # Check if key is already installed
+                if misc.keyInstalled(ts, info.rpm_id, info.timestamp) >= 0:
+                    msg = _('GPG key at %s (0x%s) is already installed')
+                    logger.info(msg, keyurl, info.short_id)
+                    continue
+
+                # Try installing/updating GPG key
+                info.url = keyurl
+                dnf.crypto.log_key_import(info)
+                rc = False
+                if self.conf.assumeno:
+                    rc = False
+                elif self.conf.assumeyes:
+                    rc = True
+
+                # grab the .sig/.asc for the keyurl, if it exists if it
+                # does check the signature on the key if it is signed by
+                # one of our ca-keys for this repo or the global one then
+                # rc = True else ask as normal.
+
+                elif fullaskcb:
+                    rc = fullaskcb({"po": po, "userid": info.userid,
+                                    "hexkeyid": info.short_id,
+                                    "keyurl": keyurl,
+                                    "fingerprint": info.fingerprint,
+                                    "timestamp": info.timestamp})
+                elif askcb:
+                    rc = askcb(po, info.userid, info.short_id)
+
+                if not rc:
+                    user_cb_fail = True
+                    continue
+
+                # Import the key
+                result = ts.pgpImportPubkey(misc.procgpgkey(info.raw_key))
+                if result != 0:
+                    msg = _('Key import failed (code %d)') % result
+                    raise dnf.exceptions.Error(_prov_key_data(msg))
+                logger.info(_('Key imported successfully'))
+                key_installed = True
+
+        if not key_installed and user_cb_fail:
+            raise dnf.exceptions.Error(_("Didn't install any keys"))
+
+        if not key_installed:
+            msg = _('The GPG keys listed for the "%s" repository are '
+                    'already installed but they are not correct for this '
+                    'package.\n'
+                    'Check that the correct key URLs are configured for '
+                    'this repository.') % repo.name
+            raise dnf.exceptions.Error(_prov_key_data(msg))
+
+        # Check if the newly installed keys helped
+        result, errmsg = self._sig_check_pkg(po)
+        if result != 0:
+            msg = _("Import of key(s) didn't help, wrong key(s)?")
+            logger.info(msg)
+            errmsg = ucd(errmsg)
+            raise dnf.exceptions.Error(_prov_key_data(errmsg))
 
 
 class Packages:

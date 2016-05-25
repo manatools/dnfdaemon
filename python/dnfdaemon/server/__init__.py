@@ -695,16 +695,14 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
     def _check_gpg_signatures(self, pkgs):
         ''' The the signatures of the downloaded packages '''
         for po in pkgs:
-            # FIXME: Base.sigCheckPkg not public dnf api
-            result, errmsg = self.base.sigCheckPkg(po)
+            result, errmsg = self.base._sig_check_pkg(po)
             logger.debug('checking signature for : %s, %s', str(po), result)
             if result == 0:
                 # Verified ok, or verify not req'd
                 continue
             elif result == 1:
-                # FIXME: Base.getKeyForPackage not public dnf api
                 try:
-                    self.base.getKeyForPackage(po,
+                    self.base._get_key_for_package(po,
                                            fullaskcb=self._handle_gpg_import)
                 except dnf.exceptions.Error as e:
                     raise GPGError(str(e))
