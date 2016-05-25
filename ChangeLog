@@ -1,3 +1,29 @@
+2016-05-25  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* dnfdaemon.spec: bumped version to 0.3.16
+
+2016-05-25  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* python/dnfdaemon/server/__init__.py,
+	python/dnfdaemon/server/backend.py: fixes issues with use of non
+	public gpg API in dnf 1.1.9 (rhbz #1338564)
+
+2016-05-10  Tim Lauridsen <timlau@fedoraproject.org>
+
+	Merge branch 'release-devel' into develop
+
+2016-05-10  Tim Lauridsen <timlau@fedoraproject.org>
+
+	Merge branch 'release-0.3.15' into develop
+
+2016-05-10  Tim Lauridsen <timlau@fedoraproject.org>
+
+	merge dnfdaemon-0.3.15 release
+
+2016-05-10  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* ChangeLog: updated ChangeLog
+
 2016-05-10  Tim Lauridsen <timlau@fedoraproject.org>
 
 	* dnfdaemon.spec: bumped version to 0.3.15
@@ -20,6 +46,10 @@
 
 2016-04-29  Tim Lauridsen <timlau@fedoraproject.org>
 
+	merge dnfdaemon-0.3.14 release
+
+2016-04-29  Tim Lauridsen <timlau@fedoraproject.org>
+
 	* ChangeLog: updated ChangeLog
 
 2016-04-29  Tim Lauridsen <timlau@fedoraproject.org>
@@ -34,6 +64,10 @@
 2016-04-29  Tim Lauridsen <timlau@fedoraproject.org>
 
 	Merge branch 'release-0.3.13' into develop
+
+2016-04-29  Tim Lauridsen <timlau@fedoraproject.org>
+
+	merge dnfdaemon-0.3.13 release
 
 2016-04-29  Tim Lauridsen <timlau@fedoraproject.org>
 
