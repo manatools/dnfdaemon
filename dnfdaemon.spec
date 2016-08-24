@@ -1,5 +1,5 @@
 %global dnf_org org.baseurl.Dnf
-%global dnf_version 1.1.0
+%global dnf_version 2.0.0
 
 Name:           dnfdaemon
 Version:        0.3.16

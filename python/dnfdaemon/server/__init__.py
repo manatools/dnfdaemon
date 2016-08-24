@@ -253,7 +253,7 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
                 grp = self.base.comps.group_by_pattern(obj.name)
                 if grp:
                     # FIXME: no dnf API to get if group is installed
-                    p_grp = self.base.group_persistor.group(grp.id)
+                    p_grp = self.base._group_persistor.group(grp.id)
                     if p_grp:
                         installed = p_grp.installed
                     else:
