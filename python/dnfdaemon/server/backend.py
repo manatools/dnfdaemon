@@ -61,7 +61,7 @@ class DnfBase(dnf.Base):
     def expire_cache(self):
         """Make the current cache expire"""
         for repo in self.repos.iter_enabled():
-            repo.md_expire_cache()
+            repo._md_expire_cache()
 
     def setup_base(self):
         """Setup dnf Sack and init packages helper"""
@@ -126,7 +126,7 @@ class DnfBase(dnf.Base):
                     might help.
               2 = Fatal GPG verification error, give up.
         """
-        if po.from_cmdline:
+        if po._from_cmdline:
             check = self.conf.localpkg_gpgcheck
             hasgpgkey = 0
         else:
@@ -270,7 +270,7 @@ class Packages:
     def __init__(self, base):
         self._base = base
         self._sack = base.sack
-        self._inst_na = self._sack.query().installed().na_dict()
+        self._inst_na = self._sack.query().installed()._na_dict()
 
     def filter_packages(self, pkg_list, replace=True):
         """Filter a list of package objects and replace
