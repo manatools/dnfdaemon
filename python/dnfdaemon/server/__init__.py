@@ -286,7 +286,7 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
         """
         if setting == '*':  # Return all config
             cfg = self.base.conf
-            data = [(c, getattr(cfg, c)) for c in cfg.iterkeys()]
+            data = [(c, getattr(cfg, c)) for c in cfg._option.keys()]
             all_conf = dict(data)
             value = json.dumps(all_conf)
         elif hasattr(self.base.conf, setting):
@@ -303,7 +303,7 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
         value = json.dumps(None)
         repo = self.base.repos.get(repo_id, None)  # get the repo object
         if repo:
-            repo_conf = dict([(c, getattr(repo, c)) for c in repo.iterkeys()])
+            repo_conf = dict([(c, getattr(repo, c)) for c in repo._option.keys()])
             value = json.dumps(repo_conf)
         return value
 
