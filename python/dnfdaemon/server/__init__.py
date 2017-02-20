@@ -286,7 +286,7 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
         """
         if setting == '*':  # Return all config
             cfg = self.base.conf
-            data = [(c, getattr(cfg, c)) for c in cfg.iterkeys()]
+            data = [(c, getattr(cfg, c)) for c in cfg._option.keys()]
             all_conf = dict(data)
             value = json.dumps(all_conf)
         elif hasattr(self.base.conf, setting):
