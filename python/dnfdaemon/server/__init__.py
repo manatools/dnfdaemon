@@ -408,19 +408,18 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
         """Install packages from pkg-specs."""
         value = 0
         local_rpms = []
-        pkgs = []
         for cmd in cmds.split(' '):
             if cmd.endswith('.rpm'):  # install local .rpm
                 local_rpms.append(cmd)
             else:
-                pkgs.append(cmd)
+                try:
+                    self.base.install(cmd)
+                except dnf.exceptions.MarkingError:
+                    pass
+
         for pkg in self.base.add_remote_rpms(local_rpms):
             self.base.package_install(pkg)
-        for pkg in pkgs:
-            try:
-                self.base.install(cmd)
-            except dnf.exceptions.MarkingError:
-                pass
+
         value = self.build_transaction()
         return value
 
