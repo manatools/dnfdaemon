@@ -1,3 +1,6 @@
+23-03-2017: dnf-daemon if no longer under active development
+============================================================
+
 dnf-daemon
 ===========
 
