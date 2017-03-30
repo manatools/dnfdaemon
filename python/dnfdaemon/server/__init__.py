@@ -108,7 +108,10 @@ class TransactionProgress(dnf.callback.TransactionProgress):
                         dnf.callback.PKG_OBSOLETE: 'obsolete',
                         dnf.callback.PKG_REINSTALL: 'reinstall',
                         dnf.callback.PKG_UPGRADE: 'update',
-                        dnf.callback.PKG_VERIFY: 'verify'}
+                        dnf.callback.PKG_VERIFY: 'verify',
+                        dnf.callback.PKG_SCRIPTLET: 'scriptlet',
+                        dnf.callback.TRANS_PREPARATION: 'preptrans',
+                        dnf.callback.TRANS_POST: 'posttrans'}
 
         super(dnf.callback.TransactionProgress, self).__init__()
         self.base = base
