@@ -15,7 +15,7 @@ BUMPED_MINOR=${shell VN=`cat ${APPNAME}.spec | grep Version| sed  's/${VER_REGEX
 NEW_VER=${shell cat ${APPNAME}.spec | grep Version| sed  's/\(^Version:\s*\)\([0-9]*\.[0-9]*\.\)\(.*\)/\2${BUMPED_MINOR}/'}
 NEW_REL=0.1.${GITDATE}
 DIST=${shell rpm --eval "%{dist}"}
-GIT_MASTER=develop
+GIT_MASTER=manatools-dev
 CURDIR = ${shell pwd}
 BUILDDIR= $(CURDIR)/build
 
