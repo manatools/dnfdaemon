@@ -1,5 +1,5 @@
 %global dnf_org org.baseurl.Dnf
-%global dnf_version 2.0.0
+%global dnf_version 2.2.0
 
 Name:           dnfdaemon
 Version:        0.3.16
@@ -51,20 +51,20 @@ Requires:       python3-gobject
 %description -n python3-%{name}
 Python 3 api for communicating with the dnf-daemon DBus service
 
-%package -n python-%{name}
+%package -n python2-%{name}
 Summary:        Python 2 api for communicating with the dnf-daemon DBus service
 Group:          Applications/System
 BuildRequires:  python2-devel
 Requires:       %{name} = %{version}-%{release}
 Requires:       pygobject3
+Provides:       python-%{name} = %{version}-%{release}
 
 %description -n python-%{name}
 Python 2 api for communicating with the dnf-daemon DBus service
 
+%post
 # apply the right selinux file context
 # http://fedoraproject.org/wiki/PackagingDrafts/SELinux#File_contexts
-
-%post
 semanage fcontext -a -t rpm_exec_t '%{_datadir}/%{name}/%{name}-system' 2>/dev/null || :
 restorecon -R %{_datadir}/%{name}/%{name}-system || :
 %systemd_post %{name}.service
