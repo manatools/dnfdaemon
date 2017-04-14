@@ -1,3 +1,75 @@
+2017-04-14  Neal Gompa <ngompa13@gmail.com>
+
+	* dnfdaemon.spec: Finalize spec for 0.3.17 release
+
+2017-04-14  Neal Gompa <ngompa13@gmail.com>
+
+	* Makefile: Offer variable for systemd unit install location and
+	fixup definitions of some variables
+
+2017-03-30  Neal Gompa <ngompa13@gmail.com>
+
+	* Makefile: Change Makefile to use manatools-dev branch
+
+2017-03-30  Neal Gompa <ngompa13@gmail.com>
+
+	* dnfdaemon.spec: Bump to dnf 2.2.0 min, slight fixes to spec
+
+
+2017-03-30  Neal Gompa <ngompa13@gmail.com>
+
+	* python/dnfdaemon/server/__init__.py: Add new transaction callback
+	identifiers from DNF 2.2.0
+
+2017-03-22  Neal Gompa <ngompa13@gmail.com>
+
+	* README.md: dnfdaemon development now is actively developed as part
+	of the manatools development.
+
+2017-03-20  Angelo Naselli <anaselli@linux.it>
+
+	* python/dnfdaemon/server/__init__.py: fixed install method if not
+	for local rpm
+
+2017-03-19  Angelo Naselli <anaselli@linux.it>
+
+	* python/dnfdaemon/server/__init__.py: DNF 2.0 API change for
+	installation of RPMs from URI/file path. In DNF 2.0, add_remote_rpm
+	became add_remote_rpms using and returning list of packages, so
+	Install() needed to change accordingly
+
+2017-02-20  Angelo Naselli <anaselli@linux.it>
+
+	* python/dnfdaemon/server/__init__.py: Fixed get_config() call to
+	work with DNF 2.0
+
+2017-02-07  Angelo Naselli <anaselli@linux.it>
+
+	* python/dnfdaemon/server/__init__.py: Fixed GetRepo() call to work
+	with DNF 2.0
+
+2017-03-22  Tim Lauridsen <tla@rasmil.dk>
+
+	* README.md: Update README.md
+
+2016-08-29  Tim Lauridsen <tla@rasmil.dk>
+
+	Merge pull request #6 from j-mracek/develop  Optimize code for
+	dnf-2.0
+
+2016-08-24  Jaroslav Mracek <jmracek@redhat.com>
+
+	* dnfdaemon.spec, python/dnfdaemon/server/__init__.py,
+	python/dnfdaemon/server/backend.py: Optimize code for dnf-2.0
+
+2016-05-25  Tim Lauridsen <timlau@fedoraproject.org>
+
+	merge release 0.3.16
+
+2016-05-25  Tim Lauridsen <timlau@fedoraproject.org>
+
+	* ChangeLog: updated ChangeLog
+
 2016-05-25  Tim Lauridsen <timlau@fedoraproject.org>
 
 	* dnfdaemon.spec: bumped version to 0.3.16
@@ -727,21 +799,18 @@
 
 2014-05-09  Tim Lauridsen <timlau@fedoraproject.org>
 
-	* Makefile, client/dnfdaemon/Makefile,
-	client/dnfdaemon/__init__.py, daemon/dnfdaemon-session.py,
-	daemon/dnfdaemon-system.py, dnfdaemon.spec, dnfdaemon/common.py,
-	dnfdaemon/dnfdaemon-session.py, dnfdaemon/dnfdaemon-system.py,
-	python/Makefile, python/dnfdaemon/Makefile,
+	* Makefile, {dnfdaemon => daemon}/dnfdaemon-session.py, {dnfdaemon
+	=> daemon}/dnfdaemon-system.py, dnfdaemon.spec, python/Makefile,
+	{client => python}/dnfdaemon/Makefile,
 	python/dnfdaemon/__init__.py, python/dnfdaemon/client/Makefile,
-	python/dnfdaemon/client/__init__.py,
-	python/dnfdaemon/server/Makefile,
+	{client/dnfdaemon => python/dnfdaemon/client}/__init__.py,
+	python/dnfdaemon/server/Makefile, dnfdaemon/common.py =>
 	python/dnfdaemon/server/__init__.py,
-	python/dnfdaemon/server/backend.py, test/__init__.py,
-	test/apitest.py, test/base.py, test/test-session-api.py,
-	test/test-system-ro.py, test/test-system-rw.py,
-	test/test_common.py, test/unit-devel.py: refactor: move server
-	support code into dnfdaemon/server  client code into
-	dnfdaemon/client
+	python/dnfdaemon/server/backend.py, test/__init__.py, test/{base.py
+	=> apitest.py}, test/test-session-api.py, test/test-system-ro.py,
+	test/test-system-rw.py, test/test_common.py, test/unit-devel.py: 
+	refactor: move server support code into dnfdaemon/server  client
+	code into dnfdaemon/client
 
 2014-05-09  Tim Lauridsen <timlau@fedoraproject.org>
 
@@ -854,7 +923,7 @@
 2014-04-20  Tim Lauridsen <timlau@fedoraproject.org>
 
 	* Makefile, dnfdaemon/dnfdaemon-system.py, test/base.py,
-	test/test-system-api.py, test/test-system-ro.py,
+	test/{test-system-api.py => test-system-ro.py},
 	test/test-system-rw.py, test/unit-devel.py: tests: split up system
 	tests in ro & rw renamed Makefile test targets with run-test prefix
 
@@ -1481,7 +1550,7 @@
 
 2014-03-08  Tim Lauridsen <timlau@fedoraproject.org>
 
-	* COPYING, ChangeLog, LICENSE, Makefile, README.md,
+	* LICENSE => COPYING, ChangeLog, Makefile, README.md,
 	client/dnfdaemon/Makefile, client/dnfdaemon/__init__.py,
 	dbus/org.baseurl.DnfSession.service,
 	dbus/org.baseurl.DnfSystem.conf,
