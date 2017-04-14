@@ -1,8 +1,9 @@
 PKGNAME = dnfdaemon
 APPNAME = $(PKGNAME)
-DATADIR=/usr/share
-SYSCONFDIR=/etc
+DATADIR := /usr/share
+SYSCONFDIR := /etc
 PKGDIR = $(DATADIR)/$(PKGNAME)
+SYSTEMDSYSTEMUNITDIR := /usr/lib/systemd/system
 ORG_NAME = org.baseurl.DnfSystem
 ORG_RO_NAME = org.baseurl.DnfSession
 SUBDIRS = python
@@ -37,7 +38,7 @@ install:
 	mkdir -p $(DESTDIR)$(PKGDIR)
 	mkdir -p $(DESTDIR)/usr/lib/systemd/system
 	install -m644 dbus/$(ORG_NAME).service $(DESTDIR)$(DATADIR)/dbus-1/system-services/.				
-	install -m644 dbus/dnfdaemon.service $(DESTDIR)/usr/lib/systemd/system/.				
+	install -m644 dbus/dnfdaemon.service $(DESTDIR)$(SYSTEMDSYSTEMUNITDIR)/.				
 	install -m644 dbus/$(ORG_RO_NAME).service $(DESTDIR)$(DATADIR)/dbus-1/services/.				
 	install -m644 dbus/$(ORG_NAME).conf $(DESTDIR)$(SYSCONFDIR)/dbus-1/system.d/.				
 	install -m644 policykit1/$(ORG_NAME).policy $(DESTDIR)$(DATADIR)/polkit-1/actions/.				
