@@ -1,29 +1,38 @@
 %global dnf_org org.baseurl.Dnf
 %global dnf_version 2.2.0
+%global dnf_nocompat 3.0
 
 Name:           dnfdaemon
-Version:        0.3.16
+Version:        0.3.17
 Release:        1%{?dist}
 Summary:        DBus daemon for dnf package actions
+
 License:        GPLv2+
-URL:            https://github.com/timlau/dnf-daemon
-Source0:        https://github.com/timlau/dnf-daemon/releases/download/%{name}-%{version}/%{name}-%{version}.tar.xz
+URL:            https://github.com/manatools/dnfdaemon
+Source0:        %{url}/releases/download/%{name}-%{version}/%{name}-%{version}.tar.xz
 
 BuildArch:      noarch
 BuildRequires:  python3-devel
+BuildRequires:  make
+
+# Ensure systemd macros are available
+%if 0%{?mageia}
+BuildRequires:  systemd-devel
+%else
 BuildRequires:  systemd
+%endif
+
+# Ensure that correct pygobject module is available
+%if 0%{?mageia}
+Requires:       python3-gobject3
+%else
 Requires:       python3-gobject
+%endif
 Requires:       python3-dbus
 Requires:       python3-dnf >= %{dnf_version}
-Requires:       polkit
+Conflicts:      python3-dnf >= %{dnf_nocompat}
 
-%if 0%{?fedora} >= 23
-Requires(post):     policycoreutils-python-utils
-Requires(postun):   policycoreutils-python-utils
-%else
-Requires(post):     policycoreutils-python
-Requires(postun):   policycoreutils-python
-%endif
+Requires:       polkit
 
 Requires(post): systemd
 Requires(preun): systemd
@@ -32,54 +41,75 @@ Requires(postun): systemd
 %description
 Dbus daemon for performing package actions with the dnf package manager
 
+
+%package selinux
+Summary:        SELinux integration for dnfdaemon
+
+Requires:       %{name} = %{version}-%{release}
+
+%if 0%{?fedora} >= 23 || 0%{?mageia} >= 6
+Requires(post):     policycoreutils-python-utils
+Requires(postun):   policycoreutils-python-utils
+%else
+Requires(post):     policycoreutils-python
+Requires(postun):   policycoreutils-python
+%endif
+
+# Use boolean weak reverse dependencies
+# http://rpm.org/user_doc/dependencies.html#weak-dependencies
+# http://rpm.org/user_doc/boolean_dependencies.html
+Supplements:    (dnfdaemon and selinux-policy)
+
+%description selinux
+Metapackage customizing the SELinux policy to ensure dnfdaemon works with
+SELinux enabled in enforcing mode.
+
+
+%package -n python2-%{name}
+Summary:        Python 2 API for communicating with %{name}
+
+BuildRequires:  python2-devel
+Requires:       %{name} = %{version}-%{release}
+%if 0%{?mageia}
+Requires:       python-gobject3
+%else
+Requires:       python-gobject
+%endif
+%{?python_provide:%python_provide python2-%{name}}
+
+%description -n python2-%{name}
+Python 2 API for communicating with %{name}.
+
+
+%package -n python3-%{name}
+Summary:        Python 3 API for communicating with %{name}
+
+BuildRequires:  python3-devel
+Requires:       %{name} = %{version}-%{release}
+%if 0%{?mageia}
+Requires:       python3-gobject3
+%else
+Requires:       python3-gobject
+%endif
+%{?python_provide:%python_provide python3-%{name}}
+
+%description -n python3-%{name}
+Python 3 API for communicating with %{name}.
+
+
 %prep
-%setup -q
+%autosetup
 
 %build
 # Nothing to build
 
 %install
-make install DESTDIR=$RPM_BUILD_ROOT DATADIR=%{_datadir} SYSCONFDIR=%{_sysconfdir}
+make install DESTDIR=%{buildroot} DATADIR=%{_datadir} SYSCONFDIR=%{_sysconfdir}
 
-%package -n python3-%{name}
-Summary:        Python 3 api for communicating with the dnf-daemon DBus service
-Group:          Applications/System
-BuildRequires:  python3-devel
-Requires:       %{name} = %{version}-%{release}
-Requires:       python3-gobject
-
-%description -n python3-%{name}
-Python 3 api for communicating with the dnf-daemon DBus service
-
-%package -n python2-%{name}
-Summary:        Python 2 api for communicating with the dnf-daemon DBus service
-Group:          Applications/System
-BuildRequires:  python2-devel
-Requires:       %{name} = %{version}-%{release}
-Requires:       pygobject3
-Provides:       python-%{name} = %{version}-%{release}
-
-%description -n python-%{name}
-Python 2 api for communicating with the dnf-daemon DBus service
-
-%post
-# apply the right selinux file context
-# http://fedoraproject.org/wiki/PackagingDrafts/SELinux#File_contexts
-semanage fcontext -a -t rpm_exec_t '%{_datadir}/%{name}/%{name}-system' 2>/dev/null || :
-restorecon -R %{_datadir}/%{name}/%{name}-system || :
-%systemd_post %{name}.service
-
-%postun
-if [ $1 -eq 0 ] ; then  # final removal
-semanage fcontext -d -t rpm_exec_t '%{_datadir}/%{name}/%{name}-system' 2>/dev/null || :
-fi
-%systemd_postun %{name}.service
-
-%preun
-%systemd_preun %{name}.service
 
 %files
-%doc README.md ChangeLog COPYING
+%doc README.md ChangeLog
+%license COPYING
 %{_datadir}/dbus-1/system-services/%{dnf_org}*
 %{_datadir}/dbus-1/services/%{dnf_org}*
 %{_datadir}/%{name}/
@@ -92,13 +122,41 @@ fi
 %{python3_sitelib}/%{name}/server
 
 
-%files -n  python-%{name}
-%{python_sitelib}/%{name}
+%files -n  python2-%{name}
+%{python2_sitelib}/%{name}/
 
 %files -n  python3-%{name}
 %{python3_sitelib}/%{name}/client
 
+
+%post
+%systemd_post %{name}.service
+
+%postun
+%systemd_postun %{name}.service
+
+%preun
+%systemd_preun %{name}.service
+
+%post selinux
+# apply the right selinux file context
+# http://fedoraproject.org/wiki/PackagingDrafts/SELinux#File_contexts
+semanage fcontext -a -t rpm_exec_t '%{_datadir}/%{name}/%{name}-system' 2>/dev/null || :
+restorecon -R %{_datadir}/%{name}/%{name}-system || :
+
+%postun selinux
+if [ $1 -eq 0 ] ; then  # final removal
+semanage fcontext -d -t rpm_exec_t '%{_datadir}/%{name}/%{name}-system' 2>/dev/null || :
+fi
+
+
 %changelog
+* Fri Apr 14 2017 Neal Gompa <ngompa13@gmail.com> 0.3.17-1
+- Require dnf-2.2.0 due to usage and expectation of new APIs
+- Change to have SELinux subpackage weak installed
+  based on solution by Kevin Kofler (rhbz#1395531)
+- Rework spec file to support Fedora and Mageia
+
 * Wed May 25 2016 Tim Lauridsen <timlau@fedoraproject.org> 0.3.16-1
 - bumped release
 
