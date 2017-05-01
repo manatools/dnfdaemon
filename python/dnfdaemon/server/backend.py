@@ -40,7 +40,7 @@ import os
 
 logger = logging.getLogger('dnfdaemon.base.dnf')
 
-UPDINFO_MAIN = ['id', 'title', 'type', 'description', 'filenames']
+UPDINFO_MAIN = ['id', 'title', 'type', 'description']
 
 
 class DnfBase(dnf.Base):
@@ -503,7 +503,7 @@ class Progress(dnf.callback.DownloadProgress):
 class UpdateInfo:
     """Wrapper class for dnf update advisories on a given po."""
 
-    UPDINFO_MAIN = ['id', 'title', 'type', 'description', 'filenames']
+    UPDINFO_MAIN = ['id', 'title', 'type', 'description']
 
     def __init__(self, po):
         self.po = po
@@ -524,6 +524,7 @@ class UpdateInfo:
                 e[field] = getattr(adv, field)
             dt = getattr(adv, 'updated')
             e['updated'] = dt.isoformat(' ')
+            # TODO manage packages
             # references
             refs = []
             for ref in adv.references:
