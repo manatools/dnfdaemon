@@ -1,11 +1,31 @@
+2017-05-24  Neal Gompa <ngompa13@gmail.com>
+
+	* dnfdaemon.spec: Finalize spec for 0.3.18 release
+
+2017-05-24  Jaroslav Mracek <jmracek@redhat.com>
+
+	* python/dnfdaemon/server/backend.py: Add new keyword for
+	progress.start (RhBug:1454854)  It reflect API changes in
+	dnf-2.5.0-1  https://bugzilla.redhat.com/show_bug.cgi?id=1454854
+
+2017-05-01  Angelo Naselli <anaselli@linux.it>
+
+	* python/dnfdaemon/server/backend.py: fix rh bug 1444830 update info
+	"filename" has been removed from hawkey
+
+2017-04-14  Neal Gompa <ngompa13@gmail.com>
+
+	* ChangeLog: Finalize 0.3.17 release
+
 2017-04-14  Neal Gompa <ngompa13@gmail.com>
 
 	* dnfdaemon.spec: Finalize spec for 0.3.17 release
 
 2017-04-14  Neal Gompa <ngompa13@gmail.com>
 
-	* Makefile: Offer variable for systemd unit install location and
-	fixup definitions of some variables
+	* Makefile: Small cleanups to the Makefile  Offer variable for
+	systemd unit install location and fixup definitions of some
+	variables
 
 2017-03-30  Neal Gompa <ngompa13@gmail.com>
 
@@ -13,7 +33,7 @@
 
 2017-03-30  Neal Gompa <ngompa13@gmail.com>
 
-	* dnfdaemon.spec: Bump to dnf 2.2.0 min, slight fixes to spec
+	* dnfdaemon.spec: spec: Bump to dnf 2.2.0 min, slight fixes to spec
 
 
 2017-03-30  Neal Gompa <ngompa13@gmail.com>
@@ -23,8 +43,9 @@
 
 2017-03-22  Neal Gompa <ngompa13@gmail.com>
 
-	* README.md: dnfdaemon development now is actively developed as part
-	of the manatools development.
+	* README.md: dnf-daemon is under active development again  dnfdaemon
+	development now is actively developed as part of the manatools
+	development.
 
 2017-03-20  Angelo Naselli <anaselli@linux.it>
 
@@ -34,7 +55,7 @@
 2017-03-19  Angelo Naselli <anaselli@linux.it>
 
 	* python/dnfdaemon/server/__init__.py: DNF 2.0 API change for
-	installation of RPMs from URI/file path. In DNF 2.0, add_remote_rpm
+	installation of RPMs from URI/file path  In DNF 2.0, add_remote_rpm
 	became add_remote_rpms using and returning list of packages, so
 	Install() needed to change accordingly
 
