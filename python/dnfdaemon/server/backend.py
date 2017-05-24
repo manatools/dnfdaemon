@@ -433,7 +433,7 @@ class Progress(dnf.callback.DownloadProgress):
         self.dnl = {}
         self.last_frac = 0
 
-    def start(self, total_files, total_size):
+    def start(self, total_files, total_size, total_drpms=0):
         self.total_files = total_files
         self.total_size = float(total_size)
         self.download_files = 0
