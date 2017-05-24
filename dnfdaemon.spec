@@ -1,9 +1,9 @@
 %global dnf_org org.baseurl.Dnf
-%global dnf_version 2.2.0
+%global dnf_version 2.5.0
 %global dnf_nocompat 3.0
 
 Name:           dnfdaemon
-Version:        0.3.17
+Version:        0.3.18
 Release:        1%{?dist}
 Summary:        DBus daemon for dnf package actions
 
@@ -151,6 +151,11 @@ fi
 
 
 %changelog
+* Wed May 24 2017 Neal Gompa <ngompa13@gmail.com> 0.3.18-1
+- Require dnf-2.5.0 due to API change (rhbz#1454854)
+- Remove "filename" updateinfo attribute usage due being
+  removed in libdnf (rhbz#1444830)
+
 * Fri Apr 14 2017 Neal Gompa <ngompa13@gmail.com> 0.3.17-1
 - Require dnf-2.2.0 due to usage and expectation of new APIs
 - Change to have SELinux subpackage weak installed
