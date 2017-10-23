@@ -255,12 +255,7 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
                 # get the dnf group obj
                 grp = self.base.comps.group_by_pattern(obj.name)
                 if grp:
-                    # FIXME: no dnf API to get if group is installed
-                    p_grp = self.base._group_persistor.group(grp.id)
-                    if p_grp:
-                        installed = p_grp.installed
-                    else:
-                        installed = False
+                    installed = self.base.history.group.group_installed(grp.id)
                     elem = (grp.id, grp.ui_name,
                             grp.ui_description, installed)
                     cat_grps.append(elem)
@@ -670,11 +665,12 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
         result = []
         tx = self.base.history.old([tid], complete_transactions_only=False)
         result = []
-        for pkg in tx[0].trans_data:
+        for pkg in tx[0].packages():
             values = [pkg.name, pkg.epoch, pkg.version,
-                      pkg.release, pkg.arch, pkg.ui_from_repo]
+                      pkg.release, pkg.arch, pkg.ui_from_repo()]
             pkg_id = ",".join(values)
-            elem = (pkg_id, pkg.state, pkg.state_installed)
+            installed = True if pkg.state in dnf.history.INSTALLING_STATES else False
+            elem = (pkg_id, pkg.state, pkg.state_installed, installed)
             result.append(elem)
         value = json.dumps(result)
         return value
