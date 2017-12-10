@@ -646,8 +646,8 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
             try:
                 # FIXME: Base.history_undo_operations is not public api
                 #print(len(history.transaction_nevra_ops(old.tid)))
-                self.base.history_undo_operations(
-                     history.transaction_nevra_ops(old.tid))
+                self.base._history_undo_operations(
+                     history.transaction_nevra_ops(old.tid), old.tid)
                 #print(self.get_transaction())
             except dnf.exceptions.PackagesNotInstalledError as err:
                 result = (False, ['An operation cannot be undone : %s' %
