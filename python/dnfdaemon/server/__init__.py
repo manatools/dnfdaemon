@@ -307,7 +307,24 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
         repo = self.base.repos.get(repo_id, None)  # get the repo object
         if repo:
             repo_conf = dict([(c, getattr(repo, c)) for c in repo._option.keys()])
+            enab = repo.enabled
+            if not enab:
+                r = self._enabled_repos
+                r.append(repo_id)
+                self.set_enabled_repos(r)
+
+            pkgs = self.base.sack.query().filterm(reponame__eq=repo_id)
+            sz = 0
+            for pkg in pkgs:
+                sz += pkg._size
+
+            repo_conf['size'] = sz
+            repo_conf['packages'] = len(pkgs)
             value = json.dumps(repo_conf)
+            if not enab:
+                r = self._enabled_repos
+                r.remove(repo_id)
+                self.set_enabled_repos(r)
         return value
 
     def set_enabled_repos(self, repo_ids):
