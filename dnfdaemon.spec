@@ -1,5 +1,5 @@
 %global dnf_org org.baseurl.Dnf
-%global dnf_version 2.5.0
+%global dnf_version 2.8.0
 %global dnf_nocompat 3.0
 
 Name:           dnfdaemon
@@ -255,5 +255,3 @@ fi
 - fix refactor issue (timlau@fedoraproject.org)
 - api: merged GetPackages with GetPackageWithAttributes.
   (timlau@fedoraproject.org)
-
-

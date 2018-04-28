@@ -56,17 +56,18 @@ LOCAL_RPM = os.path.join(repo_dir(), 'local-pkg-1.0-1.fc22.noarch.rpm')
 # mock objects
 
 
-def mock_comps(seed_persistor):
+def mock_comps(history, seed_persistor):
     comps = dnf.comps.Comps()
-    comps.add_from_xml_filename(COMPS_PATH)
+    comps._add_from_xml_filename(COMPS_PATH)
 
-    persistor = MockGroupPersistor()
+    persistor = history.group
     if seed_persistor:
-        p_som = persistor.group('inst-grp')
-        p_som.pkg_types = dnf.comps.MANDATORY
-        p_som.full_list.extend(('foo', 'bar'))
-
-    return comps, persistor
+        name = 'inst-grp'
+        pkg_types = dnf.comps.MANDATORY
+        p_pep = persistor.new_group(name, name, name, False, pkg_types)
+        persistor.add_group(p_pep)
+        p_pep.add_package(['foo', 'bar'])
+    return comps
 
 
 class _BaseStubMixin(object):
@@ -88,7 +89,7 @@ class _BaseStubMixin(object):
 
         self._conf = FakeConf()
         self._persistor = FakePersistor()
-        self._yumdb = MockYumDB()
+        self._history = None
         self.ds_callback = mock.Mock()
 
     @property
@@ -97,8 +98,14 @@ class _BaseStubMixin(object):
             return self._sack
         return self.init_sack()
 
-    def _activate_group_persistor(self):
-        return MockGroupPersistor()
+    @property
+    def history(self):
+        if self._history:
+            return self._history
+        else:
+            self._history = super(_BaseStubMixin, self).history
+            self._history.reset_db()
+            return self._history
 
     def activate_persistor(self):
         pass
@@ -118,42 +125,11 @@ class _BaseStubMixin(object):
         pass
 
     def read_mock_comps(self, seed_persistor=True):
-        self._comps, self.group_persistor = mock_comps(seed_persistor)
+        self._comps = mock_comps(self.history, seed_persistor)
         return self._comps
 
     def read_all_repos(self):
         pass
-
-
-class HistoryStub(dnf.yum.history.YumHistory):
-    """Stub of dnf.yum.history.YumHistory for easier testing."""
-
-    def __init__(self):
-        """Initialize a stub instance."""
-        self.old_data_pkgs = {}
-
-    def _old_data_pkgs(self, tid, sort=True):
-        """Get packages of a transaction."""
-        if sort:
-            raise NotImplementedError('sorting not implemented yet')
-        return self.old_data_pkgs.get(tid, ())[:]
-
-    def close(self):
-        """Close the history."""
-        pass
-
-    def old(self, tids=[], limit=None, *_args, **_kwargs):
-        """Get transactions with given IDs."""
-        create = lambda tid: dnf.yum.history.YumHistoryTransaction(self,
-            (int(tid), 0, '0:685cc4ac4ce31b9190df1604a96a3c62a3100c35',
-             1, '1:685cc4ac4ce31b9190df1604a96a3c62a3100c36', 0, 0))
-
-        sorted_all_tids = sorted(self.old_data_pkgs.keys(), reverse=True)
-
-        trxs = (create(tid) for tid in tids or sorted_all_tids
-                if tid in self.old_data_pkgs)
-        limited = trxs if limit is None else itertools.islice(trxs, limit)
-        return tuple(limited)
 
 
 class FakeAdvisoryRef(object):
@@ -235,18 +211,6 @@ def mock_sack(*extra_repos):
     return MockBase(*extra_repos).sack
 
 
-class MockYumDB(mock.Mock):
-    def __init__(self):
-        super(mock.Mock, self).__init__()
-        self.db = {}
-
-    def get_package(self, po):
-        return self.db.setdefault(str(po), mock.Mock())
-
-    def assertLength(self, length):
-        assert(len(self.db) == length)
-
-
 # mock object taken from testbase.py in yum/test:
 class FakeConf(object):
     def __init__(self):
@@ -286,6 +250,7 @@ class FakeConf(object):
         self.showdupesfromrepos = False
         self.tsflags = []
         self.verbose = False
+        self.transformdb = False
         self.yumvar = {'releasever': 'Fedora69'}
 
     def iterkeys(self):
@@ -303,12 +268,6 @@ class FakePersistor(object):
 
     def since_last_makecache(self):
         return None
-
-
-class MockGroupPersistor(dnf.persistor.GroupPersistor):
-    """Empty persistor that doesn't need any I/O."""
-    def __init__(self):
-        self.db = self._empty_db()
 
 # test cases
 
