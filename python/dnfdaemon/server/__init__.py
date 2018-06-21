@@ -54,21 +54,6 @@ FAKE_ATTR = ['downgrades', 'action', 'pkgtags',
 
 NONE = json.dumps(None)
 
-_ACTIVE_DCT = {
-    dnf.transaction.DOWNGRADE: operator.attrgetter('installed'),
-    dnf.transaction.ERASE: operator.attrgetter('erased'),
-    dnf.transaction.INSTALL: operator.attrgetter('installed'),
-    dnf.transaction.REINSTALL: operator.attrgetter('installed'),
-    dnf.transaction.UPGRADE: operator.attrgetter('installed'),
-}
-
-
-def _active_pkg(tsi):
-    """Return the package from tsi that takes the active role
-    in the transaction.
-    """
-    return _ACTIVE_DCT[tsi.op_type](tsi)
-
 #------------------------------------------------------------ Callback handlers
 
 logger = logging.getLogger('dnfdaemon.common')
@@ -255,7 +240,7 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
                 # get the dnf group obj
                 grp = self.base.comps.group_by_pattern(obj.name)
                 if grp:
-                    installed = self.base.history.group.group_installed(grp.id)
+                    installed = True  # if grp is not None, it's installed
                     elem = (grp.id, grp.ui_name,
                             grp.ui_description, installed)
                     cat_grps.append(elem)
@@ -666,11 +651,13 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
         tx = self.base.history.old([tid], complete_transactions_only=False)
         result = []
         for pkg in tx[0].packages():
-            values = [pkg.name, pkg.epoch, pkg.version,
-                      pkg.release, pkg.arch, pkg.ui_from_repo()]
-            pkg_id = ",".join(values)
-            installed = True if pkg.state in dnf.history.INSTALLING_STATES else False
-            elem = (pkg_id, pkg.state, pkg.state_installed, installed)
+            pkg_id = self._get_id(pkg)
+            installed = pkg.action in dnf.transaction.FORWARD_ACTIONS + [dnf.transaction.PKG_REINSTALL]
+            action_name = pkg.action_name
+            if action_name == "Upgrade":
+                # HACK: rename action name due to recent change in DNF 3
+                action_name = "Update"
+            elem = (pkg_id, action_name, installed)
             result.append(elem)
         value = json.dumps(result)
         return value
@@ -760,11 +747,7 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
 
     def _get_packages_to_download(self):
         """Get packages to download for the current dnf transaction."""
-        to_dnl = []
-        for tsi in self.base.transaction:
-            if tsi.installed:
-                to_dnl.append(tsi.installed)
-        return to_dnl
+        return list(self.base.transaction.install_set)
 
     def _build_transaction(self):
         """Get a list of the current transaction."""
@@ -781,18 +764,27 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
         tx_list = {}
         for t in ('downgrade', 'remove', 'install', 'reinstall', 'update'):
             tx_list[t] = []
+
+        replaces = {}
         if self.base.transaction:
+            # build a reverse mapping to 'replaced_by'
+            # this is required to achieve reasonable speed
             for tsi in self.base.transaction:
-                #print(tsi.op_type, tsi.installed, tsi.erased, tsi.obsoleted)
-                if tsi.op_type == dnf.transaction.DOWNGRADE:
+                if tsi.action != dnf.transaction.PKG_OBSOLETED:
+                    continue
+                for i in tsi._item.getReplacedBy():
+                    replaces.setdefault(i, set()).add(tsi)
+
+            for tsi in self.base.transaction:
+                if tsi.action == dnf.transaction.PKG_DOWNGRADE:
                     tx_list['downgrade'].append(tsi)
-                elif tsi.op_type == dnf.transaction.ERASE:
+                elif tsi.action == dnf.transaction.PKG_ERASE:
                     tx_list['remove'].append(tsi)
-                elif tsi.op_type == dnf.transaction.INSTALL:
+                elif tsi.action == dnf.transaction.PKG_INSTALL:
                     tx_list['install'].append(tsi)
-                elif tsi.op_type == dnf.transaction.REINSTALL:
+                elif tsi.action == dnf.transaction.PKG_REINSTALL:
                     tx_list['reinstall'].append(tsi)
-                elif tsi.op_type == dnf.transaction.UPGRADE:
+                elif tsi.action == dnf.transaction.PKG_UPGRADE:
                     tx_list['update'].append(tsi)
         # build action tree
         for (action, pkglist) in [
@@ -803,16 +795,11 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
             ('downgrade', tx_list['downgrade'])]:
 
             for tsi in pkglist:
-                po = _active_pkg(tsi)
+                po = tsi.pkg
                 (n, a, e, v, r) = po.pkgtup
                 size = float(po.size)
-                # build a list of obsoleted packages
-                alist = []
-                for obs_po in tsi.obsoleted:
-                    alist.append(self._get_id(obs_po))
-                if alist:
-                    logger.debug(repr(alist))
-                el = (self._get_id(po), size, alist)
+                obsoletes = [self._get_id(i) for i in replaces.get(tsi._item, [])]
+                el = (self._get_id(po), size, obsoletes)
                 sublist.append(el)
             if pkglist:
                 out_list.append([action, sublist])
@@ -997,9 +984,11 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
 
     def _get_id(self, pkg):
         """Get a package id from a given package."""
-        values = [
-            pkg.name, str(pkg.epoch), pkg.version, pkg.release,
-            pkg.arch, pkg.ui_from_repo]
+        values = [pkg.name, str(pkg.epoch), pkg.version, pkg.release, pkg.arch]
+        if callable(pkg.ui_from_repo):
+            values.append(pkg.ui_from_repo())
+        else:
+            values.append(pkg.ui_from_repo)
         return ",".join(values)
 
     def _get_action(self, po):
