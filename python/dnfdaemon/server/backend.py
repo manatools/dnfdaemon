@@ -314,12 +314,11 @@ class Packages:
         # return install/upgrade type pkgs from transaction
         for tsi in self._base.transaction:
             #print(tsi.op_type, tsi.installed, tsi.erased, tsi.obsoleted)
-            if tsi.op_type == dnf.transaction.UPGRADE:
-                pkgs.append(tsi.installed)
-            elif tsi.op_type == dnf.transaction.INSTALL:
-                po = tsi.installed
+            if tsi.action == dnf.transaction.PKG_UPGRADE:
+                pkgs.append(tsi.pkg)
+            elif tsi.action == dnf.transaction.PKG_INSTALL:
                 # action is INSTALL, then it should be a installonlypkg
-                pkgs.append(po)
+                pkgs.append(tsi.pkg)
         return pkgs
 
     @property
