@@ -121,6 +121,8 @@ make install DESTDIR=%{buildroot} DATADIR=%{_datadir} SYSCONFDIR=%{_sysconfdir}
 %{python3_sitelib}/%{name}/__*
 %{python3_sitelib}/%{name}/server
 
+%files selinux
+# empty metapackage
 
 %files -n  python2-%{name}
 %{python2_sitelib}/%{name}/
