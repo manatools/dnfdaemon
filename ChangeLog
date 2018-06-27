@@ -1,3 +1,47 @@
+2018-06-27  Neal Gompa <ngompa13@gmail.com>
+
+	* dnfdaemon.spec: Add missing %files section for selinux subpackage
+
+2018-06-23  Daniel Mach <dmach@redhat.com>
+
+	* dnfdaemon.spec: Spec change for 0.3.19 release.
+
+2018-06-21  Daniel Mach <dmach@redhat.com>
+
+	* python/dnfdaemon/server/__init__.py,
+	python/dnfdaemon/server/backend.py: Fix code to work with DNF 3
+	history and transactions.
+
+2017-10-30  Eduard Čuba <ecuba@redhat.com>
+
+	* test/support.py: [tests]: use SWDB instead of YumDB and
+	GroupPersistor
+
+2017-10-23  Eduard Čuba <ecuba@redhat.com>
+
+	* dnfdaemon.spec, python/dnfdaemon/server/__init__.py: support for
+	DNF 2.8  Dnf 2.8 introduces unified software database which changes
+	some non-API calls
+
+2018-06-23  Neal Gompa <ngompa13@gmail.com>
+
+	* Makefile: Makefile: master branch is actually 'master' now
+
+2018-04-11  Angelo Naselli <anaselli@linux.it>
+
+	* python/dnfdaemon/server/__init__.py: Add missing repo data (size
+	and packages) to json
+	https://github.com/manatools/dnfdragora/issues/97
+
+2017-12-10  Angelo Naselli <anaselli@linux.it>
+
+	* python/dnfdaemon/server/__init__.py: Correctly managed undo
+	operation
+
+2017-05-24  Neal Gompa <ngompa13@gmail.com>
+
+	* ChangeLog: Finalize 0.3.18 release
+
 2017-05-24  Neal Gompa <ngompa13@gmail.com>
 
 	* dnfdaemon.spec: Finalize spec for 0.3.18 release
