@@ -61,7 +61,13 @@ class DnfBase(dnf.Base):
     def expire_cache(self):
         """Make the current cache expire"""
         for repo in self.repos.iter_enabled():
-            repo._md_expire_cache()
+            # see https://bugzilla.redhat.com/show_bug.cgi?id=1629378
+            try:
+                # works up to dnf 3.4 (3.4 took it away)
+                repo._md_expire_cache()
+            except AttributeError:
+                # works from libdnf 0.18.0 (I think)
+                repo._repo.expire()
 
     def setup_base(self):
         """Setup dnf Sack and init packages helper"""
