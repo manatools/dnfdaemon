@@ -97,6 +97,19 @@ class TransactionProgress(dnf.callback.TransactionProgress):
                         dnf.callback.PKG_SCRIPTLET: 'scriptlet',
                         dnf.callback.TRANS_PREPARATION: 'preptrans',
                         dnf.callback.TRANS_POST: 'posttrans'}
+        try:
+            # https://bugzilla.redhat.com/show_bug.cgi?id=1630113
+            # from dnf 3.0 onwards these exist and show up in
+            # callbacks, but aren't in the API
+            self.actions.update({
+                dnf.transaction.PKG_DOWNGRADED: 'downgraded',
+                dnf.transaction.PKG_OBSOLETED: 'obsoleted',
+                dnf.transaction.PKG_REINSTALLED: 'reinstalled',
+                dnf.transaction.PKG_UPGRADED: 'updated'
+            })
+        except AttributeError:
+            # we're on older DNF...
+            pass
 
         super(dnf.callback.TransactionProgress, self).__init__()
         self.base = base
