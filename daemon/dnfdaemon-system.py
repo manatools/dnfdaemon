@@ -104,7 +104,7 @@ class DnfDaemon(dnfdaemon.server.DnfDaemonBase):
                          sender_keyword='sender')
     def Lock(self, sender=None):
         """
-        Get the yum lock
+        Get the dnfdaemon lock
         :param sender:
         """
         self.check_permission_read(sender)
@@ -699,13 +699,15 @@ class DnfDaemon(dnfdaemon.server.DnfDaemonBase):
 
     def check_lock(self, sender):
         """
-        Check that the current sender is owning the dnf lock
+        Check that the current sender is owning the dnfdaemon lock
         :param sender:
         """
         if self._lock == sender:
             return True
+        elif self._lock:
+            raise LockedError('dnfdaemon is locked by another application')
         else:
-            raise LockedError('dnf is locked by another application')
+            raise LockedError('dnfdaemon is not locked, but was expected to be')
 
     def check_permission_write(self, sender):
         """ Check for senders permission to update system packages"""
