@@ -36,6 +36,7 @@ import hawkey
 import itertools
 import logging
 import sys
+import re
 import os
 
 logger = logging.getLogger('dnfdaemon.base.dnf')
@@ -58,6 +59,40 @@ class DnfBase(dnf.Base):
         self.repos.all().set_progress_bar(self.md_progress)
         self._packages = None
 
+    def _tree(self, dirpath):
+      """Traverse dirpath recursively and yield relative filenames."""
+      for root, dirs, files in os.walk(dirpath):
+          base = os.path.relpath(root, dirpath)
+          for f in files:
+              path = os.path.join(base, f)
+              yield os.path.normpath(path)
+
+    def _filter(self, files, patterns):
+      """Yield those filenames that match any of the patterns."""
+      return (f for f in files for p in patterns if re.match(p, f))
+
+    def _clean(self, dirpath, files):
+      """Remove the given filenames from dirpath."""
+      count = 0
+      for f in files:
+          path = os.path.join(dirpath, f)
+          logger.debug(_('Removing file %s'), path)
+          misc.unlink_f(path)
+          count += 1
+      return count
+
+    def _removeCacheFiles(self):
+      ''' Remove solv and xml files '''
+      cachedir =  self.conf.cachedir
+
+      types = [ 'metadata', 'packages',  'dbcache' ]
+      files = list(self._tree(cachedir))
+      logger.debug(_('Cleaning data: ' + ' '.join(types)))
+
+      patterns = [dnf.repo.CACHE_FILES[t] for t in types]
+      count = self._clean(cachedir, self. _filter(files, patterns))
+      logger.info( '%d file removed', count)
+
     def expire_cache(self):
         """Make the current cache expire"""
         for repo in self.repos.iter_enabled():
@@ -65,9 +100,12 @@ class DnfBase(dnf.Base):
             try:
                 # works up to dnf 3.4 (3.4 took it away)
                 repo._md_expire_cache()
+                logger.debug('md expire cache')
             except AttributeError:
                 # works from libdnf 0.18.0 (I think)
                 repo._repo.expire()
+                logger.debug('repo expire (no md)')
+        self._removeCacheFiles()
 
     def setup_base(self):
         """Setup dnf Sack and init packages helper"""
