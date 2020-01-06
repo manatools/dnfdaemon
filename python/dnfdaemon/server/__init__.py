@@ -189,6 +189,8 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
         self._config_options = {}
         self._enabled_repos = []
 
+
+
     # this must be overloaded in the parent class
     def GPGImport(self, pkg_id, userid, hexkeyid, keyurl, timestamp):
         #print(pkg_id, userid, hexkeyid, keyurl, timestamp)
@@ -296,10 +298,55 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
 
         :param repo_id: repo id to get information from
         """
+        optionKeys = [
+          'bandwidth'            ,
+          'basecachedir'         ,
+          'baseurl'              ,
+          'cost'                 ,
+          'deltarpm'             ,
+          'deltarpm_percentage'  ,
+          'enabled'              ,
+          'enabled_metadata'     ,
+          'enablegroups'         ,
+          'exclude'              ,
+          'excludepkgs'          ,
+          'failovermethod'       ,
+          'fastestmirror'        ,
+          'gpgcheck'             ,
+          'gpgkey'               ,
+          'includepkgs'          ,
+          'ip_resolve'           ,
+          'max_parallel_downloads',
+          'mediaid'              ,
+          'metadata_expire'      ,
+          'metalink'             ,
+          'minrate'              ,
+          'mirrorlist'           ,
+          'name'                 ,
+          'password'             ,
+          'priority'             ,
+          'protected_packages'   ,
+          'proxy'                ,
+          'proxy_password'       ,
+          'proxy_username'       ,
+          'repo_gpgcheck'        ,
+          'retries'              ,
+          'skip_if_unavailable'  ,
+          'sslcacert'            ,
+          'sslclientcert'        ,
+          'sslclientkey'         ,
+          'sslverify'            ,
+          'throttle'             ,
+          'timeout'              ,
+          'type'                 ,
+          'username'             ,
+        ]
         value = json.dumps(None)
         repo = self.base.repos.get(repo_id, None)  # get the repo object
         if repo:
-            repo_conf = dict([(c, getattr(repo, c)) for c in repo._option.keys()])
+            # VectorString is not JSON serializable let's convert to list
+            repo_conf = dict([(c, getattr(repo, c) if 'VectorString' not in str(type(getattr(repo, c))) else list(getattr(repo, c))) for c in optionKeys])
+
             enab = repo.enabled
             if not enab:
                 r = self._enabled_repos
