@@ -616,7 +616,7 @@ class DnfDaemon(dnfdaemon.server.DnfDaemonBase):
         """ Send an error message """
         pass
 
-    @dbus.service.signal(DAEMON_INTERFACE)
+    @dbus.service.signal(DAEMON_INTERFACE, signature='uu')
     def DownloadStart(self, num_files, num_bytes):
         """ Starting a new parallel download batch """
         pass
