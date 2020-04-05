@@ -1,6 +1,109 @@
+2020-04-04  Neal Gompa <ngompa13@gmail.com>
+
+	* dnfdaemon.spec: Bump spec for 0.3.20 release
+
+2020-04-04  Neal Gompa <ngompa13@gmail.com>
+
+	* dnfdaemon.spec: Raise minimum version of DNF to 4.2.6 and drop
+	conflicts  The minimum verified version this worked with was DNF
+	4.2.6 but there is no longer an expectation that the Python API
+	should significantly break with new major versions.  Also, we're
+	removing conflicts to upcoming major versions. If it becomes a
+	problem, we can re-add them...
+
+2020-04-04  Neal Gompa <ngompa13@gmail.com>
+
+	* Makefile, dnfdaemon.spec, python/dnfdaemon/Makefile,
+	python/dnfdaemon/client/Makefile: Remove Python 2 support from
+	dnfdaemon  Python 2 is dead in Fedora and other Linux distributions
+	as Python 2 is now EOL per the CPython developers.  Thus, we no
+	longer will support Python 2 dnfdaemon clients.  Reference:
+	https://fedoraproject.org/wiki/Changes/Mass_Python_2_Package_Removal
+
+
+2020-03-01  Angelo Naselli <anaselli@linux.it>
+
+	* daemon/dnfdaemon-system.py: With a hugh transaction, number of
+	bytes to dowload could be greater than Int32, moreover byte number
+	should be more than 0 so let's use Unsigend to avoid crashes
+
+2020-01-06  Angelo Naselli <anaselli@linux.it>
+
+	* python/dnfdaemon/server/__init__.py: Fix GetRepo crash for
+	Atrribute error
+
+2019-12-28  Angelo Naselli <anaselli@linux.it>
+
+	* python/dnfdaemon/server/backend.py: imported code from "dnf clean
+	metadata" command
+
+2019-10-15  Adam Williamson <awilliam@redhat.com>
+
+	* daemon/dnfdaemon-session.py, daemon/dnfdaemon-system.py: 
+	check_lock: treat 'locked by other' differently to 'not locked'
+	check_lock currently claims the daemon is locked by another app even
+	if the problem is actually that it *isn't locked at all*. We should
+	distinguish these two cases.  Also, here and in a few other places
+	we refer to this as either a 'dnf lock' or a 'yum lock'. AFAICT it
+	is not either of those things, it is a lock that is internal to the
+	daemon. You can happily perform operations with dnf *directly* while
+	this lock is held. It's confusing to describe this as a 'dnf lock'
+	when that isn't what it is, so this changes the description to
+	'dnfdaemon lock' in a few places.  Signed-off-by: Adam Williamson
+	<awilliam@redhat.com>
+
+2018-09-17  Adam Williamson <awilliam@redhat.com>
+
+	* python/dnfdaemon/server/__init__.py: Handle additional DNF
+	transaction callback actions in DNF 3  See
+	https://bugzilla.redhat.com/show_bug.cgi?id=1624652 and
+	https://bugzilla.redhat.com/show_bug.cgi?id=1630113 . It seems that
+	a change in DNF 3 causes transaction callbacks to use actions that
+	aren't included in the callback API definition or docs. Because
+	dnfdaemon/dnfdragora currently kinda assume they know all *possible*
+	callback actions, this winds up causing dnfdragora to crash if it
+	tries to handle a callback with one of these unknown actions.  This
+	commit adds the extra actions to the const <-> string dict in
+	dnfdaemon's TransactionProgress callback, so that in the dbus
+	RPMProgress message it sends out, the action will be a string, as
+	dnfdragora's handler for the message expects. A companion commit for
+	dnfdragora will add handling for the new string values, and also
+	make it not crash if an unexpected action shows up.  Signed-off-by:
+	Adam Williamson <awilliam@redhat.com>
+
+2018-09-17  Adam Williamson <awilliam@redhat.com>
+
+	* python/dnfdaemon/server/backend.py: Handle removal of
+	dnf.repo._md_expire_cache() in DNF 3.4  DNF 3.4 removed
+	_md_expire_cache(), which we were still using. Let's follow how
+	upstream replaced it, by using the expire() method of the underlying
+	librepo repo object...unfortunately this is still using private
+	interfaces, but I don't see a way to do it using public ones.
+	Signed-off-by: Adam Williamson <awilliam@redhat.com>
+
+2018-07-22  Neal Gompa <ngompa13@gmail.com>
+
+	* Makefile, python/dnfdaemon/Makefile,
+	python/dnfdaemon/client/Makefile: Enforce usage of versioned Python
+	interpreter in Makefiles  The Makefiles for dnfdaemon previously
+	assumed that '/usr/bin/python' pointed to Python 2. However, as
+	support for Python 2 winds down over the next two years, this is not
+	guaranteed to remain true.  Consequently, Fedora has split out
+	'/usr/bin/python' from the 'python2' package in order to enforce
+	that packages do not use '/usr/bin/python' by default. Since the
+	assumption was wrong in the Makefiles to begin with, it is better to
+	go ahead and fix it in the Makefiles.  Reference:
+
+	https://fedoraproject.org/wiki/Changes/Move_usr_bin_python_into_separate_package
+
+2018-06-27  Neal Gompa <ngompa13@gmail.com>
+
+	* ChangeLog: Finalize 0.3.19 release
+
 2018-06-27  Neal Gompa <ngompa13@gmail.com>
 
 	* dnfdaemon.spec: Add missing %files section for selinux subpackage
+
 
 2018-06-23  Daniel Mach <dmach@redhat.com>
 
