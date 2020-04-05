@@ -65,22 +65,6 @@ Metapackage customizing the SELinux policy to ensure dnfdaemon works with
 SELinux enabled in enforcing mode.
 
 
-%package -n python2-%{name}
-Summary:        Python 2 API for communicating with %{name}
-
-BuildRequires:  python2-devel
-Requires:       %{name} = %{version}-%{release}
-%if 0%{?mageia}
-Requires:       python-gobject3
-%else
-Requires:       python-gobject
-%endif
-%{?python_provide:%python_provide python2-%{name}}
-
-%description -n python2-%{name}
-Python 2 API for communicating with %{name}.
-
-
 %package -n python3-%{name}
 Summary:        Python 3 API for communicating with %{name}
 
@@ -123,9 +107,6 @@ make install DESTDIR=%{buildroot} DATADIR=%{_datadir} SYSCONFDIR=%{_sysconfdir}
 
 %files selinux
 # empty metapackage
-
-%files -n  python2-%{name}
-%{python2_sitelib}/%{name}/
 
 %files -n  python3-%{name}
 %{python3_sitelib}/%{name}/client

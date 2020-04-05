@@ -87,10 +87,10 @@ run-tests-unit: FORCE
 	@PYTHONPATH=$(TESTLIBS) nosetests-$(PYVER3) -v -s test/test_common.py
 
 instdeps:
-	sudo dnf install python2-nose python3-gobject pygobject3 python3-nose
+	sudo dnf install python3-gobject pygobject3 python3-nose
 
 get-builddeps:
-	sudo dnf install perl-TimeDate gettext intltool rpmdevtools python2-devel python3-devel python3-nose tito
+	sudo dnf install perl-TimeDate gettext intltool rpmdevtools python3-devel python3-nose tito
 	
 
 build-setup:
