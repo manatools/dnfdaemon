@@ -1,6 +1,5 @@
 %global dnf_org org.baseurl.Dnf
-%global dnf_version 3.0.0
-%global dnf_nocompat 4
+%global dnf_version 4.2.6
 
 Name:           dnfdaemon
 Version:        0.3.19
@@ -30,7 +29,6 @@ Requires:       python3-gobject
 %endif
 Requires:       python3-dbus
 Requires:       python3-dnf >= %{dnf_version}
-Conflicts:      python3-dnf >= %{dnf_nocompat}
 
 Requires:       polkit
 
