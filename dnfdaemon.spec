@@ -2,7 +2,7 @@
 %global dnf_version 4.2.6
 
 Name:           dnfdaemon
-Version:        0.3.19
+Version:        0.3.20
 Release:        1%{?dist}
 Summary:        DBus daemon for dnf package actions
 
@@ -132,6 +132,16 @@ fi
 
 
 %changelog
+* Sat Apr 04 2020 Neal Gompa <ngompa13@gmail.com> 0.3.20-1
+- Drop Python 2 support
+- Handle removal of dnf.repo._md_expire_cache() in DNF 3.4
+- Handle additional DNF transaction callback actions in DNF 3
+- check_lock: treat 'locked by other' differently to 'not locked'
+- Imported code from "dnf clean metadata" command
+- Fix GetRepo crash for Attribute error
+- Fix size of number of downloaded bytes to handle huge transactions
+- Raise minimum version to DNF 4.2.6
+
 * Sat Jun 23 2018 Daniel Mach <dmach@redhat.com> 0.3.19-1
 - Require dnf-3.0.0 due to history and transaction changes.
 
