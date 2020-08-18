@@ -51,6 +51,17 @@ class DnfBase(dnf.Base):
         super(DnfBase, self).__init__()
         self.parent = parent
         self.md_progress = MDProgress(parent)
+
+        try:
+            self.init_plugins()
+        except RuntimeError as err:
+            logger.info("Failed to init plugins: %s", err)
+        else:
+            logger.debug("pre_configure plugins...")
+            self.pre_configure_plugins()
+            logger.debug("configure plugins...")
+            self.configure_plugins()
+
         RELEASEVER = dnf.rpm.detect_releasever(self.conf.installroot)
         self.conf.substitutions['releasever'] = RELEASEVER
         self.conf.read()  # read the dnf.conf
