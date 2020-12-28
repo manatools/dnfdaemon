@@ -297,7 +297,7 @@ class DnfDaemon(dnfdaemon.server.DnfDaemonBase):
                          out_signature='s',
                          sender_keyword='sender')
     def HistoryUndo(self, tid, sender=None):
-        """Get packages from a given yum history transaction id.
+        """Undo history from a given yum history transaction id.
 
         tid: history transaction id
         """
