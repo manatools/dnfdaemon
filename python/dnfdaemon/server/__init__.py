@@ -716,6 +716,8 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
             else:
                 result = (True, ['Undoing transaction %u' % (old.tid,)])
         value = json.dumps(result)
+        if(result[0]):
+            value = self.build_transaction()
         return value
 
     def get_history_transaction_pkgs(self, tid):
