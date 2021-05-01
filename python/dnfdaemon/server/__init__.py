@@ -1061,11 +1061,10 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
 
     def _get_id(self, pkg):
         """Get a package id from a given package."""
-        values = [pkg.name, str(pkg.epoch), pkg.version, pkg.release, pkg.arch]
         if callable(pkg.ui_from_repo):
-            values.append(pkg.ui_from_repo())
+            values = [pkg.name, str(pkg.epoch), pkg.version, pkg.release, pkg.arch, pkg.ui_from_repo()]
         else:
-            values.append(pkg.ui_from_repo)
+        values = [pkg.name, str(pkg.epoch), pkg.version, pkg.release, pkg.arch, pkg.ui_from_repo]
         return ",".join(values)
 
     def _get_action(self, po):
