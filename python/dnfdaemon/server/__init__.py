@@ -387,6 +387,20 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
             value = [self._get_po_list(po, attrs) for po in pkgs]
         return json.dumps(value)
 
+    @Logger
+    def get_packages_ndsg(self, pkg_filter):
+        """Get packages and attribute values based on a filter.
+
+        :param pkg_filter: pkg pkg_filter string ('installed','updates' etc)
+        :param attrs: list of attributes to get.
+        """
+        value = []
+        if pkg_filter in ['installed', 'available', 'updates', 'obsoletes',
+                          'recent', 'extras', 'updates_all']:
+            pkgs = getattr(self.base.packages, pkg_filter)
+            value = [[self._get_id(po), po.summary, po.size, po.group] for po in pkgs]
+        return json.dumps(value)
+
     def get_attribute(self, id, attr):
         """Get package attribute.
 
