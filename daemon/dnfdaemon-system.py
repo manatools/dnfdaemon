@@ -235,7 +235,10 @@ class DnfDaemon(dnfdaemon.server.DnfDaemonBase):
         :param sender:
         """
         self.working_start(sender, write=False)
-        value = self.get_packages(pkg_filter, fields)
+        if fields ==  ['summary', 'size', 'group']:
+            value = self.get_packages_ndsg(pkg_filter)
+        else:
+            value = self.get_packages(pkg_filter, fields)
         return self.working_ended(value)
 
     @Logger
