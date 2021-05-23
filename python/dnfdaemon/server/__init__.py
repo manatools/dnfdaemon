@@ -1078,7 +1078,7 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
         if callable(pkg.ui_from_repo):
             values = [pkg.name, str(pkg.epoch), pkg.version, pkg.release, pkg.arch, pkg.ui_from_repo()]
         else:
-        values = [pkg.name, str(pkg.epoch), pkg.version, pkg.release, pkg.arch, pkg.ui_from_repo]
+            values = [pkg.name, str(pkg.epoch), pkg.version, pkg.release, pkg.arch, pkg.ui_from_repo]
         return ",".join(values)
 
     def _get_action(self, po):
