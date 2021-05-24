@@ -39,6 +39,7 @@ import dnf.transaction
 import dnf.yum
 import functools
 import hawkey
+import libdnf
 import json
 import logging
 import operator
@@ -853,7 +854,7 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
         out_list = []
         sublist = []
         tx_list = {}
-        for t in ('downgrade', 'remove', 'install', 'reinstall', 'update'):
+        for t in ('downgrade', 'remove', 'install', 'install_weak', 'reinstall', 'update'):
             tx_list[t] = []
 
         replaces = {}
@@ -872,7 +873,10 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
                 elif tsi.action == dnf.transaction.PKG_ERASE:
                     tx_list['remove'].append(tsi)
                 elif tsi.action == dnf.transaction.PKG_INSTALL:
-                    tx_list['install'].append(tsi)
+                    if tsi.reason == libdnf.transaction.TransactionItemReason_WEAK_DEPENDENCY:
+                        tx_list['install_weak'].append(tsi)
+                    else:
+                        tx_list['install'].append(tsi)
                 elif tsi.action == dnf.transaction.PKG_REINSTALL:
                     tx_list['reinstall'].append(tsi)
                 elif tsi.action == dnf.transaction.PKG_UPGRADE:
@@ -880,6 +884,7 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
         # build action tree
         for (action, pkglist) in [
             ('install', tx_list['install']),
+            ('install_weak', tx_list['install_weak']),
             ('update', tx_list['update']),
             ('remove', tx_list['remove']),
             ('reinstall', tx_list['reinstall']),
@@ -1078,7 +1083,7 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
         if callable(pkg.ui_from_repo):
             values = [pkg.name, str(pkg.epoch), pkg.version, pkg.release, pkg.arch, pkg.ui_from_repo()]
         else:
-        values = [pkg.name, str(pkg.epoch), pkg.version, pkg.release, pkg.arch, pkg.ui_from_repo]
+            values = [pkg.name, str(pkg.epoch), pkg.version, pkg.release, pkg.arch, pkg.ui_from_repo]
         return ",".join(values)
 
     def _get_action(self, po):
