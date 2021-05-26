@@ -3,15 +3,15 @@ dnf-daemon
 
 dnf-daemon is a 2 DBus services there make part for dnf's API available for application via DBus calls.
 
-There is a DBus session bus service runnning as current user for performing readonly actions.
+There is a DBus session bus service running as current user for performing readonly actions.
 
-There is a DBus system bus service runnning as root for performing actions there is making changes to the system
+There is a DBus system bus service running as root for performing actions there is making changes to the system
 
-This make it easy to do packaging action from your application no matter what language it is written in, as long as there
+This makes it easy to do packaging action from your application no matter what language it is written in, as long as there
 is DBus binding for it.
 
 dnf-daemon uses PolicyKit for authentication for the system service, so when you call one of the commands (as normal users) you will get a  
-PolicyKit dialog to ask for password of a priviledged user like root.
+PolicyKit dialog to ask for password of a privileged user like root.
 
 **dnf-daemon is still under heavy development and the API is not stable or complete yet**
 
