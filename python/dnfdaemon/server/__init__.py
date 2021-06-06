@@ -854,7 +854,7 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
         out_list = []
         sublist = []
         tx_list = {}
-        for t in ('downgrade', 'remove', 'install', 'install_weak', 'reinstall', 'update'):
+        for t in ('downgrade', 'remove', 'install', 'weak-deps', 'reinstall', 'update'):
             tx_list[t] = []
 
         replaces = {}
@@ -874,7 +874,7 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
                     tx_list['remove'].append(tsi)
                 elif tsi.action == dnf.transaction.PKG_INSTALL:
                     if tsi.reason == libdnf.transaction.TransactionItemReason_WEAK_DEPENDENCY:
-                        tx_list['install_weak'].append(tsi)
+                        tx_list['weak-deps'].append(tsi)
                     else:
                         tx_list['install'].append(tsi)
                 elif tsi.action == dnf.transaction.PKG_REINSTALL:
@@ -884,7 +884,7 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
         # build action tree
         for (action, pkglist) in [
             ('install', tx_list['install']),
-            ('install_weak', tx_list['install_weak']),
+            ('weak-deps', tx_list['weak-deps']),
             ('update', tx_list['update']),
             ('remove', tx_list['remove']),
             ('reinstall', tx_list['reinstall']),
