@@ -9,7 +9,7 @@ ORG_RO_NAME = org.baseurl.DnfSession
 SUBDIRS = python
 VERSION=$(shell awk '/Version:/ { print $$2 }' ${PKGNAME}.spec)
 TESTLIBS=python/:test/
-PYVER3 := $(shell python3 -c 'import sys; print("%.3s" %(sys.version))')
+PYVER3 := $(shell python3 -c 'import sys; print(f"{sys.version_info.major}.{sys.version_info.minor}")')
 GITDATE=git$(shell date +%Y%m%d)
 VER_REGEX=\(^Version:\s*[0-9]*\.[0-9]*\.\)\(.*\)
 BUMPED_MINOR=${shell VN=`cat ${APPNAME}.spec | grep Version| sed  's/${VER_REGEX}/\2/'`; echo $$(($$VN + 1))}

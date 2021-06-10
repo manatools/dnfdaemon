@@ -1,7 +1,7 @@
 PYTHON3=python3
 PACKAGE = dnfdaemon/client
 PYFILES = $(wildcard *.py)
-PYVER3 := $(shell $(PYTHON3) -c 'import sys; print("%.3s" %(sys.version))')
+PYVER3 := $(shell $(PYTHON3) -c 'import sys; print(f"{sys.version_info.major}.{sys.version_info.minor}")')
 PYSYSDIR3 := $(shell $(PYTHON3) -c 'import sys; print(sys.prefix)')
 PYLIBDIR3 = $(PYSYSDIR3)/lib/python$(PYVER3)
 PKGDIR3 = $(PYLIBDIR3)/site-packages/$(PACKAGE)
