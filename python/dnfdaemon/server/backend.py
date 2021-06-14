@@ -38,6 +38,7 @@ import logging
 import sys
 import re
 import os
+import libdnf.transaction
 
 logger = logging.getLogger('dnfdaemon.base.dnf')
 
@@ -368,12 +369,14 @@ class Packages:
             return pkgs
         # return install/upgrade type pkgs from transaction
         for tsi in self._base.transaction:
-            #print(tsi.op_type, tsi.installed, tsi.erased, tsi.obsoleted)
+            logger.debug(f" --> {tsi.action_name} : {tsi} action: {tsi.action} reason: {tsi.reason}")
             if tsi.action == dnf.transaction.PKG_UPGRADE:
                 pkgs.append(tsi.pkg)
             elif tsi.action == dnf.transaction.PKG_INSTALL:
-                # action is INSTALL, then it should be a installonlypkg
-                pkgs.append(tsi.pkg)
+                # skip weak dependencies
+                if not tsi.reason == libdnf.transaction.TransactionItemReason_WEAK_DEPENDENCY:
+                    # action is INSTALL, then it should be a installonlypkg
+                    pkgs.append(tsi.pkg)
         return pkgs
 
     @property
