@@ -72,38 +72,38 @@ class DnfBase(dnf.Base):
         self._packages = None
 
     def _tree(self, dirpath):
-      """Traverse dirpath recursively and yield relative filenames."""
-      for root, dirs, files in os.walk(dirpath):
-          base = os.path.relpath(root, dirpath)
-          for f in files:
-              path = os.path.join(base, f)
-              yield os.path.normpath(path)
+        """Traverse dirpath recursively and yield relative filenames."""
+        for root, dirs, files in os.walk(dirpath):
+            base = os.path.relpath(root, dirpath)
+            for f in files:
+                path = os.path.join(base, f)
+                yield os.path.normpath(path)
 
     def _filter(self, files, patterns):
-      """Yield those filenames that match any of the patterns."""
-      return (f for f in files for p in patterns if re.match(p, f))
+        """Yield those filenames that match any of the patterns."""
+        return (f for f in files for p in patterns if re.match(p, f))
 
     def _clean(self, dirpath, files):
-      """Remove the given filenames from dirpath."""
-      count = 0
-      for f in files:
-          path = os.path.join(dirpath, f)
-          logger.debug(_('Removing file %s'), path)
-          misc.unlink_f(path)
-          count += 1
-      return count
+        """Remove the given filenames from dirpath."""
+        count = 0
+        for f in files:
+            path = os.path.join(dirpath, f)
+            logger.debug(_('Removing file %s'), path)
+            misc.unlink_f(path)
+            count += 1
+        return count
 
     def _removeCacheFiles(self):
-      ''' Remove solv and xml files '''
-      cachedir =  self.conf.cachedir
+        ''' Remove solv and xml files '''
+        cachedir = self.conf.cachedir
 
-      types = [ 'metadata', 'packages',  'dbcache' ]
-      files = list(self._tree(cachedir))
-      logger.debug(_('Cleaning data: ' + ' '.join(types)))
+        types = ['metadata', 'packages', 'dbcache']
+        files = list(self._tree(cachedir))
+        logger.debug(_('Cleaning data: ' + ' '.join(types)))
 
-      patterns = [dnf.repo.CACHE_FILES[t] for t in types]
-      count = self._clean(cachedir, self. _filter(files, patterns))
-      logger.info( '%d file removed', count)
+        patterns = [dnf.repo.CACHE_FILES[t] for t in types]
+        count = self._clean(cachedir, self._filter(files, patterns))
+        logger.info('%d file removed', count)
 
     def expire_cache(self):
         """Make the current cache expire"""
@@ -164,12 +164,12 @@ class DnfBase(dnf.Base):
         else:
             return self.sack.query().filter(**fdict)
 
-###############################################################################
-# code copied from dnf for non public API related
-#
-# FIXME: this is copied from dnf/base.py, because there is no public
-#        API to handle gpg signatures.
-###############################################################################
+    ###############################################################################
+    # code copied from dnf for non public API related
+    #
+    # FIXME: this is copied from dnf/base.py, because there is no public
+    #        API to handle gpg signatures.
+    ###############################################################################
     def _sig_check_pkg(self, po):
         """Verify the GPG signature of the given package object.
 
@@ -250,7 +250,7 @@ class DnfBase(dnf.Base):
         def _prov_key_data(msg):
             msg += _('Failing package is: %s') % (po) + '\n '
             msg += _('GPG Keys are configured as: %s') % \
-                    (', '.join(repo.gpgkey) + '\n')
+                   (', '.join(repo.gpgkey) + '\n')
             return '\n\n\n' + msg
 
         user_cb_fail = False
@@ -373,10 +373,12 @@ class Packages:
             if tsi.action == dnf.transaction.PKG_UPGRADE:
                 pkgs.append(tsi.pkg)
             elif tsi.action == dnf.transaction.PKG_INSTALL:
-                # skip weak dependencies
-                if not tsi.reason == libdnf.transaction.TransactionItemReason_WEAK_DEPENDENCY:
-                    # action is INSTALL, then it should be a installonlypkg
-                    pkgs.append(tsi.pkg)
+                # action is INSTALL, then it should be a installonlypkg
+                # skip dependencies (direct & real)
+                if tsi.reason == libdnf.transaction.TransactionItemReason_WEAK_DEPENDENCY or \
+                        tsi.reason == libdnf.transaction.TransactionItemReason_DEPENDENCY:
+                    continue
+                pkgs.append(tsi.pkg)
         return pkgs
 
     @property
