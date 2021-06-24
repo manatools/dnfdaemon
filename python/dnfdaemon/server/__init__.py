@@ -252,8 +252,13 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
             cat = (category.name, category.ui_name, category.ui_description)
             cat_grps = []
             for grp in category.groups_iter():
-                # FIXME: dnf API dont tell up if a group is installed
-                installed = False
+                # FIXME: dnf.base.history is not public API
+                # this is how dnf cli does it in dnf group list
+                group_found = self.base.history.group.get(grp.id)
+                if group_found:
+                    installed = True
+                else:
+                    installed = False
                 elem = (grp.id, grp.ui_name,
                         grp.ui_description, installed)
                 cat_grps.append(elem)
