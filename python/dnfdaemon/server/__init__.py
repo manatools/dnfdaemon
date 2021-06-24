@@ -457,7 +457,7 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
             grp = self._find_group(cmd)
             if grp:
                 try:
-                    self.base.group_install(grp, pkg_types)
+                    self.base.group_install(grp.id, pkg_types)
                 except dnf.exceptions.CompsError as e:
                     return json.dumps((False, str(e)))
         value = self.build_transaction()
@@ -470,7 +470,7 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
             grp = self._find_group(cmd)
             if grp:
                 try:
-                    self.base.group_remove(grp)
+                    self.base.group_remove(grp.id)
                 except dnf.exceptions.CompsError as e:
                     return json.dumps((False, str(e)))
         value = self.build_transaction()
