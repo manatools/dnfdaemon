@@ -251,14 +251,12 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
         for category in self.base.comps.categories_iter():
             cat = (category.name, category.ui_name, category.ui_description)
             cat_grps = []
-            for obj in category.group_ids:
-                # get the dnf group obj
-                grp = self.base.comps.group_by_pattern(obj.name)
-                if grp:
-                    installed = True  # if grp is not None, it's installed
-                    elem = (grp.id, grp.ui_name,
-                            grp.ui_description, installed)
-                    cat_grps.append(elem)
+            for grp in category.groups_iter():
+                # FIXME: dnf API dont tell up if a group is installed
+                installed = False
+                elem = (grp.id, grp.ui_name,
+                        grp.ui_description, installed)
+                cat_grps.append(elem)
             cat_grps.sort()
             all_groups.append((cat, cat_grps))
         all_groups.sort()
