@@ -485,7 +485,12 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
         """Install packages from pkg-specs."""
         value = 0
         local_rpms = []
+        # cmds can contain paths with escaped spaces
+        if '\\ ' in cmds:
+            cmds = cmds.replace('\\ ', '#')  # replace escaped spaces
         for cmd in cmds.split(' '):
+            if "#" in cmd:
+                cmd = cmd.replace('#', ' ')  # insert spaces again without '\\'
             if cmd.endswith('.rpm'):  # install local .rpm
                 local_rpms.append(cmd)
             else:
