@@ -313,7 +313,6 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
           'enablegroups'         ,
           'exclude'              ,
           'excludepkgs'          ,
-          'failovermethod'       ,
           'fastestmirror'        ,
           'gpgcheck'             ,
           'gpgkey'               ,
