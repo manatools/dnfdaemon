@@ -346,8 +346,14 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
         value = json.dumps(None)
         repo = self.base.repos.get(repo_id, None)  # get the repo object
         if repo:
-            # VectorString is not JSON serializable let's convert to list
-            repo_conf = dict([(c, getattr(repo, c) if 'VectorString' not in str(type(getattr(repo, c))) else list(getattr(repo, c))) for c in optionKeys])
+            repo_conf = {}
+            for c in optionKeys:
+                if hasattr(repo,c):
+                    value = getattr(repo, c)
+                    # VectorString is not JSON serializable let's convert to list
+                    if 'VectorString' in str(type(value)):
+                        value = list(value)
+                    repo_conf[c] = value
 
             enab = repo.enabled
             if not enab:
