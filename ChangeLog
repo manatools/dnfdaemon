@@ -1,3 +1,15 @@
+2022-10-05 Angelo Naselli <anaselli@linux.it>
+- Release 0.3.21
+- Don't return dependencies and weak dependencies in updates
+- Make GetRepo handling missing repo options without breaking
+- Removed "failovermethod" repo option that does not exist in dnf anymore
+- Added a workaround for rpm path with escaped spaces
+- dnf group_install & group_remove need the grp.ig, not the dnf.comps.Group object
+- Added a specific function for get_packages using "standard fields" such as decription, size and group to speed up GetPackages
+- Improved time spent in _get_id.
+- build transaction in history_undo
+- Fixed 'dnf.history' has no attribute 'open_history'
+
 2020-04-04  Neal Gompa <ngompa13@gmail.com>
 
 	* dnfdaemon.spec: Bump spec for 0.3.20 release

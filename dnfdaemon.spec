@@ -2,7 +2,7 @@
 %global dnf_version 4.2.6
 
 Name:           dnfdaemon
-Version:        0.3.20
+Version:        0.3.21
 Release:        1%{?dist}
 Summary:        DBus daemon for dnf package actions
 
@@ -132,6 +132,18 @@ fi
 
 
 %changelog
+* Wed Oct 2022 Angelo Naselli <anaselli@linux.it> 0.3.21-1
+- Don't return dependencies and weak dependencies in updates
+- Make GetRepo handling missing repo options without breaking
+- Removed "failovermethod" repo option that does not exist in dnf anymore
+- Added a workaround for rpm path with escaped spaces
+- dnf group_install & group_remove need the grp.ig, not the dnf.comps.Group object
+- Added a specific function for get_packages using "standard fields" such
+  as decription, size and group to speed up GetPackages
+- Improved time spent in _get_id.
+- Built transaction in history_undo
+- Fixed 'dnf.history' has no attribute 'open_history'
+
 * Sat Apr 04 2020 Neal Gompa <ngompa13@gmail.com> 0.3.20-1
 - Drop Python 2 support
 - Handle removal of dnf.repo._md_expire_cache() in DNF 3.4
