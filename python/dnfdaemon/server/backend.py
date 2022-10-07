@@ -65,6 +65,7 @@ class DnfBase(dnf.Base):
 
         RELEASEVER = dnf.rpm.detect_releasever(self.conf.installroot)
         self.conf.substitutions['releasever'] = RELEASEVER
+        self.conf.substitutions.update_from_etc(self.conf.installroot)
         self.conf.read()  # read the dnf.conf
         self.read_all_repos()
         self.progress = Progress(parent)
