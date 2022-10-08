@@ -2,7 +2,7 @@
 %global dnf_version 4.2.6
 
 Name:           dnfdaemon
-Version:        0.3.21
+Version:        0.3.22
 Release:        1%{?dist}
 Summary:        DBus daemon for dnf package actions
 
@@ -132,7 +132,12 @@ fi
 
 
 %changelog
-* Wed Oct 2022 Angelo Naselli <anaselli@linux.it> 0.3.21-1
+* Sat Oct 08 2022 Angelo Naselli <anaselli@linux.it> 0.3.22-1
+- Fedora remixes may have release number which doesn't match the Fedora one.
+  Repo URLs contain Fedora's releasever. To solve this issue has been added a 
+  reading of a user-defined variables values from dnf variable directorie.
+
+* Wed Oct 05 2022 Angelo Naselli <anaselli@linux.it> 0.3.21-1
 - Don't return dependencies and weak dependencies in updates
 - Make GetRepo handling missing repo options without breaking
 - Removed "failovermethod" repo option that does not exist in dnf anymore

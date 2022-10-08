@@ -1,3 +1,9 @@
+2022-10-08 Angelo Naselli <anaselli@linux.it>
+- Release 0.3.22
+- Fedora remixes may have release number which doesn't match the Fedora one.
+  Repo URLs contain Fedora's releasever. To solve this issue has been added a
+  reading of a user-defined variables values from dnf variable directorie.
+
 2022-10-05 Angelo Naselli <anaselli@linux.it>
 - Release 0.3.21
 - Don't return dependencies and weak dependencies in updates
