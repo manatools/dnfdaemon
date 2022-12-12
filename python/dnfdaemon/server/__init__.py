@@ -39,6 +39,7 @@ import dnf.transaction
 import dnf.yum
 import functools
 import hawkey
+import libdnf
 import json
 import logging
 import operator
@@ -866,7 +867,7 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
         out_list = []
         sublist = []
         tx_list = {}
-        for t in ('downgrade', 'remove', 'install', 'reinstall', 'update'):
+        for t in ('downgrade', 'remove', 'install', 'weak-deps', 'reinstall', 'update'):
             tx_list[t] = []
 
         replaces = {}
@@ -885,7 +886,10 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
                 elif tsi.action == dnf.transaction.PKG_ERASE:
                     tx_list['remove'].append(tsi)
                 elif tsi.action == dnf.transaction.PKG_INSTALL:
-                    tx_list['install'].append(tsi)
+                    if tsi.reason == libdnf.transaction.TransactionItemReason_WEAK_DEPENDENCY:
+                        tx_list['weak-deps'].append(tsi)
+                    else:
+                        tx_list['install'].append(tsi)
                 elif tsi.action == dnf.transaction.PKG_REINSTALL:
                     tx_list['reinstall'].append(tsi)
                 elif tsi.action == dnf.transaction.PKG_UPGRADE:
@@ -893,6 +897,7 @@ class DnfDaemonBase(dbus.service.Object, DownloadCallback):
         # build action tree
         for (action, pkglist) in [
             ('install', tx_list['install']),
+            ('weak-deps', tx_list['weak-deps']),
             ('update', tx_list['update']),
             ('remove', tx_list['remove']),
             ('reinstall', tx_list['reinstall']),
