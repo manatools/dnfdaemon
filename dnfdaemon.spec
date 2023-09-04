@@ -48,6 +48,9 @@ Requires:       %{name} = %{version}-%{release}
 %if 0%{?fedora} >= 23 || 0%{?mageia} >= 6
 Requires(post):     policycoreutils-python-utils
 Requires(postun):   policycoreutils-python-utils
+%elseif 0%{?rhel} >= 8
+Requires(post):     policycoreutils-python3
+Requires(postun):   policycoreutils-python3
 %else
 Requires(post):     policycoreutils-python
 Requires(postun):   policycoreutils-python
