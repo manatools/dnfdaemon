@@ -47,3 +47,4 @@ test/pkgs/repo
 /test/pkgs/dnf-daemon-test.repo
 *~
 build/
+/.idea/
