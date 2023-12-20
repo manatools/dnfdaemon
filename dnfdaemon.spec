@@ -45,10 +45,10 @@ Summary:        SELinux integration for dnfdaemon
 
 Requires:       %{name} = %{version}-%{release}
 
-%if 0%{?fedora} >= 23 || 0%{?mageia} >= 6
+%if 0%{?fedora} >= 23 || 0%{?mageia} >= 6 || 0%{?rhel} >= 9
 Requires(post):     policycoreutils-python-utils
 Requires(postun):   policycoreutils-python-utils
-%elseif 0%{?rhel} >= 8
+%elseif 0%{?rhel} == 8
 Requires(post):     policycoreutils-python3
 Requires(postun):   policycoreutils-python3
 %else
