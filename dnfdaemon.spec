@@ -45,14 +45,18 @@ Summary:        SELinux integration for dnfdaemon
 
 Requires:       %{name} = %{version}-%{release}
 
-%if 0%{?fedora} >= 23 || 0%{?mageia} >= 6
+%if 0%{?fedora} >= 23 || 0%{?mageia} >= 6 || 0%{?rhel} >= 9
 Requires(post):     policycoreutils-python-utils
 Requires(postun):   policycoreutils-python-utils
+%else
+%if 0%{?rhel} == 8
+Requires(post):     policycoreutils-python3
+Requires(postun):   policycoreutils-python3
 %else
 Requires(post):     policycoreutils-python
 Requires(postun):   policycoreutils-python
 %endif
-
+%endif
 # Use boolean weak reverse dependencies
 # http://rpm.org/user_doc/dependencies.html#weak-dependencies
 # http://rpm.org/user_doc/boolean_dependencies.html
